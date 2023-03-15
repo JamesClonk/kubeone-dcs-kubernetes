@@ -14,7 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-# VMware Cloud Director provider configuration
+# vCloud Director provider configuration
+variable "vcd_url" {
+  description = "URL of the vCloud Director setup"
+  default     = "https://vcd-pod-bravo.swisscomcloud.com/api"
+  type        = string
+}
+
+# VMware Cloud Director credentials
+variable "vcd_user" {
+  description = "Username for the VMware Cloud Director access"
+  type        = string
+}
+variable "vcd_password" {
+  description = "Password for the VMware Cloud Director access"
+  type        = string
+}
+
+# VMware Cloud Director tenant configuration
 variable "vcd_org_name" {
   description = "Organization name for the VMware Cloud Director setup"
   type        = string
@@ -39,6 +56,7 @@ variable "allow_insecure" {
 # Cluster specific configuration
 variable "cluster_name" {
   description = "Name of the cluster"
+  default     = "KubeOne"
   type        = string
 
   validation {
@@ -47,21 +65,9 @@ variable "cluster_name" {
   }
 }
 
-variable "apiserver_alternative_names" {
-  description = "Subject alternative names for the API Server signing certificate"
-  default     = []
-  type        = list(string)
-}
-
-variable "kubeapi_hostname" {
-  description = "DNS name for the kube-apiserver"
-  default     = ""
-  type        = string
-}
-
 variable "ssh_public_key_file" {
   description = "SSH public key file"
-  default     = "~/.ssh/id_rsa.pub"
+  default     = "../ssh_key_id_rsa.pub"
   type        = string
 }
 
@@ -79,7 +85,7 @@ variable "ssh_username" {
 
 variable "ssh_private_key_file" {
   description = "SSH private key file used to access instances"
-  default     = ""
+  default     = "ssh_key_id_rsa"
   type        = string
 }
 
@@ -103,11 +109,13 @@ variable "bastion_host_key" {
 
 variable "catalog_name" {
   description = "Name of catalog that contains vApp templates"
+  default     = "KubeOne"
   type        = string
 }
 
 variable "template_name" {
   description = "Name of the vApp template to use"
+  default     = "Ubuntu 20.04 Server"
   type        = string
 }
 
@@ -137,13 +145,13 @@ variable "control_plane_cpu_cores" {
 
 variable "control_plane_disk_size" {
   description = "Disk size in MB"
-  default     = 25600 # 24 GiB
+  default     = 51200
   type        = number
 }
 
 variable "control_plane_disk_storage_profile" {
   description = "Name of storage profile to use for disks"
-  default     = ""
+  default     = "Ultra Fast Storage B with Backup"
   type        = string
 }
 
@@ -166,7 +174,7 @@ variable "gateway_ip" {
 
 variable "dhcp_start_address" {
   description = "Starting address for the DHCP IP Pool range"
-  default     = "192.168.1.2"
+  default     = "192.168.1.50"
   type        = string
 
   validation {
@@ -177,7 +185,7 @@ variable "dhcp_start_address" {
 
 variable "dhcp_end_address" {
   description = "Last address for the DHCP IP Pool range"
-  default     = "192.168.1.50"
+  default     = "192.168.1.150"
   type        = string
   validation {
     condition     = can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.dhcp_end_address))
@@ -187,7 +195,7 @@ variable "dhcp_end_address" {
 
 variable "network_dns_server_1" {
   description = "Primary DNS server for the routed network"
-  default     = ""
+  default     = "1.1.1.1"
   type        = string
   validation {
     condition     = length(var.network_dns_server_1) == 0 || can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.network_dns_server_1))
@@ -197,7 +205,7 @@ variable "network_dns_server_1" {
 
 variable "network_dns_server_2" {
   description = "Secondary DNS server for the routed network."
-  default     = ""
+  default     = "8.8.8.8"
   type        = string
   validation {
     condition     = length(var.network_dns_server_2) == 0 || can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.network_dns_server_2))
@@ -231,13 +239,13 @@ variable "initial_machinedeployment_replicas" {
 }
 
 variable "cluster_autoscaler_min_replicas" {
-  default     = 0
+  default     = 2
   description = "minimum number of replicas per MachineDeployment (requires cluster-autoscaler)"
   type        = number
 }
 
 variable "cluster_autoscaler_max_replicas" {
-  default     = 0
+  default     = 5
   description = "maximum number of replicas per MachineDeployment (requires cluster-autoscaler)"
   type        = number
 }
@@ -257,13 +265,13 @@ variable "worker_os" {
 }
 variable "worker_memory" {
   description = "Memory size of each worker VM in MB"
-  default     = 4096
+  default     = 8192
   type        = number
 }
 
 variable "worker_cpus" {
   description = "Number of CPUs for the worker VMs"
-  default     = 2
+  default     = 4
   type        = number
 }
 
@@ -275,13 +283,13 @@ variable "worker_cpu_cores" {
 
 variable "worker_disk_size_gb" {
   description = "Disk size for worker VMs in GB"
-  default     = 25
+  default     = 50
   type        = number
 }
 
 variable "worker_disk_storage_profile" {
   description = "Name of storage profile to use for worker VMs attached disks"
-  default     = ""
+  default     = "Ultra Fast Storage B"
   type        = string
 }
 

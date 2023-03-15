@@ -9,7 +9,7 @@ OS_IMAGE="ubuntu-20.04-server-cloudimg-amd64.ova"
 CONFIG_FILE="kubeone.yaml"
 CREDENTIALS_FILE="credentials.yaml"
 
-CLUSTER_NAME="kubeone"
+CLUSTER_NAME="KubeOne"
 
 # ======================================================================================================================
 .PHONY: help

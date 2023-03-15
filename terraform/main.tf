@@ -64,7 +64,7 @@ resource "vcd_vapp" "cluster" {
   description = "vApp for ${var.vcd_vdc_name} cluster"
 
   metadata = {
-    provisioner  = "Kubeone"
+    provisioner  = "KubeOne"
     cluster_name = "${var.cluster_name}"
     type         = "Kubernetes Cluster"
   }
@@ -98,7 +98,7 @@ resource "vcd_vapp_vm" "control_plane" {
   computer_name = "${var.cluster_name}-cp-${count.index + 1}"
 
   metadata = {
-    provisioner  = "Kubeone"
+    provisioner  = "KubeOne"
     cluster_name = "${var.cluster_name}"
     role         = "control-plane"
   }
