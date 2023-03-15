@@ -2,6 +2,7 @@
 SHELL := /bin/bash
 
 ROOT_DIR=$(realpath .)
+TERRAFORM_DIR="${ROOT_DIR}/terraform"
 SSH_KEY="${ROOT_DIR}/ssh_key_id_rsa"
 SSH_PUB_KEY="${SSH_KEY}.pub"
 OS_IMAGE="ubuntu-20.04-server-cloudimg-amd64.ova"
@@ -29,5 +30,5 @@ check-env:
 	chmod 640 "${SSH_PUB_KEY}" && chmod 600 "${SSH_KEY}"
 	ssh-add "${SSH_KEY}" || true
 	kubeone version > ${ROOT_DIR}/kubeone.version.json
-	# test -f "${CONFIG_FILE}" || kubeone init --provider vmware-cloud-director --terraform --cluster-name ${CLUSTER_NAME} -c ${CREDENTIALS_FILE}
+	test -f "${TERRAFORM_DIR}/main.tf" || kubeone init --provider vmware-cloud-director --terraform --path ${TERRAFORM_DIR} --cluster-name ${CLUSTER_NAME} -c ${CREDENTIALS_FILE}
 # ======================================================================================================================
