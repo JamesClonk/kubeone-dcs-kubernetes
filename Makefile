@@ -32,3 +32,26 @@ check-env:
 	kubeone version > ${ROOT_DIR}/kubeone.version.json
 	test -f "${TERRAFORM_DIR}/main.tf" || kubeone init --provider vmware-cloud-director --terraform --path ${TERRAFORM_DIR} --cluster-name ${CLUSTER_NAME} -c ${CREDENTIALS_FILE}
 # ======================================================================================================================
+
+# ======================================================================================================================
+.PHONY: terraform
+## terraform: run all infrastructure provisioning steps
+terraform: check-env terraform-init terraform-apply terraform-output
+
+.PHONY: terraform-init
+## terraform-init: initialize terraform
+terraform-init:
+	cd ${TERRAFORM_DIR} && terraform init
+
+.PHONY: terraform-check
+## terraform-check: validate terraform configuration and show plan
+terraform-check:
+	cd ${TERRAFORM_DIR} && \
+		terraform validate && \
+		terraform plan
+
+.PHONY: terraform-refresh
+## terraform-refresh: refresh and view terraform state
+terraform-refresh:
+	cd ${TERRAFORM_DIR} && \
+		terraform refresh
