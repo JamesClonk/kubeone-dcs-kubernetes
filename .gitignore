@@ -5,12 +5,12 @@
 **/.terraform/*
 
 # .tfstate files
-/*.tfstate
-/*.tfstate.*
-/state_backend.tf
+*.tfstate
+*.tfstate.*
+state_backend.tf
 
 # .tfstate directories
-/.tfstate/
+.tfstate/
 
 # Crash log files
 crash.log
@@ -44,6 +44,9 @@ override.tf.json
 
 # unused kubeone config file
 /terraform/kubeone.yaml
+
+# credentials
+credentials.yaml
 
 # OS images
 *.ova
