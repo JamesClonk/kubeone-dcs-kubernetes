@@ -57,3 +57,6 @@ ssh_key_id_rsa.pub
 
 # kubeone tarballs
 *.tar.gz
+
+# exclude terraform output.json (as it might contain sensitive information)
+/terraform/output.json
