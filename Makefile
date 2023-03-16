@@ -106,5 +106,4 @@ kubeone-apply-md:
 ## kubeone-addons: list KubeOne addons
 kubeone-addons:
 	kubeone addons list -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT}
-
 # ======================================================================================================================
