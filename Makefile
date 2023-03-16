@@ -35,7 +35,7 @@ check-env:
 
 # ======================================================================================================================
 .PHONY: terraform
-## terraform: run all infrastructure provisioning steps
+## terraform: provision all infrastructure
 terraform: check-env terraform-init terraform-apply terraform-output
 
 .PHONY: terraform-init
@@ -50,8 +50,26 @@ terraform-check:
 		terraform validate && \
 		terraform plan
 
+.PHONY: terraform-apply
+## terraform-apply: apply terraform configuration and provision infrastructure
+terraform-apply:
+	cd ${TERRAFORM_DIR} && \
+		terraform apply -auto-approve
+
 .PHONY: terraform-refresh
 ## terraform-refresh: refresh and view terraform state
 terraform-refresh:
 	cd ${TERRAFORM_DIR} && \
 		terraform refresh
+
+.PHONY: terraform-output
+## terraform-output: output terraform information into file for kubeone
+terraform-output:
+	cd ${TERRAFORM_DIR} && \
+		terraform output -json > output.json
+
+.PHONY: terraform-destroy
+## kterraform-destroy: delete and cleanup infrastructure
+terraform-destroy:
+	cd ${TERRAFORM_DIR} && \
+		terraform destroy
