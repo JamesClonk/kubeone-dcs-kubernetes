@@ -1,0 +1,202 @@
+{
+  "kubeone_api": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {
+        "apiserver_alternative_names": [
+          "list",
+          "string"
+        ],
+        "endpoint": "string"
+      }
+    ],
+    "value": {
+      "apiserver_alternative_names": [
+        "kubeone-demo.kube-plus.cloud"
+      ],
+      "endpoint": "kubeone-demo.kube-plus.cloud"
+    }
+  },
+  "kubeone_hosts": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {
+        "control_plane": [
+          "object",
+          {
+            "bastion": "string",
+            "bastion_port": "number",
+            "bastion_user": "string",
+            "cloud_provider": "string",
+            "cluster_name": "string",
+            "hostnames": [
+              "tuple",
+              [
+                "string",
+                "string",
+                "string"
+              ]
+            ],
+            "private_address": [
+              "tuple",
+              [
+                "string",
+                "string",
+                "string"
+              ]
+            ],
+            "ssh_agent_socket": "string",
+            "ssh_port": "number",
+            "ssh_private_key_file": "string",
+            "ssh_user": "string",
+            "storage_profile": "string",
+            "vapp_name": "string"
+          }
+        ]
+      }
+    ],
+    "value": {
+      "control_plane": {
+        "bastion": "164.128.161.20",
+        "bastion_port": 22,
+        "bastion_user": "ubuntu",
+        "cloud_provider": "vmwareCloudDirector",
+        "cluster_name": "kubeone",
+        "hostnames": [
+          "kubeone-cp-1",
+          "kubeone-cp-2",
+          "kubeone-cp-3"
+        ],
+        "private_address": [
+          "192.168.1.10",
+          "192.168.1.11",
+          "192.168.1.12"
+        ],
+        "ssh_agent_socket": "env:SSH_AUTH_SOCK",
+        "ssh_port": 22,
+        "ssh_private_key_file": "ssh_key_id_rsa",
+        "ssh_user": "ubuntu",
+        "storage_profile": "",
+        "vapp_name": "kubeone"
+      }
+    }
+  },
+  "kubeone_workers": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {
+        "kubeone-worker-pool": [
+          "object",
+          {
+            "providerSpec": [
+              "object",
+              {
+                "annotations": [
+                  "object",
+                  {
+                    "cluster.k8s.io/cluster-api-autoscaler-node-group-max-size": "string",
+                    "cluster.k8s.io/cluster-api-autoscaler-node-group-min-size": "string",
+                    "k8c.io/operating-system-profile": "string"
+                  }
+                ],
+                "cloudProviderSpec": [
+                  "object",
+                  {
+                    "allowInsecure": "bool",
+                    "catalog": "string",
+                    "cpuCores": "number",
+                    "cpus": "number",
+                    "diskSizeGB": "number",
+                    "ipAllocationMode": "string",
+                    "memoryMB": "number",
+                    "metadata": [
+                      "object",
+                      {
+                        "KubeOneCluster": "string"
+                      }
+                    ],
+                    "network": "string",
+                    "organization": "string",
+                    "storageProfile": "string",
+                    "template": "string",
+                    "vapp": "string",
+                    "vdc": "string"
+                  }
+                ],
+                "machineObjectAnnotations": [
+                  "object",
+                  {
+                    "v1.kubelet-config.machine-controller.kubermatic.io/EvictionHard": "string",
+                    "v1.kubelet-config.machine-controller.kubermatic.io/KubeReserved": "string",
+                    "v1.kubelet-config.machine-controller.kubermatic.io/MaxPods": "string",
+                    "v1.kubelet-config.machine-controller.kubermatic.io/SystemReserved": "string"
+                  }
+                ],
+                "operatingSystem": "string",
+                "operatingSystemSpec": [
+                  "object",
+                  {
+                    "distUpgradeOnBoot": "bool"
+                  }
+                ],
+                "sshPublicKeys": [
+                  "tuple",
+                  [
+                    "string"
+                  ]
+                ]
+              }
+            ],
+            "replicas": "number"
+          }
+        ]
+      }
+    ],
+    "value": {
+      "kubeone-worker-pool": {
+        "providerSpec": {
+          "annotations": {
+            "cluster.k8s.io/cluster-api-autoscaler-node-group-max-size": "5",
+            "cluster.k8s.io/cluster-api-autoscaler-node-group-min-size": "2",
+            "k8c.io/operating-system-profile": ""
+          },
+          "cloudProviderSpec": {
+            "allowInsecure": false,
+            "catalog": "KubeOne",
+            "cpuCores": 1,
+            "cpus": 4,
+            "diskSizeGB": 50,
+            "ipAllocationMode": "DHCP",
+            "memoryMB": 8192,
+            "metadata": {
+              "KubeOneCluster": "kubeone"
+            },
+            "network": "kubeone-routed-network",
+            "organization": "PRO-005019247",
+            "storageProfile": "",
+            "template": "Ubuntu 20.04 Server",
+            "vapp": "kubeone",
+            "vdc": "kubernetes-demo"
+          },
+          "machineObjectAnnotations": {
+            "v1.kubelet-config.machine-controller.kubermatic.io/EvictionHard": "",
+            "v1.kubelet-config.machine-controller.kubermatic.io/KubeReserved": "cpu=200m,memory=300Mi",
+            "v1.kubelet-config.machine-controller.kubermatic.io/MaxPods": "110",
+            "v1.kubelet-config.machine-controller.kubermatic.io/SystemReserved": "cpu=200m,memory=200Mi"
+          },
+          "operatingSystem": "ubuntu",
+          "operatingSystemSpec": {
+            "distUpgradeOnBoot": false
+          },
+          "sshPublicKeys": [
+            "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCipOCiyYaAXFDGY4F6bDuafSBax+iXEID338Mms7movZvv37DVYOktbCx0OyoWoYNXmm1w3s7MqqnEQYtYzB/qNWRkm2dBTRqvw8bMuvEa0srfo5sX/g7EuljsvpKG7rYoZXNk7+7lU7Bx4RRi2K7fKrQ8e30Mi9yjai3QHK5G8NTo0gapzdReb9NiTPofW39G3jm7U2B5gqzpbleUyrxfuNEv6iyayR7UXLcgCeEPH0vAhnXKnPgFSSL0dO8FbDUXvWCZlNmkDG8c18iRSfclHDqG2y9Nw7bd2sQnGM/z3mrAdlVlWgj9Vtx2OC/xGB1dBLwRuukiOT9rDGN/f4U+f2hwXgIr8LWVfKJqYbXf8ICePdw1O+iA9pDqIj7T3CbSumqL4+cmmZhea7Xp7Udy9Bf83Zl0NIibu6oidD/UNCcD9zCkdkHKAY28jZq4qSgHRA31hB25Fk2PpSHDdmGI2IyaGx8V4N92J4f5nYD/CkVDVLxmtcBD+FgXrwzResEJR0ftn9xjjP+SmE8iiW7MwqRil86EOsaQ0Po3vG2x7JTsQJrxwhf2nC2v6dhcaLjTsl6BwOq95+JzRHrniOhXe2sIl4AZRdKwjxADUYU0f7IiH5Ef+BwA8n5jMG0P5fha/S0BQhbhhvwvlb3UZGlirzTjFytdPQ/yz/ouhN+iFQ== tgdbefa3@ULXGWP007\n"
+          ]
+        },
+        "replicas": 2
+      }
+    }
+  }
+}

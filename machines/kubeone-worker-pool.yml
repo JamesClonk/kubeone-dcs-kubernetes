@@ -1,0 +1,68 @@
+apiVersion: cluster.k8s.io/v1alpha1
+kind: MachineDeployment
+metadata:
+  annotations:
+    cluster.k8s.io/cluster-api-autoscaler-node-group-max-size: "5"
+    cluster.k8s.io/cluster-api-autoscaler-node-group-min-size: "2"
+    k8c.io/operating-system-profile: ""
+  creationTimestamp: null
+  name: kubeone-worker-pool
+  namespace: kube-system
+spec:
+  minReadySeconds: 0
+  replicas: 2
+  selector:
+    matchLabels:
+      workerset: kubeone-worker-pool
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        v1.kubelet-config.machine-controller.kubermatic.io/EvictionHard: ""
+        v1.kubelet-config.machine-controller.kubermatic.io/KubeReserved: cpu=200m,memory=300Mi
+        v1.kubelet-config.machine-controller.kubermatic.io/MaxPods: "110"
+        v1.kubelet-config.machine-controller.kubermatic.io/SystemReserved: cpu=200m,memory=200Mi
+      creationTimestamp: null
+      labels:
+        workerset: kubeone-worker-pool
+      namespace: kube-system
+    spec:
+      metadata:
+        creationTimestamp: null
+        labels:
+          workerset: kubeone-worker-pool
+      providerSpec:
+        value:
+          cloudProvider: vmware-cloud-director
+          cloudProviderSpec:
+            allowInsecure: false
+            catalog: KubeOne
+            cpuCores: 1
+            cpus: 4
+            diskSizeGB: 50
+            ipAllocationMode: DHCP
+            memoryMB: 8192
+            metadata:
+              KubeOneCluster: kubeone
+            network: kubeone-routed-network
+            organization: PRO-005019247
+            storageProfile: ""
+            template: Ubuntu 20.04 Server
+            vapp: kubeone
+            vdc: kubernetes-demo
+          operatingSystem: ubuntu
+          operatingSystemSpec:
+            distUpgradeOnBoot: false
+          sshPublicKeys:
+          - |
+            ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCipOCiyYaAXFDGY4F6bDuafSBax+iXEID338Mms7movZvv37DVYOktbCx0OyoWoYNXmm1w3s7MqqnEQYtYzB/qNWRkm2dBTRqvw8bMuvEa0srfo5sX/g7EuljsvpKG7rYoZXNk7+7lU7Bx4RRi2K7fKrQ8e30Mi9yjai3QHK5G8NTo0gapzdReb9NiTPofW39G3jm7U2B5gqzpbleUyrxfuNEv6iyayR7UXLcgCeEPH0vAhnXKnPgFSSL0dO8FbDUXvWCZlNmkDG8c18iRSfclHDqG2y9Nw7bd2sQnGM/z3mrAdlVlWgj9Vtx2OC/xGB1dBLwRuukiOT9rDGN/f4U+f2hwXgIr8LWVfKJqYbXf8ICePdw1O+iA9pDqIj7T3CbSumqL4+cmmZhea7Xp7Udy9Bf83Zl0NIibu6oidD/UNCcD9zCkdkHKAY28jZq4qSgHRA31hB25Fk2PpSHDdmGI2IyaGx8V4N92J4f5nYD/CkVDVLxmtcBD+FgXrwzResEJR0ftn9xjjP+SmE8iiW7MwqRil86EOsaQ0Po3vG2x7JTsQJrxwhf2nC2v6dhcaLjTsl6BwOq95+JzRHrniOhXe2sIl4AZRdKwjxADUYU0f7IiH5Ef+BwA8n5jMG0P5fha/S0BQhbhhvwvlb3UZGlirzTjFytdPQ/yz/ouhN+iFQ== tgdbefa3@ULXGWP007
+      versions:
+        kubelet: 1.25.6
+status: {}
+
+---
+
