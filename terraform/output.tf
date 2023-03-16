@@ -38,8 +38,11 @@ output "kubeone_hosts" {
       ssh_user             = var.ssh_username
       vapp_name            = vcd_vapp.cluster.name
       storage_profile      = var.worker_disk_storage_profile
-      ssh_hosts_keys       = var.ssh_hosts_keys
-      bastion_host_key     = var.bastion_host_key
+      # ssh_hosts_keys       = var.ssh_hosts_keys
+      # bastion_host_key     = var.bastion_host_key
+      bastion      = local.external_network_ip
+      bastion_port = var.ssh_port
+      bastion_user = var.ssh_username
     }
   }
 }
@@ -50,7 +53,7 @@ output "kubeone_workers" {
   value = {
     # following outputs will be parsed by kubeone and automatically merged into
     # corresponding (by name) worker definition
-    "${var.cluster_name}-pool1" = {
+    "${var.cluster_name}-worker-pool" = {
       replicas = var.initial_machinedeployment_replicas
       providerSpec = {
         annotations = {
@@ -70,19 +73,19 @@ output "kubeone_workers" {
         # machineObjectAnnotations are applied on resulting Machine objects
         # uncomment to following to set those kubelet parameters. More into at:
         # https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/
-        # machineObjectAnnotations = {
-        #   "v1.kubelet-config.machine-controller.kubermatic.io/SystemReserved" = "cpu=200m,memory=200Mi"
-        #   "v1.kubelet-config.machine-controller.kubermatic.io/KubeReserved"   = "cpu=200m,memory=300Mi"
-        #   "v1.kubelet-config.machine-controller.kubermatic.io/EvictionHard"   = ""
-        #   "v1.kubelet-config.machine-controller.kubermatic.io/MaxPods"        = "110"
-        # }
+        machineObjectAnnotations = {
+          "v1.kubelet-config.machine-controller.kubermatic.io/SystemReserved" = "cpu=200m,memory=200Mi"
+          "v1.kubelet-config.machine-controller.kubermatic.io/KubeReserved"   = "cpu=200m,memory=300Mi"
+          "v1.kubelet-config.machine-controller.kubermatic.io/EvictionHard"   = ""
+          "v1.kubelet-config.machine-controller.kubermatic.io/MaxPods"        = "110"
+        }
         cloudProviderSpec = {
           # provider specific fields:
           # see example under `cloudProviderSpec` section at:
           # https://github.com/kubermatic/machine-controller/blob/main/examples/vmware-cloud-director-machinedeployment.yaml
           organization   = var.vcd_org_name
           vdc            = var.vcd_vdc_name
-          allowInsecure  = var.allow_insecure
+          allowInsecure  = var.vcd_allow_insecure
           vapp           = vcd_vapp.cluster.name
           catalog        = var.catalog_name
           template       = var.template_name
