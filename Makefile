@@ -10,7 +10,7 @@ OS_IMAGE = ${TERRAFORM_DIR}/ubuntu-20.04-server-cloudimg-amd64.ova
 CLUSTER_NAME = kubeone
 CONFIG_FILE = kubeone.yaml
 CREDENTIALS_FILE = credentials.yaml
-KUBECONFIG_FILE = ${CLUSTER_NAME}-kubeconfig
+KUBECONFIG_FILE = kubeconfig
 
 # ======================================================================================================================
 .PHONY: help
