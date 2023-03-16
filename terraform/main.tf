@@ -48,7 +48,7 @@ data "vcd_edgegateway" "edge_gateway" {
 resource "vcd_edgegateway_settings" "edge_gateway" {
   edge_gateway_id         = data.vcd_edgegateway.edge_gateway.id
   lb_enabled              = true
-  lb_acceleration_enabled = false
+  lb_acceleration_enabled = true
   lb_logging_enabled      = false
 
   fw_enabled                      = true
@@ -73,6 +73,8 @@ resource "vcd_network_routed" "network" {
 
   dns1 = var.network_dns_server_1
   dns2 = var.network_dns_server_2
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
 }
 
 # Dedicated vApp for cluster resources; vms, disks, network, etc.
@@ -262,6 +264,46 @@ resource "vcd_vapp_vm" "control_plane" {
 
 #################################### NAT and Firewall rules ####################################
 
+# Create SNAT rule to access the Internet
+resource "vcd_nsxv_snat" "rule_internet" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+  network_type = "ext"
+  network_name = local.external_network_name
+
+  original_address   = "${var.gateway_ip}/24"
+  translated_address = local.external_network_ip
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
+}
+
+# Create Hairpin SNAT rule
+resource "vcd_nsxv_snat" "rule_internal" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+  network_type = "org"
+  network_name = vcd_network_routed.network.name
+
+  original_address   = "${var.gateway_ip}/24"
+  translated_address = var.gateway_ip
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
+}
+
+# Create DNAT rule to allow SSH from the Internet to bastion host
+resource "vcd_nsxv_dnat" "rule_ssh_bastion" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+  network_type = "ext"
+  network_name = local.external_network_name
+
+  original_address = local.external_network_ip
+  original_port    = 22
+
+  translated_address = vcd_vapp_vm.bastion.network[0].ip
+  translated_port    = 22
+  protocol           = "tcp"
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
+}
+
 # Create the firewall rule to access the Internet
 resource "vcd_nsxv_firewall_rule" "rule_internet" {
   edge_gateway = data.vcd_edgegateway.edge_gateway.name
@@ -280,14 +322,219 @@ resource "vcd_nsxv_firewall_rule" "rule_internet" {
   service {
     protocol = "any"
   }
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
 }
 
-# Create SNAT rule to access the Internet
-resource "vcd_nsxv_snat" "rule_internet" {
+# Create the firewall rule to allow SSH from the Internet
+resource "vcd_nsxv_firewall_rule" "rule_ssh_bastion" {
   edge_gateway = data.vcd_edgegateway.edge_gateway.name
-  network_type = "ext"
-  network_name = local.external_network_name
+  name         = "${var.cluster_name}-firewall-rule-ssh"
 
-  original_address   = "${var.gateway_ip}/24"
-  translated_address = local.external_network_ip
+  action = "accept"
+
+  source {
+    ip_addresses = ["any"]
+  }
+
+  destination {
+    ip_addresses = [local.external_network_ip]
+  }
+
+  service {
+    protocol = "tcp"
+    port     = 22
+  }
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
+}
+
+# Create the firewall rule to allow access to API server
+resource "vcd_nsxv_firewall_rule" "rule_kube_apiserver" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+  name         = "${var.cluster_name}-firewall-rule-kube-apiserver"
+
+  action = "accept"
+
+  source {
+    ip_addresses = ["any"]
+  }
+
+  destination {
+    ip_addresses = [local.external_network_ip]
+  }
+
+  service {
+    protocol = "tcp"
+    port     = 6443
+  }
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
+}
+
+# Create the firewall rule to allow access to nginx ingress
+resource "vcd_nsxv_firewall_rule" "rule_nginx_ingress" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+  name         = "${var.cluster_name}-firewall-rule-nginx-ingress"
+
+  action = "accept"
+
+  source {
+    ip_addresses = ["any"]
+  }
+
+  destination {
+    ip_addresses = [local.external_network_ip]
+  }
+
+  service {
+    protocol = "tcp"
+    port     = 80
+  }
+  service {
+    protocol = "tcp"
+    port     = 443
+  }
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
+}
+
+#################################### Loadbalancer settings ####################################
+resource "vcd_lb_app_profile" "app_profile" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name = "${var.cluster_name}-control-plane"
+  type = "tcp"
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
+}
+
+resource "vcd_lb_service_monitor" "cp_monitor" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name        = "${var.cluster_name}-control-plane-monitor"
+  interval    = 15
+  timeout     = 20
+  max_retries = 5
+  type        = "https"
+  method      = "GET"
+  url         = "/healthz"
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
+}
+
+resource "vcd_lb_server_pool" "control_plane" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name                = "${var.cluster_name}-control-plane"
+  algorithm           = "round-robin"
+  enable_transparency = "true"
+
+  monitor_id = vcd_lb_service_monitor.cp_monitor.id
+
+  dynamic "member" {
+    for_each = vcd_vapp_vm.control_plane
+    content {
+      condition    = "enabled"
+      name         = member.value.name
+      ip_address   = member.value.network[0].ip
+      port         = 6443
+      monitor_port = 6443
+      weight       = 1
+    }
+  }
+}
+
+resource "vcd_lb_virtual_server" "control_plane" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name                = "${var.cluster_name}-control-plane"
+  ip_address          = local.external_network_ip
+  protocol            = "tcp"
+  port                = 6443
+  enable_acceleration = true
+  app_profile_id      = vcd_lb_app_profile.app_profile.id
+  server_pool_id      = vcd_lb_server_pool.control_plane.id
+}
+
+resource "vcd_lb_service_monitor" "ingress" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name        = "${var.cluster_name}-ingress-monitor"
+  interval    = 15
+  timeout     = 20
+  max_retries = 5
+  type        = "tcp"
+  # method      = "GET"
+  # url         = "/healthz"
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
+}
+
+resource "vcd_lb_server_pool" "ingress-http" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name                = "${var.cluster_name}-ingress-http"
+  algorithm           = "round-robin"
+  enable_transparency = "true"
+
+  monitor_id = vcd_lb_service_monitor.ingress.id
+
+  dynamic "member" {
+    for_each = range(0, var.control_plane_vm_count)
+    content {
+      condition    = "enabled"
+      name         = "${var.cluster_name}-control-plane-${member.value + 1}"
+      ip_address   = cidrhost("${var.gateway_ip}/24", 10 + member.value)
+      port         = 30080
+      monitor_port = 30080
+      weight       = 1
+    }
+  }
+}
+
+resource "vcd_lb_virtual_server" "ingress-http" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name                = "${var.cluster_name}-ingress-http"
+  ip_address          = local.external_network_ip
+  protocol            = "tcp"
+  port                = 80
+  enable_acceleration = true
+  app_profile_id      = vcd_lb_app_profile.app_profile.id
+  server_pool_id      = vcd_lb_server_pool.ingress-http.id
+}
+
+resource "vcd_lb_server_pool" "ingress-https" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name                = "${var.cluster_name}-ingress-https"
+  algorithm           = "round-robin"
+  enable_transparency = "true"
+
+  monitor_id = vcd_lb_service_monitor.ingress.id
+
+  dynamic "member" {
+    for_each = range(0, var.control_plane_vm_count)
+    content {
+      condition    = "enabled"
+      name         = "${var.cluster_name}-worker-${member.value + 1}"
+      ip_address   = cidrhost("${var.gateway_ip}/24", 10 + member.value)
+      port         = 30443
+      monitor_port = 30443
+      weight       = 1
+    }
+  }
+}
+
+resource "vcd_lb_virtual_server" "ingress-https" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name                = "${var.cluster_name}-ingress-https"
+  ip_address          = local.external_network_ip
+  protocol            = "tcp"
+  port                = 443
+  enable_acceleration = true
+  app_profile_id      = vcd_lb_app_profile.app_profile.id
+  server_pool_id      = vcd_lb_server_pool.ingress-https.id
 }
