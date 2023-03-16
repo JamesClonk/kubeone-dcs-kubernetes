@@ -47,8 +47,14 @@ variable "vcd_edge_gateway_name" {
   type        = string
 }
 
-variable "allow_insecure" {
-  description = "allow insecure https connection to VMware Cloud Director API"
+variable "vcd_allow_insecure" {
+  description = "Allow insecure https connection to VMware Cloud Director API"
+  default     = false
+  type        = bool
+}
+
+variable "vcd_logging" {
+  description = "Log VMware Cloud Director API activites to go-vcloud-director.log"
   default     = false
   type        = bool
 }
@@ -118,6 +124,13 @@ variable "template_name" {
   default     = "Ubuntu 20.04 Server"
   type        = string
 }
+
+variable "os_image_file" {
+  description = "Filename of the OS image to upload"
+  default     = "ubuntu-20.04-server-cloudimg-amd64.ova"
+  type        = string
+}
+
 
 variable "control_plane_vm_count" {
   description = "number of control plane instances"

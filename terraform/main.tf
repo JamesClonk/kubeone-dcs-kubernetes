@@ -20,9 +20,15 @@ provider "vcd" {
   See https://registry.terraform.io/providers/vmware/vcd/latest/docs#argument-reference
   for config options reference
   */
+  url                  = var.vcd_url
+  auth_type            = "integrated"
+  user                 = var.vcd_user
+  password             = var.vcd_password
   org                  = var.vcd_org_name
   vdc                  = var.vcd_vdc_name
-  allow_unverified_ssl = var.allow_insecure
+  allow_unverified_ssl = var.vcd_allow_insecure
+  max_retry_timeout    = 120
+  logging              = var.vcd_logging
 }
 
 locals {
@@ -36,6 +42,17 @@ locals {
 # Existing edge gateway in VDC
 data "vcd_edgegateway" "edge_gateway" {
   name = var.vcd_edge_gateway_name
+}
+
+# Edge gateway settings
+resource "vcd_edgegateway_settings" "edge_gateway" {
+  edge_gateway_id         = data.vcd_edgegateway.edge_gateway.id
+  lb_enabled              = true
+  lb_acceleration_enabled = false
+  lb_logging_enabled      = false
+
+  fw_enabled                      = true
+  fw_default_rule_logging_enabled = false
 }
 
 # Routed network that will be connected to the edge gateway
@@ -63,10 +80,26 @@ resource "vcd_vapp" "cluster" {
   name        = var.cluster_name
   description = "vApp for ${var.vcd_vdc_name} cluster"
 
-  metadata = {
-    provisioner  = "KubeOne"
-    cluster_name = "${var.cluster_name}"
-    type         = "Kubernetes Cluster"
+  metadata_entry {
+    key         = "provisioner"
+    value       = "KubeOne"
+    type        = "MetadataStringValue"
+    user_access = "READWRITE"
+    is_system   = false
+  }
+  metadata_entry {
+    key         = "cluster_name"
+    value       = var.cluster_name
+    type        = "MetadataStringValue"
+    user_access = "READWRITE"
+    is_system   = false
+  }
+  metadata_entry {
+    key         = "type"
+    value       = "Kubernetes Cluster"
+    type        = "MetadataStringValue"
+    user_access = "READWRITE"
+    is_system   = false
   }
 
   depends_on = [vcd_network_routed.network]
@@ -81,13 +114,82 @@ resource "vcd_vapp_org_network" "network" {
   depends_on = [vcd_vapp.cluster, vcd_network_routed.network]
 }
 
-data "vcd_catalog" "catalog" {
+# OS image catalog
+resource "vcd_catalog" "catalog" {
   name = var.catalog_name
+
+  delete_recursive = "true"
+  delete_force     = "true"
+
+  depends_on = [vcd_vapp.cluster]
 }
 
-data "vcd_catalog_vapp_template" "vapp_template" {
-  catalog_id = data.vcd_catalog.catalog.id
+# upload OS image
+resource "vcd_catalog_vapp_template" "vapp_template" {
+  catalog_id = vcd_catalog.catalog.id
   name       = var.template_name
+
+  ova_path          = var.os_image_file
+  upload_piece_size = 10
+}
+
+# Create VMs for bastion host
+resource "vcd_vapp_vm" "bastion" {
+  vapp_name     = vcd_vapp.cluster.name
+  name          = "${var.cluster_name}-bastion"
+  computer_name = "${var.cluster_name}-bastion"
+
+  metadata_entry {
+    key         = "provisioner"
+    value       = "KubeOne"
+    type        = "MetadataStringValue"
+    user_access = "READWRITE"
+    is_system   = false
+  }
+  metadata_entry {
+    key         = "cluster_name"
+    value       = var.cluster_name
+    type        = "MetadataStringValue"
+    user_access = "READWRITE"
+    is_system   = false
+  }
+  metadata_entry {
+    key         = "role"
+    value       = "bastion"
+    type        = "MetadataStringValue"
+    user_access = "READWRITE"
+    is_system   = false
+  }
+
+  guest_properties = {
+    "instance-id" = "${var.cluster_name}-bastion"
+    "hostname"    = "${var.cluster_name}-bastion"
+    "public-keys" = file(var.ssh_public_key_file)
+  }
+
+  vapp_template_id = data.vcd_catalog_vapp_template.vapp_template.id
+
+  # resource allocation for the VM
+  memory                 = 1024
+  cpus                   = 1
+  cpu_cores              = 1
+  cpu_hot_add_enabled    = true
+  memory_hot_add_enabled = true
+  accept_all_eulas       = true
+  power_on               = true
+
+  # Wait upto 5 minutes for IP addresses to be assigned
+  network_dhcp_wait_seconds = 300
+
+  network {
+    type               = "org"
+    name               = vcd_vapp_org_network.network.org_network_name
+    ip_allocation_mode = "MANUAL"
+    ip                 = cidrhost("${var.gateway_ip}/24", 5)
+    is_primary         = true
+  }
+
+  depends_on = [vcd_vapp_org_network.network]
 }
 
 # Create VMs for control plane
@@ -97,10 +199,26 @@ resource "vcd_vapp_vm" "control_plane" {
   name          = "${var.cluster_name}-cp-${count.index + 1}"
   computer_name = "${var.cluster_name}-cp-${count.index + 1}"
 
-  metadata = {
-    provisioner  = "KubeOne"
-    cluster_name = "${var.cluster_name}"
-    role         = "control-plane"
+  metadata_entry {
+    key         = "provisioner"
+    value       = "KubeOne"
+    type        = "MetadataStringValue"
+    user_access = "READWRITE"
+    is_system   = false
+  }
+  metadata_entry {
+    key         = "cluster_name"
+    value       = var.cluster_name
+    type        = "MetadataStringValue"
+    user_access = "READWRITE"
+    is_system   = false
+  }
+  metadata_entry {
+    key         = "role"
+    value       = "control-plane"
+    type        = "MetadataStringValue"
+    user_access = "READWRITE"
+    is_system   = false
   }
 
   guest_properties = {
@@ -115,8 +233,10 @@ resource "vcd_vapp_vm" "control_plane" {
   memory                 = var.control_plane_memory
   cpus                   = var.control_plane_cpus
   cpu_cores              = var.control_plane_cpu_cores
-  cpu_hot_add_enabled    = false
-  memory_hot_add_enabled = false
+  cpu_hot_add_enabled    = true
+  memory_hot_add_enabled = true
+  accept_all_eulas       = true
+  power_on               = true
 
   # Wait upto 5 minutes for IP addresses to be assigned
   network_dhcp_wait_seconds = 300
@@ -124,7 +244,8 @@ resource "vcd_vapp_vm" "control_plane" {
   network {
     type               = "org"
     name               = vcd_vapp_org_network.network.org_network_name
-    ip_allocation_mode = "DHCP"
+    ip_allocation_mode = "MANUAL"
+    ip                 = cidrhost("${var.gateway_ip}/24", 10 + count.index)
     is_primary         = true
   }
 
