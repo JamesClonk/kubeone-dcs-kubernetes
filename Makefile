@@ -8,7 +8,7 @@ SSH_PUB_KEY = ${SSH_KEY}.pub
 OS_IMAGE = ${TERRAFORM_DIR}/ubuntu-20.04-server-cloudimg-amd64.ova
 CONFIG_FILE = kubeone.yaml
 CREDENTIALS_FILE = credentials.yaml
-CLUSTER_NAME = KubeOne
+CLUSTER_NAME = kubeone
 
 # ======================================================================================================================
 .PHONY: help

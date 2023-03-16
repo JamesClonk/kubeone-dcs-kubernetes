@@ -62,7 +62,7 @@ variable "vcd_logging_enabled" {
 # Cluster specific configuration
 variable "cluster_name" {
   description = "Name of the cluster"
-  default     = "KubeOne"
+  default     = "kubeone"
   type        = string
 
   validation {
