@@ -3,6 +3,7 @@ SHELL := /bin/bash
 
 ROOT_DIR = $(realpath .)
 TERRAFORM_DIR = ${ROOT_DIR}/terraform
+TERRAFORM_OUTPUT = ${TERRAFORM_DIR}/output.json
 SSH_KEY = ${ROOT_DIR}/ssh_key_id_rsa
 SSH_PUB_KEY = ${SSH_KEY}.pub
 OS_IMAGE = ${TERRAFORM_DIR}/ubuntu-20.04-server-cloudimg-amd64.ova
@@ -66,7 +67,7 @@ terraform-refresh:
 ## terraform-output: output terraform information into file for KubeOne
 terraform-output:
 	cd ${TERRAFORM_DIR} && \
-		terraform output -json > output.json
+		terraform output -json > ${TERRAFORM_OUTPUT}
 
 .PHONY: terraform-destroy
 ## kterraform-destroy: delete and cleanup infrastructure
@@ -83,21 +84,27 @@ kubeone: check-env kubeone-apply kubeone-kubeconfig kubeone-generate-md kubeone-
 .PHONY: kubeone-apply
 ## kubeone-apply: run KubeOne to deploy kubernetes
 kubeone-apply:
-	kubeone -c ${CREDENTIALS_FILE} apply -m ${CONFIG_FILE} -t ${TERRAFORM_DIR} --verbose # --create-machine-deployments # --upgrade-machine-deployments
+	kubeone apply -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} --verbose # --create-machine-deployments # --upgrade-machine-deployments
 
 .PHONY: kubeone-kubeconfig
 ## kubeone-kubeconfig: write kubeconfig file
 kubeone-kubeconfig:
-	kubeone -c ${CREDENTIALS_FILE} kubeconfig -m ${CONFIG_FILE} -t ${TERRAFORM_DIR} > ${KUBECONFIG_FILE}
+	kubeone kubeconfig -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} > ${KUBECONFIG_FILE}
 	chmod 640 ${KUBECONFIG_FILE}
 
 .PHONY: kubeone-generate-md
 ## kubeone-generate-md: generate a machinedeployments manifest for the cluster
 kubeone-generate-md:
-	kubeone config machinedeployments -m ${CONFIG_FILE} -t ${TERRAFORM_DIR} > ${ROOT_DIR}/machines/${CLUSTER_NAME}-worker-pool.yml
+	kubeone config machinedeployments -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} > ${ROOT_DIR}/machines/${CLUSTER_NAME}-worker-pool.yml
 
 .PHONY: kubeone-apply-md
 ## kubeone-apply-md: apply machinedeployments to the cluster
 kubeone-apply-md:
 	kubectl apply --kubeconfig ${KUBECONFIG_FILE} -f ${ROOT_DIR}/machines
+
+.PHONY: kubeone-addons
+## kubeone-addons: list KubeOne addons
+kubeone-addons:
+	kubeone addons list -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT}
+
 # ======================================================================================================================
