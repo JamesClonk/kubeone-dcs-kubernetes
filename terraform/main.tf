@@ -169,7 +169,7 @@ resource "vcd_vapp_vm" "bastion" {
     "public-keys" = file(var.ssh_public_key_file)
   }
 
-  vapp_template_id = data.vcd_catalog_vapp_template.vapp_template.id
+  vapp_template_id = vcd_catalog_vapp_template.vapp_template.id
 
   # resource allocation for the VM
   memory                 = 1024
@@ -229,7 +229,7 @@ resource "vcd_vapp_vm" "control_plane" {
     "public-keys" = file(var.ssh_public_key_file)
   }
 
-  vapp_template_id = data.vcd_catalog_vapp_template.vapp_template.id
+  vapp_template_id = vcd_catalog_vapp_template.vapp_template.id
 
   # resource allocation for the VM
   memory                 = var.control_plane_memory
