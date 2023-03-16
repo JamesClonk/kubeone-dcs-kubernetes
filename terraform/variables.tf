@@ -15,29 +15,29 @@ limitations under the License.
 */
 
 # vCloud Director provider configuration
-variable "vcd_api_url" {
+variable "vcd_url" {
   description = "URL of the vCloud Director setup"
   default     = "https://vcd-pod-bravo.swisscomcloud.com/api"
   type        = string
 }
 
 # VMware Cloud Director credentials
-variable "vcd_api_username" {
+variable "vcd_user" {
   description = "Username for the VMware Cloud Director access"
   type        = string
 }
-variable "vcd_api_password" {
+variable "vcd_password" {
   description = "Password for the VMware Cloud Director access"
   type        = string
 }
 
 # VMware Cloud Director tenant configuration
-variable "vcd_org_name" {
+variable "vcd_org" {
   description = "Organization name for the VMware Cloud Director setup"
   type        = string
 }
 
-variable "vcd_vdc_name" {
+variable "vcd_vdc" {
   description = "Virtual datacenter name"
   type        = string
 }

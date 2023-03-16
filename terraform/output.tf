@@ -83,8 +83,8 @@ output "kubeone_workers" {
           # provider specific fields:
           # see example under `cloudProviderSpec` section at:
           # https://github.com/kubermatic/machine-controller/blob/main/examples/vmware-cloud-director-machinedeployment.yaml
-          organization   = var.vcd_org_name
-          vdc            = var.vcd_vdc_name
+          organization   = var.vcd_org
+          vdc            = var.vcd_vdc
           allowInsecure  = var.vcd_allow_insecure
           vapp           = vcd_vapp.cluster.name
           catalog        = var.catalog_name

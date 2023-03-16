@@ -1,0 +1,18 @@
+apiVersion: kubeone.k8c.io/v1beta2
+kind: KubeOneCluster
+
+versions:
+  kubernetes: "1.25.6"
+
+cloudProvider:
+  vmwareCloudDirector:
+    vApp: kubeone
+
+addons: # https://docs.kubermatic.com/kubeone/v1.6/guides/addons/
+  enable: true
+  addons: # https://github.com/kubermatic/kubeone/tree/release/v1.6/addons
+  - name: cluster-autoscaler
+  - name: csi-vmware-cloud-director
+  - name: default-storage-class
+    params:
+      storageProfile: Ultra Fast Storage A # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
