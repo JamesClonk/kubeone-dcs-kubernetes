@@ -10,7 +10,7 @@ OS_IMAGE = ${TERRAFORM_DIR}/ubuntu-20.04-server-cloudimg-amd64.ova
 CLUSTER_NAME = kubeone
 CONFIG_FILE = kubeone.yaml
 CREDENTIALS_FILE = credentials.yaml
-KUBECONFIG_FILE = kubeconfig
+KUBECONFIG_FILE = ${CLUSTER_NAME}-kubeconfig
 
 # ======================================================================================================================
 .PHONY: help
@@ -84,7 +84,7 @@ kubeone: check-env kubeone-apply kubeone-kubeconfig kubeone-generate-md kubeone-
 .PHONY: kubeone-apply
 ## kubeone-apply: run KubeOne to deploy kubernetes
 kubeone-apply:
-	kubeone apply -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} --verbose # --create-machine-deployments # --upgrade-machine-deployments
+	kubeone apply -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} --create-machine-deployments=false --verbose  # --upgrade-machine-deployments
 
 .PHONY: kubeone-kubeconfig
 ## kubeone-kubeconfig: write kubeconfig file
