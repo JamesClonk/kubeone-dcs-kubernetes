@@ -20,15 +20,15 @@ provider "vcd" {
   See https://registry.terraform.io/providers/vmware/vcd/latest/docs#argument-reference
   for config options reference
   */
-  url                  = var.vcd_url
+  url                  = var.vcd_api_url
   auth_type            = "integrated"
-  user                 = var.vcd_user
-  password             = var.vcd_password
+  user                 = var.vcd_api_username
+  password             = var.vcd_api_password
   org                  = var.vcd_org_name
   vdc                  = var.vcd_vdc_name
   allow_unverified_ssl = var.vcd_allow_insecure
   max_retry_timeout    = 120
-  logging              = var.vcd_logging
+  logging              = var.vcd_logging_enabled
 }
 
 locals {

@@ -15,18 +15,18 @@ limitations under the License.
 */
 
 # vCloud Director provider configuration
-variable "vcd_url" {
+variable "vcd_api_url" {
   description = "URL of the vCloud Director setup"
   default     = "https://vcd-pod-bravo.swisscomcloud.com/api"
   type        = string
 }
 
 # VMware Cloud Director credentials
-variable "vcd_user" {
+variable "vcd_api_username" {
   description = "Username for the VMware Cloud Director access"
   type        = string
 }
-variable "vcd_password" {
+variable "vcd_api_password" {
   description = "Password for the VMware Cloud Director access"
   type        = string
 }
@@ -53,7 +53,7 @@ variable "vcd_allow_insecure" {
   type        = bool
 }
 
-variable "vcd_logging" {
+variable "vcd_logging_enabled" {
   description = "Log VMware Cloud Director API activites to go-vcloud-director.log"
   default     = false
   type        = bool
@@ -69,6 +69,18 @@ variable "cluster_name" {
     condition     = can(regex("^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$", var.cluster_name))
     error_message = "Value of cluster_name should be lowercase and can only contain alphanumeric characters and hyphens(-)."
   }
+}
+
+variable "apiserver_alternative_names" {
+  description = "Subject alternative names for the API Server signing certificate"
+  default     = []
+  type        = list(string)
+}
+
+variable "kubeapi_hostname" {
+  description = "DNS name for the kube-apiserver"
+  default     = ""
+  type        = string
 }
 
 variable "ssh_public_key_file" {
