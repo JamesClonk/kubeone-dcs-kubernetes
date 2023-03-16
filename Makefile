@@ -1,15 +1,14 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-ROOT_DIR=$(realpath .)
-TERRAFORM_DIR="${ROOT_DIR}/terraform"
-SSH_KEY="${ROOT_DIR}/ssh_key_id_rsa"
-SSH_PUB_KEY="${SSH_KEY}.pub"
-OS_IMAGE="${TERRAFORM_DIR}/ubuntu-20.04-server-cloudimg-amd64.ova"
-CONFIG_FILE="kubeone.yaml"
-CREDENTIALS_FILE="credentials.yaml"
-
-CLUSTER_NAME="KubeOne"
+ROOT_DIR = $(realpath .)
+TERRAFORM_DIR = ${ROOT_DIR}/terraform
+SSH_KEY = ${ROOT_DIR}/ssh_key_id_rsa
+SSH_PUB_KEY = ${SSH_KEY}.pub
+OS_IMAGE = ${TERRAFORM_DIR}/ubuntu-20.04-server-cloudimg-amd64.ova
+CONFIG_FILE = kubeone.yaml
+CREDENTIALS_FILE = credentials.yaml
+CLUSTER_NAME = KubeOne
 
 # ======================================================================================================================
 .PHONY: help
