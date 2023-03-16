@@ -399,6 +399,34 @@ resource "vcd_nsxv_firewall_rule" "rule_nginx_ingress" {
   depends_on = [vcd_edgegateway_settings.edge_gateway]
 }
 
+# Create the firewall rule to allow access to nodeports
+resource "vcd_nsxv_firewall_rule" "rule_nodeports" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+  name         = "${var.cluster_name}-firewall-rule-nodeports"
+
+  action = "accept"
+
+  source {
+    ip_addresses = ["any"]
+  }
+
+  destination {
+    ip_addresses = [local.external_network_ip]
+  }
+
+  service {
+    protocol = "tcp"
+    port     = "30000-32767"
+  }
+  service {
+    protocol = "udp"
+    port     = "30000-32767"
+  }
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
+}
+
+
 #################################### Loadbalancer settings ####################################
 resource "vcd_lb_app_profile" "app_profile" {
   edge_gateway = data.vcd_edgegateway.edge_gateway.name
