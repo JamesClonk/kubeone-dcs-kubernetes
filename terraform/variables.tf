@@ -176,7 +176,7 @@ variable "control_plane_disk_size" {
 
 variable "control_plane_disk_storage_profile" {
   description = "Name of storage profile to use for disks"
-  default     = "Ultra Fast Storage B with Backup"
+  default     = ""
   type        = string
 }
 
@@ -314,7 +314,7 @@ variable "worker_disk_size_gb" {
 
 variable "worker_disk_storage_profile" {
   description = "Name of storage profile to use for worker VMs attached disks"
-  default     = "Ultra Fast Storage B"
+  default     = ""
   type        = string
 }
 
