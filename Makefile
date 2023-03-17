@@ -114,12 +114,12 @@ kubeone-addons:
 # ======================================================================================================================
 .PHONY: deployments
 ## deployments: install all deployments on Kubernetes
-deployments: check-env deploy-ingress-controller deploy-cert-manager deploy-kubernetes-dashboard deploy-prometheus
+deployments: check-env deploy-ingress-nginx deploy-cert-manager deploy-kubernetes-dashboard deploy-prometheus deploy-loki
 
-.PHONY: deploy-ingress-controller
-## deploy-ingress-controller: deploy/update nginx ingress-controller
-deploy-ingress-controller:
-	KUBECONFIG=${KUBECONFIG_FILE} deployments/ingress-controller.sh
+.PHONY: deploy-ingress-nginx
+## deploy-ingress-nginx: deploy/update nginx ingress-controller
+deploy-ingress-nginx:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/ingress-nginx.sh
 
 .PHONY: deploy-cert-manager
 ## deploy-cert-manager: deploy/update cert-manager
@@ -140,4 +140,9 @@ dashboard-token:
 ## deploy-prometheus: deploy/update prometheus
 deploy-prometheus:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/prometheus.sh
+
+.PHONY: deploy-loki
+## deploy-loki: deploy/update loki
+deploy-loki:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/loki.sh
 # ======================================================================================================================

@@ -7,19 +7,18 @@ if [[ "$(basename ${PWD})" == "deployments" ]]; then
 fi
 
 repository="https://charts.jetstack.io"
-release="cert-manager"
 chart="cert-manager"
 version="v1.11.0"
-namespace="${release}"
+namespace="${chart}"
 
-cat > "deployments/${release}.values.yaml" <<EOF
+cat > "deployments/${chart}.values.yaml" <<EOF
 installCRDs: true
 EOF
-deployments/install-chart.sh "${repository}" "${release}" "${chart}" "${version}" "deployments/${release}.values.yaml"
+deployments/install-chart.sh "${repository}" "${chart}" "${version}" "deployments/${chart}.values.yaml"
 echo " "
 
 # additional configuration, add a ClusterIssuer
-cat > "deployments/${release}.cluster-issuer.yaml" <<EOF
+cat > "deployments/${chart}.cluster-issuer.yaml" <<EOF
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -35,4 +34,4 @@ spec:
         ingress:
           class: nginx
 EOF
-kubectl apply -f "deployments/${release}.cluster-issuer.yaml"
+kubectl apply -f "deployments/${chart}.cluster-issuer.yaml"

@@ -7,13 +7,12 @@ if [[ "$(basename ${PWD})" == "deployments" ]]; then
 fi
 
 repository="https://kubernetes.github.io/dashboard/"
-release="kubernetes-dashboard"
 chart="kubernetes-dashboard"
 version="6.0.5"
-namespace="${release}"
+namespace="${chart}"
 
 kubeapi_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)
-cat > "deployments/${release}.values.yaml" <<EOF
+cat > "deployments/${chart}.values.yaml" <<EOF
 metricsScraper:
   enabled: true
 protocolHttp: true
@@ -33,11 +32,11 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: "lets-encrypt"
 EOF
-deployments/install-chart.sh "${repository}" "${release}" "${chart}" "${version}" "deployments/${release}.values.yaml"
+deployments/install-chart.sh "${repository}" "${chart}" "${version}" "deployments/${chart}.values.yaml"
 echo " "
 
 # additional configuration, add a ClusterRoleBinding
-cat > "deployments/${release}.crb.yaml" <<EOF
+cat > "deployments/${chart}.crb.yaml" <<EOF
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -52,7 +51,7 @@ subjects:
   name: kubernetes-dashboard
   namespace: kubernetes-dashboard
 EOF
-kubectl apply -f "deployments/${release}.crb.yaml"
+kubectl apply -f "deployments/${chart}.crb.yaml"
 
 echo " "
 echo "================================================================================================================="

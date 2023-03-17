@@ -7,13 +7,12 @@ if [[ "$(basename ${PWD})" == "deployments" ]]; then
 fi
 
 repository="https://kubernetes.github.io/ingress-nginx"
-release="ingress-nginx"
 chart="ingress-nginx"
 version="4.5.2"
-namespace="${release}"
+namespace="${chart}"
 
 external_ip=$(cat terraform/output.json | jq -r .external_ip.value)
-cat > "deployments/${release}.values.yaml" <<EOF
+cat > "deployments/${chart}.values.yaml" <<EOF
 controller:
   metrics:
     enabled: true
@@ -30,4 +29,4 @@ controller:
   ingressClassResource:
     default: true
 EOF
-deployments/install-chart.sh "${repository}" "${release}" "${chart}" "${version}" "deployments/${release}.values.yaml"
+deployments/install-chart.sh "${repository}" "${chart}" "${version}" "deployments/${chart}.values.yaml"

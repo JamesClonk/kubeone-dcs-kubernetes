@@ -7,13 +7,12 @@ if [[ "$(basename ${PWD})" == "deployments" ]]; then
 fi
 
 repository="https://prometheus-community.github.io/helm-charts"
-release="prometheus"
 chart="prometheus"
 version="19.7.2"
-namespace="${release}"
+namespace="${chart}"
 
 kubeapi_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)
-cat > "deployments/${release}.values.yaml" <<EOF
+cat > "deployments/${chart}.values.yaml" <<EOF
 alertmanager:
   enabled: true
   strategy:
@@ -39,4 +38,4 @@ prometheus-node-exporter:
 prometheus-pushgateway:
   enabled: true
 EOF
-deployments/install-chart.sh "${repository}" "${release}" "${chart}" "${version}" "deployments/${release}.values.yaml"
+deployments/install-chart.sh "${repository}" "${chart}" "${version}" "deployments/${chart}.values.yaml"
