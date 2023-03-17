@@ -114,7 +114,7 @@ kubeone-addons:
 # ======================================================================================================================
 .PHONY: deployments
 ## deployments: install all deployments on Kubernetes
-deployments: check-env deploy-ingress-controller deploy-cert-manager deploy-kubernetes-dashboard
+deployments: check-env deploy-ingress-controller deploy-cert-manager deploy-kubernetes-dashboard deploy-prometheus
 
 .PHONY: deploy-ingress-controller
 ## deploy-ingress-controller: deploy/update nginx ingress-controller
@@ -130,4 +130,14 @@ deploy-cert-manager:
 ## deploy-kubernetes-dashboard: deploy/update kubernetes dashboard
 deploy-kubernetes-dashboard:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/kubernetes-dashboard.sh
+
+.PHONY: dashboard-token
+## dashboard-token: create a temporary login token for kubernetes dashboard
+dashboard-token:
+	KUBECONFIG=${KUBECONFIG_FILE} kubectl -n kubernetes-dashboard create token kubernetes-dashboard --duration "60m"
+
+.PHONY: deploy-prometheus
+## deploy-prometheus: deploy/update prometheus
+deploy-prometheus:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/prometheus.sh
 # ======================================================================================================================
