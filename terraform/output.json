@@ -10,14 +10,16 @@
             "string"
           ]
         ],
-        "endpoint": "string"
+        "endpoint": "string",
+        "external_ip": "string"
       }
     ],
     "value": {
       "apiserver_alternative_names": [
         "kubeone-demo.kube-plus.cloud"
       ],
-      "endpoint": "kubeone-demo.kube-plus.cloud"
+      "endpoint": "kubeone-demo.kube-plus.cloud",
+      "external_ip": "164.128.161.20"
     }
   },
   "kubeone_hosts": {
@@ -80,7 +82,7 @@
         "ssh_port": 22,
         "ssh_private_key_file": "ssh_key_id_rsa",
         "ssh_user": "ubuntu",
-        "storage_profile": "",
+        "storage_profile": "*",
         "vapp_name": "kubeone"
       }
     }
@@ -178,7 +180,7 @@
             },
             "network": "kubeone-routed-network",
             "organization": "PRO-005019247",
-            "storageProfile": "",
+            "storageProfile": "*",
             "template": "Ubuntu 20.04 Server",
             "vapp": "kubeone",
             "vdc": "kubernetes-demo"

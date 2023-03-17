@@ -24,8 +24,11 @@ help:
 .PHONY: check-env
 ## check-env: verifies current working environment meets all requirements
 check-env:
+	which bash
 	which terraform
 	which kubeone
+	which helm
+	which jq
 	test -f "${OS_IMAGE}" || curl -s https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.ova > "${OS_IMAGE}"
 	test -f "${SSH_KEY}" || ssh-keygen -t rsa -b 4096 -f "${SSH_KEY}" -N ''
 	chmod 640 "${SSH_PUB_KEY}" && chmod 600 "${SSH_KEY}"
@@ -90,7 +93,7 @@ kubeone-apply:
 ## kubeone-kubeconfig: write kubeconfig file
 kubeone-kubeconfig:
 	kubeone kubeconfig -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} > ${KUBECONFIG_FILE}
-	chmod 640 ${KUBECONFIG_FILE}
+	chmod 600 ${KUBECONFIG_FILE}
 
 .PHONY: kubeone-generate-workers
 ## kubeone-generate-workers: generate a machinedeployments manifest for the cluster
@@ -106,4 +109,20 @@ kubeone-apply-workers:
 ## kubeone-addons: list KubeOne addons
 kubeone-addons:
 	kubeone addons list -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT}
+# ======================================================================================================================
+
+# ======================================================================================================================
+.PHONY: deployments
+## deployments: install all deployments on Kubernetes
+deployments: check-env deploy-ingress-controller deploy-cert-manager
+
+.PHONY: deploy-ingress-controller
+## deploy-ingress-controller: deploy/update nginx ingress-controller
+deploy-ingress-controller:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/ingress-controller.sh
+
+.PHONY: deploy-cert-manager
+## deploy-cert-manager: deploy/update cert-manager
+deploy-cert-manager:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/cert-manager.sh
 # ======================================================================================================================

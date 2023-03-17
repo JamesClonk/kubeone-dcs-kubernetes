@@ -18,6 +18,7 @@ output "kubeone_api" {
   description = "kube-apiserver LB endpoint"
 
   value = {
+    external_ip                 = local.external_network_ip
     endpoint                    = var.kubeapi_hostname
     apiserver_alternative_names = [var.kubeapi_hostname]
   }

@@ -61,3 +61,6 @@ ssh_key_id_rsa.pub
 # kubeconfig
 /kubeone-kubeconfig
 /kubeconfig
+
+# helm temporary values files
+/deployments/*.yaml

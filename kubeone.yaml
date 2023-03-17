@@ -8,6 +8,15 @@ cloudProvider:
   vmwareCloudDirector:
     vApp: kubeone
 
+containerRuntime:
+  containerd: {}
+
+clusterNetwork:
+  cni:
+    cilium:
+      kubeProxyReplacement: strict
+      enableHubble: true
+
 addons: # https://docs.kubermatic.com/kubeone/v1.6/guides/addons/
   enable: true
   path: ./addons
