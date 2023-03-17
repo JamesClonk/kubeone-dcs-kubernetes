@@ -18,8 +18,8 @@ output "kubeone_api" {
   description = "kube-apiserver LB endpoint"
 
   value = {
-    endpoint                    = var.kubeapi_hostname != "" ? var.kubeapi_hostname : vcd_vapp_vm.control_plane.0.network.0.ip
-    apiserver_alternative_names = var.apiserver_alternative_names
+    endpoint                    = var.kubeapi_hostname
+    apiserver_alternative_names = [var.kubeapi_hostname]
   }
 }
 

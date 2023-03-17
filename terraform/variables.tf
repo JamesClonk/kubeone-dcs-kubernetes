@@ -71,12 +71,6 @@ variable "cluster_name" {
   }
 }
 
-variable "apiserver_alternative_names" {
-  description = "Subject alternative names for the API Server signing certificate"
-  default     = []
-  type        = list(string)
-}
-
 variable "kubeapi_hostname" {
   description = "DNS name for the kube-apiserver"
   default     = ""
