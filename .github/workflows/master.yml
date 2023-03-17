@@ -22,27 +22,19 @@ jobs:
     - name: Setup configuration data
       if: github.ref == 'refs/heads/master'
       env:
-        TF_OVERRIDE_ORG: ${{ secrets.TF_OVERRIDE_ORG }}
-        TF_OVERRIDE_WORKSPACE: ${{ secrets.TF_OVERRIDE_WORKSPACE }}
+        TF_OVERRIDE: ${{ secrets.TF_OVERRIDE }}
         TF_TFVARS: ${{ secrets.TF_TFVARS }}
+        TF_CREDENTIALS: ${{ secrets.TF_CREDENTIALS }}
         CREDENTIALS: ${{ secrets.CREDENTIALS }}
         SSHKEY: ${{ secrets.SSHKEY }}
-        SSHKEY_PUB: ${{ secrets.SSHKEY_PUB }}
       run: |
-        cat > terraform/override.tf << EOF
-        terraform {
-          cloud {
-            organization = "${TF_OVERRIDE_ORG}"
-            workspaces {
-              name = "${TF_OVERRIDE_WORKSPACE}"
-            }
-          }
-        }
-        EOF
+        mkdir -p ~/.terraform.d || true
+        echo "${TF_CREDENTIALS}" > ~/.terraform.d/credentials.tfrc.json
+        echo "${TF_OVERRIDE}" > terraform/override.tf
         echo "${TF_TFVARS}" > terraform/terraform.tfvars
         echo "${CREDENTIALS}" > credentials.yaml
         echo "${SSHKEY}" > ssh_key_id_rsa
-        echo "${SSHKEY_PUB}" > ssh_key_id_rsa.pub
+        ssh-keygen -f ssh_key_id_rsa -y > ssh_key_id_rsa.pub
         chmod 600 ssh_key_id_rsa
         chmod 600 ssh_key_id_rsa.pub
 
@@ -52,21 +44,21 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSHKEY }}
 
-    - name: Setup Terraform CLI
-      uses: hashicorp/setup-terraform@v2
-      if: github.ref == 'refs/heads/master'
-      with:
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-        terraform_version: ~1.2.8
-
-    - name: Setup other tooling
+    - name: Setup tooling
       run: |
+        mkdir -p ~/tmp/tooling && cd ~/tmp/tooling
         curl -sLO "https://github.com/kubermatic/kubeone/releases/download/v1.6.0/kubeone_1.6.0_linux_amd64.zip"
         unzip kubeone_1.6.0_linux_amd64.zip kubeone -d .
-        sudo mv kubeone /usr/local/bin
+        sudo mv -f kubeone /usr/local/bin
+        rm -rf ~/tmp/tooling/*
         curl -sLO "https://get.helm.sh/helm-v3.10.3-linux-amd64.tar.gz"
         tar -xzvf helm-v3.10.3-linux-amd64.tar.gz linux-amd64/helm
-        sudo mv linux-amd64/helm /usr/local/bin
+        sudo mv -f linux-amd64/helm /usr/local/bin
+        rm -rf ~/tmp/tooling/*
+        curl -sLO "https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip"
+        unzip terraform_1.2.9_linux_amd64.zip
+        sudo mv -f terraform /usr/local/bin
+        rm -rf ~/tmp/tooling/*
 
     - name: Run Terraform
       if: github.ref == 'refs/heads/master'
@@ -86,6 +78,7 @@ jobs:
         rm -f kubeone-kubeconfig || true
         rm -f credentials.yaml || true
         rm -f terraform/terraform.tfvars || true
+        rm -f ~/.terraform.d/credentials.tfrc.json || true
         rm -f ssh_key_id_rsa || true
         rm -f ssh_key_id_rsa.pub || true
 
