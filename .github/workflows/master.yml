@@ -22,13 +22,23 @@ jobs:
     - name: Setup configuration data
       if: github.ref == 'refs/heads/master'
       env:
-        TF_OVERRIDE: ${{ secrets.TF_OVERRIDE }}
+        TF_OVERRIDE_ORG: ${{ secrets.TF_OVERRIDE_ORG }}
+        TF_OVERRIDE_WORKSPACE: ${{ secrets.TF_OVERRIDE_WORKSPACE }}
         TF_TFVARS: ${{ secrets.TF_TFVARS }}
         CREDENTIALS: ${{ secrets.CREDENTIALS }}
         SSHKEY: ${{ secrets.SSHKEY }}
         SSHKEY_PUB: ${{ secrets.SSHKEY_PUB }}
       run: |
-        echo "${TF_OVERRIDE}" > terraform/override.tf
+        cat > terraform/override.tf << EOF
+        terraform {
+          cloud {
+            organization = "${TF_OVERRIDE_ORG}"
+            workspaces {
+              name = "${TF_OVERRIDE_WORKSPACE}"
+            }
+          }
+        }
+        EOF
         echo "${TF_TFVARS}" > terraform/terraform.tfvars
         echo "${CREDENTIALS}" > credentials.yaml
         echo "${SSHKEY}" > ssh_key_id_rsa
@@ -51,10 +61,10 @@ jobs:
 
     - name: Setup other tooling
       run: |
-        curl -LO "https://github.com/kubermatic/kubeone/releases/download/v1.6.0/kubeone_1.6.0_linux_amd64.zip"
-        unzip kubeone_1.6.0_linux_amd64.zip -d kubeone_1.6.0_linux_amd64
-        sudo mv kubeone_1.6.0_linux_amd64/kubeone /usr/local/bin
-        curl -LO "https://get.helm.sh/helm-v3.10.3-linux-amd64.tar.gz"
+        curl -sLO "https://github.com/kubermatic/kubeone/releases/download/v1.6.0/kubeone_1.6.0_linux_amd64.zip"
+        unzip kubeone_1.6.0_linux_amd64.zip kubeone -d .
+        sudo mv kubeone /usr/local/bin
+        curl -sLO "https://get.helm.sh/helm-v3.10.3-linux-amd64.tar.gz"
         tar -xzvf helm-v3.10.3-linux-amd64.tar.gz linux-amd64/helm
         sudo mv linux-amd64/helm /usr/local/bin
 
