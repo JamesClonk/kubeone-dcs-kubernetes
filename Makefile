@@ -84,7 +84,7 @@ kubeone: check-env kubeone-apply kubeone-kubeconfig kubeone-generate-md kubeone-
 .PHONY: kubeone-apply
 ## kubeone-apply: run KubeOne to deploy kubernetes
 kubeone-apply:
-	kubeone apply -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} --create-machine-deployments=false --verbose  # --upgrade-machine-deployments
+	kubeone apply -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} --create-machine-deployments=false --auto-approve # --verbose  # --upgrade-machine-deployments
 
 .PHONY: kubeone-kubeconfig
 ## kubeone-kubeconfig: write kubeconfig file
