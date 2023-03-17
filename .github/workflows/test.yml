@@ -1,0 +1,47 @@
+name: Run test suite against cluster
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  kubernetes-testing:
+    name: 'kubernetes-testing'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout kubernetes-testing
+      uses: actions/checkout@v3
+      with:
+        repository: swisscom/kubernetes-testing
+        ref: master
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+        bundler-cache: true
+
+    - name: Setup configs
+      env:
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        TESTING_CONFIG: ${{ secrets.TESTING_CONFIG }}
+      run: |
+        echo "${KUBECONFIG}" > kubeconfig
+        echo "${TESTING_CONFIG}" > config.yml
+
+    - name: Setup Chrome
+      uses: ./.github/actions/setup-chrome
+
+    - name: Run kubernetes-testing specs
+      run: |
+        export KUBECONFIG=kubeconfig
+        make test
+
+    - name: Cleanup
+      if: ${{ always() }}
+      run: |
+        rm -f kubeconfig || true
+        rm -f config.yml || true

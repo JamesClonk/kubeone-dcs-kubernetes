@@ -1,0 +1,65 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches:
+    - master
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  terraform-plan:
+    name: 'verify terraform plan'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform Override
+      if: github.event_name == 'pull_request'
+      env:
+        TF_OVERRIDE: ${{ secrets.TF_OVERRIDE }}
+      run: echo "${TF_OVERRIDE}" > override.tf
+
+    - name: Setup Terraform tfvars
+      if: github.event_name == 'pull_request'
+      env:
+        TF_TFVARS: ${{ secrets.TF_TFVARS }}
+      run: echo "${TF_TFVARS}" > terraform.tfvars
+
+    - name: Setup Terraform CLI
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+        terraform_version: ~1.2.8
+
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check -no-color
+      continue-on-error: true
+
+    - name: Terraform Init
+      id: init
+      run: terraform init -no-color
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+
+    - name: Terraform Plan
+      id: plan
+      run: terraform plan -no-color -input=false
+      continue-on-error: true
+
+    - name: Cleanup
+      if: ${{ always() }}
+      run: |
+        rm -f terraform.tfvars || true
+        rm -f kubeconfig || true
+
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1

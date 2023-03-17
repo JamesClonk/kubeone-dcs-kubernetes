@@ -1,0 +1,145 @@
+name: Update KubeOne cluster
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: 'deploy cluster'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup configuration data
+      if: github.ref == 'refs/heads/master'
+      env:
+        TF_OVERRIDE: ${{ secrets.TF_OVERRIDE }}
+        TF_TFVARS: ${{ secrets.TF_TFVARS }}
+        CREDENTIALS: ${{ secrets.CREDENTIALS }}
+        SSHKEY: ${{ secrets.SSHKEY }}
+        SSHKEY_PUB: ${{ secrets.SSHKEY_PUB }}
+      run:
+        echo "${TF_OVERRIDE}" > terraform/override.tf
+        echo "${TF_TFVARS}" > terraform/terraform.tfvars
+        echo "${CREDENTIALS}" > credentials.yaml
+        echo "${SSHKEY}" > ssh_key_id_rsa
+        echo "${SSHKEY_PUB}" > ssh_key_id_rsa.pub
+        chmod 600 ssh_key_id_rsa
+        chmod 600 ssh_key_id_rsa.pub
+
+    - name: Setup SSH agent
+      uses: webfactory/ssh-agent@v0.7.0
+      if: github.ref == 'refs/heads/master'
+      with:
+        ssh-private-key: ${{ secrets.TF_SSHKEY }}
+
+    - name: Setup Terraform CLI
+      uses: hashicorp/setup-terraform@v2
+      if: github.ref == 'refs/heads/master'
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+        terraform_version: ~1.2.8
+
+    - name: Run Terraform
+      if: github.ref == 'refs/heads/master'
+      run: make terraform
+
+    - name: Install Kubernetes
+      if: github.ref == 'refs/heads/master'
+      run: make kubeone
+
+    - name: Deploy components
+      if: github.ref == 'refs/heads/master'
+      run: make deployments
+
+    - name: Cleanup
+      if: ${{ always() }}
+      run: |
+        rm -f kubeone-kubeconfig || true
+        rm -f credentials.yaml || true
+        rm -f terraform/terraform.tfvars || true
+        rm -f ssh_key_id_rsa || true
+        rm -f ssh_key_id_rsa.pub || true
+
+  sonobuoy:
+    name: 'run sonobuoy testing'
+    needs: [ deploy ]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup kubeconfig
+      if: github.ref == 'refs/heads/master'
+      env:
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+      run: echo "${KUBECONFIG}" > kubeone-kubeconfig
+
+    - name: Run Sonobuoy
+      run: |
+        wget --quiet https://github.com/vmware-tanzu/sonobuoy/releases/download/v0.56.10/sonobuoy_0.56.10_linux_amd64.tar.gz
+        tar -xvzf sonobuoy_0.56.10_linux_amd64.tar.gz
+        chmod +x sonobuoy
+        export KUBECONFIG=kubeone-kubeconfig
+        ./sonobuoy delete --wait || true
+        ./sonobuoy run --mode quick --wait --plugin-env=e2e.E2E_EXTRA_ARGS=--non-blocking-taints=CriticalAddonsOnly,true,NoExecute
+        ./sonobuoy status
+        results=$(./sonobuoy retrieve)
+        ./sonobuoy results $results
+        ./sonobuoy delete --wait
+
+    - name: Cleanup
+      if: ${{ always() }}
+      run: |
+        rm -f kubeone-kubeconfig || true
+
+  testsuite:
+    name: 'run kubernetes testsuite'
+    needs: [ sonobuoy ]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout kubernetes-testing
+      uses: actions/checkout@v3
+      with:
+        repository: swisscom/kubernetes-testing
+        ref: master
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+        bundler-cache: true
+
+    - name: Setup configs
+      if: github.ref == 'refs/heads/master'
+      env:
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        TESTING_CONFIG: ${{ secrets.TESTING_CONFIG }}
+      run: |
+        echo "${KUBECONFIG}" > kubeone-kubeconfig
+        echo "${TESTING_CONFIG}" > config.yml
+
+    - name: Setup Chrome
+      uses: ./.github/actions/setup-chrome
+
+    - name: Run kubernetes-testing specs
+      run: |
+        export KUBECONFIG=kubeone-kubeconfig
+        make test
+
+    - name: Cleanup
+      if: ${{ always() }}
+      run: |
+        rm -f kubeone-kubeconfig || true
+        rm -f config.yml || true
