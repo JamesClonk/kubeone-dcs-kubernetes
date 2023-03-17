@@ -11,7 +11,6 @@ chart="prometheus"
 version="19.7.2"
 namespace="${chart}"
 
-kubeapi_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)
 cat > "deployments/${chart}.values.yaml" <<EOF
 alertmanager:
   enabled: true

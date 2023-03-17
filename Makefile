@@ -114,7 +114,7 @@ kubeone-addons:
 # ======================================================================================================================
 .PHONY: deployments
 ## deployments: install all deployments on Kubernetes
-deployments: check-env deploy-ingress-nginx deploy-cert-manager deploy-kubernetes-dashboard deploy-prometheus deploy-loki
+deployments: check-env deploy-ingress-nginx deploy-cert-manager deploy-kubernetes-dashboard deploy-prometheus deploy-loki  deploy-promtail deploy-grafana
 
 .PHONY: deploy-ingress-nginx
 ## deploy-ingress-nginx: deploy/update nginx ingress-controller
@@ -145,4 +145,19 @@ deploy-prometheus:
 ## deploy-loki: deploy/update loki
 deploy-loki:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/loki.sh
+
+.PHONY: deploy-promtail
+## deploy-promtail: deploy/update promtail
+deploy-promtail:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/promtail.sh
+
+.PHONY: deploy-grafana
+## deploy-grafana: deploy/update grafana
+deploy-grafana:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/grafana.sh
+
+.PHONY: grafana-password
+## grafana-password: get the admin password for grafana
+grafana-password:
+	KUBECONFIG=${KUBECONFIG_FILE} kubectl -n grafana get secret grafana -o jsonpath='{.data.admin-password}' | base64 -d; echo
 # ======================================================================================================================

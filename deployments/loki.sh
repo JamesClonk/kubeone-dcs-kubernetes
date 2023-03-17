@@ -11,7 +11,6 @@ chart="loki"
 version="4.8.0"
 namespace="${chart}"
 
-kubeapi_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)
 cat > "deployments/${chart}.values.yaml" <<EOF
 loki:
   auth_enabled: false
