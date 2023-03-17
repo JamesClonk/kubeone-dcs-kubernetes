@@ -30,5 +30,4 @@ controller:
   ingressClassResource:
     default: true
 EOF
-
 deployments/install-chart.sh "${repository}" "${release}" "${chart}" "${version}" "deployments/${release}.values.yaml"

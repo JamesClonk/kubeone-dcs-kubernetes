@@ -114,7 +114,7 @@ kubeone-addons:
 # ======================================================================================================================
 .PHONY: deployments
 ## deployments: install all deployments on Kubernetes
-deployments: check-env deploy-ingress-controller deploy-cert-manager
+deployments: check-env deploy-ingress-controller deploy-cert-manager deploy-kubernetes-dashboard
 
 .PHONY: deploy-ingress-controller
 ## deploy-ingress-controller: deploy/update nginx ingress-controller
@@ -125,4 +125,9 @@ deploy-ingress-controller:
 ## deploy-cert-manager: deploy/update cert-manager
 deploy-cert-manager:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/cert-manager.sh
+
+.PHONY: deploy-kubernetes-dashboard
+## deploy-kubernetes-dashboard: deploy/update kubernetes dashboard
+deploy-kubernetes-dashboard:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/kubernetes-dashboard.sh
 # ======================================================================================================================
