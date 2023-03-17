@@ -320,7 +320,7 @@ variable "worker_disk_size_gb" {
 
 variable "worker_disk_storage_profile" {
   description = "Name of storage profile to use for worker VMs attached disks"
-  default     = ""
+  default     = "*"
   type        = string
 }
 

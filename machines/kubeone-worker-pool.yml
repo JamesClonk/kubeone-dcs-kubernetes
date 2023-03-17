@@ -50,7 +50,7 @@ spec:
               KubeOneCluster: kubeone
             network: kubeone-routed-network
             organization: PRO-005019247
-            storageProfile: ""
+            storageProfile: '*'
             template: Ubuntu 20.04 Server
             vapp: kubeone
             vdc: kubernetes-demo

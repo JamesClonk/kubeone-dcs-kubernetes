@@ -79,7 +79,7 @@ terraform-destroy:
 # ======================================================================================================================
 .PHONY: kubeone
 ## kubeone: run all KubeOne / Kubernetes provisioning steps
-kubeone: check-env kubeone-apply kubeone-kubeconfig kubeone-generate-md kubeone-apply-md
+kubeone: check-env kubeone-apply kubeone-kubeconfig kubeone-generate-workers kubeone-apply-workers
 
 .PHONY: kubeone-apply
 ## kubeone-apply: run KubeOne to deploy kubernetes
@@ -92,14 +92,14 @@ kubeone-kubeconfig:
 	kubeone kubeconfig -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} > ${KUBECONFIG_FILE}
 	chmod 640 ${KUBECONFIG_FILE}
 
-.PHONY: kubeone-generate-md
-## kubeone-generate-md: generate a machinedeployments manifest for the cluster
-kubeone-generate-md:
+.PHONY: kubeone-generate-workers
+## kubeone-generate-workers: generate a machinedeployments manifest for the cluster
+kubeone-generate-workers:
 	kubeone config machinedeployments -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} > ${ROOT_DIR}/machines/${CLUSTER_NAME}-worker-pool.yml
 
-.PHONY: kubeone-apply-md
-## kubeone-apply-md: apply machinedeployments to the cluster
-kubeone-apply-md:
+.PHONY: kubeone-apply-workers
+## kubeone-apply-workers: apply machinedeployments to the cluster
+kubeone-apply-workers:
 	kubectl apply --kubeconfig ${KUBECONFIG_FILE} -f ${ROOT_DIR}/machines
 
 .PHONY: kubeone-addons
