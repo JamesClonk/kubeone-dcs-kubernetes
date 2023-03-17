@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+# ======================================================================================================================
 # Configure the VMware Cloud Director Provider
 provider "vcd" {
   /*
@@ -39,6 +40,7 @@ locals {
   cluster_autoscaler_max_replicas = var.cluster_autoscaler_max_replicas > 0 ? var.cluster_autoscaler_max_replicas : var.initial_machinedeployment_replicas
 }
 
+# ======================================================================================================================
 # Existing edge gateway in VDC
 data "vcd_edgegateway" "edge_gateway" {
   name = var.vcd_edge_gateway_name
@@ -55,6 +57,7 @@ resource "vcd_edgegateway_settings" "edge_gateway" {
   fw_default_rule_logging_enabled = false
 }
 
+# ======================================================================================================================
 # Routed network that will be connected to the edge gateway
 resource "vcd_network_routed" "network" {
   name        = "${var.cluster_name}-routed-network"
@@ -77,6 +80,7 @@ resource "vcd_network_routed" "network" {
   depends_on = [vcd_edgegateway_settings.edge_gateway]
 }
 
+# ======================================================================================================================
 # Dedicated vApp for cluster resources; vms, disks, network, etc.
 resource "vcd_vapp" "cluster" {
   name        = var.cluster_name
@@ -116,6 +120,7 @@ resource "vcd_vapp_org_network" "network" {
   depends_on = [vcd_vapp.cluster, vcd_network_routed.network]
 }
 
+# ======================================================================================================================
 # OS image catalog
 resource "vcd_catalog" "catalog" {
   name = var.catalog_name
@@ -135,6 +140,7 @@ resource "vcd_catalog_vapp_template" "vapp_template" {
   upload_piece_size = 10
 }
 
+# ======================================================================================================================
 # Create VMs for bastion host
 resource "vcd_vapp_vm" "bastion" {
   vapp_name     = vcd_vapp.cluster.name
@@ -262,8 +268,7 @@ resource "vcd_vapp_vm" "control_plane" {
   depends_on = [vcd_vapp_org_network.network]
 }
 
-#################################### NAT and Firewall rules ####################################
-
+# ======================================================================================================================
 # Create SNAT rule to access the Internet
 resource "vcd_nsxv_snat" "rule_internet" {
   edge_gateway = data.vcd_edgegateway.edge_gateway.name
@@ -304,6 +309,7 @@ resource "vcd_nsxv_dnat" "rule_ssh_bastion" {
   depends_on = [vcd_edgegateway_settings.edge_gateway]
 }
 
+# ======================================================================================================================
 # Create the firewall rule to access the Internet
 resource "vcd_nsxv_firewall_rule" "rule_internet" {
   edge_gateway = data.vcd_edgegateway.edge_gateway.name
@@ -426,8 +432,8 @@ resource "vcd_nsxv_firewall_rule" "rule_nodeports" {
   depends_on = [vcd_edgegateway_settings.edge_gateway]
 }
 
-
-#################################### Loadbalancer settings ####################################
+# ======================================================================================================================
+# Loadbalancer settings
 resource "vcd_lb_app_profile" "app_profile" {
   edge_gateway = data.vcd_edgegateway.edge_gateway.name
 
