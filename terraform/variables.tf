@@ -119,6 +119,18 @@ variable "ssh_hosts_keys" {
   type        = list(string)
 }
 
+variable "ssh_bastion_port" {
+  description = "Bastion SH port"
+  default     = 2222
+  type        = number
+}
+
+variable "ssh_bastion_username" {
+  description = "Bastion SSH user"
+  default     = "ubuntu"
+  type        = string
+}
+
 variable "bastion_host_key" {
   description = "Bastion SSH host public key"
   default     = null

@@ -295,7 +295,7 @@ resource "vcd_nsxv_dnat" "rule_ssh_bastion" {
   network_name = local.external_network_name
 
   original_address = local.external_network_ip
-  original_port    = 22
+  original_port    = 2222
 
   translated_address = vcd_vapp_vm.bastion.network[0].ip
   translated_port    = 22
@@ -326,7 +326,7 @@ resource "vcd_nsxv_firewall_rule" "rule_internet" {
   depends_on = [vcd_edgegateway_settings.edge_gateway]
 }
 
-# Create the firewall rule to allow SSH from the Internet
+# Create the firewall rule to allow SSH via bastion from the Internet
 resource "vcd_nsxv_firewall_rule" "rule_ssh_bastion" {
   edge_gateway = data.vcd_edgegateway.edge_gateway.name
   name         = "${var.cluster_name}-firewall-rule-ssh"
@@ -343,7 +343,7 @@ resource "vcd_nsxv_firewall_rule" "rule_ssh_bastion" {
 
   service {
     protocol = "tcp"
-    port     = 22
+    port     = 2222
   }
 
   depends_on = [vcd_edgegateway_settings.edge_gateway]

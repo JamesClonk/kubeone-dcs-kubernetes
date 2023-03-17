@@ -41,8 +41,8 @@ output "kubeone_hosts" {
       # ssh_hosts_keys       = var.ssh_hosts_keys
       # bastion_host_key     = var.bastion_host_key
       bastion      = local.external_network_ip
-      bastion_port = var.ssh_port
-      bastion_user = var.ssh_username
+      bastion_port = var.ssh_bastion_port
+      bastion_user = var.ssh_bastion_username
     }
   }
 }
