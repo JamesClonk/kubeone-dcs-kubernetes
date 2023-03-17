@@ -1,4 +1,9 @@
 {
+  "external_ip": {
+    "sensitive": false,
+    "type": "string",
+    "value": "164.128.161.20"
+  },
   "kubeone_api": {
     "sensitive": false,
     "type": [
@@ -10,16 +15,14 @@
             "string"
           ]
         ],
-        "endpoint": "string",
-        "external_ip": "string"
+        "endpoint": "string"
       }
     ],
     "value": {
       "apiserver_alternative_names": [
         "kubeone-demo.kube-plus.cloud"
       ],
-      "endpoint": "kubeone-demo.kube-plus.cloud",
-      "external_ip": "164.128.161.20"
+      "endpoint": "kubeone-demo.kube-plus.cloud"
     }
   },
   "kubeone_hosts": {

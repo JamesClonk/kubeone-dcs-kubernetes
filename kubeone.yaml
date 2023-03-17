@@ -12,6 +12,8 @@ containerRuntime:
   containerd: {}
 
 clusterNetwork:
+  kubeProxy:
+    skipInstallation: true
   cni:
     cilium:
       kubeProxyReplacement: strict

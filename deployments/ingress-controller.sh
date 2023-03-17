@@ -12,7 +12,7 @@ chart="ingress-nginx"
 version="4.5.2"
 namespace="${release}"
 
-external_ip=$(cat terraform/output.json | jq -r .kubeone_api.value.external_ip)
+external_ip=$(cat terraform/output.json | jq -r .external_ip.value)
 cat > "deployments/${release}.values.yaml" <<EOF
 controller:
   metrics:
