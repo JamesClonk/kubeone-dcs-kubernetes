@@ -72,6 +72,7 @@ This module has so far only been tested running under Linux and MacOSX. Your exp
 Why not using just `helm install ...` or KubeOne's `addon` or `helmReleases` functionality, and have custom shell scripts for each and every additional Helm chart that gets installed into the cluster?
 
 Consider this: https://github.com/prometheus-community/helm-charts/tree/prometheus-19.7.2/charts/prometheus#to-190
+
 Some Helm charts require manual actions to be taken by users when upgrading between major/minor versions of theirs. Your Helm upgrade might fail if you miss these steps (actually it will almost definitely fail in the mentioned example). While the easy way out would be to just casually mention such issues in the release notes (if you don't forget), that's not exactly very user friendly however.
 From experience Helm has also otherwise quite often proven itself to be flaky during upgrade operations, frequently getting stuck in pending or failed states.
 
