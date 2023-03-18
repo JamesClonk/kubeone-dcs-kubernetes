@@ -12,4 +12,4 @@ data:
       org: {{ required "Please provide VCD_ORG" .Credentials.VCD_ORG }}
       vdc: {{ required "Please provide VCD_VDC" .Credentials.VCD_VDC }}
       vAppName: {{ .Config.CloudProvider.VMwareCloudDirector.VApp }}
-    clusterid: NO_RDE_{{ .Config.Name }}
+    clusterid: {{ default .Config.Name .Params.clusterid }}
