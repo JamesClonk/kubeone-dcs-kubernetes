@@ -115,6 +115,7 @@ kubeone-addons:
 .PHONY: deployments
 ## deployments: install all deployments on Kubernetes
 deployments: check-env deploy-ingress-nginx deploy-cert-manager deploy-kubernetes-dashboard deploy-prometheus deploy-loki  deploy-promtail deploy-grafana
+	# TODO: configure it properly, and then add deploy-opencost
 
 .PHONY: deploy-ingress-nginx
 ## deploy-ingress-nginx: deploy/update nginx ingress-controller
@@ -160,4 +161,9 @@ deploy-grafana:
 ## grafana-password: get the admin password for grafana
 grafana-password:
 	KUBECONFIG=${KUBECONFIG_FILE} kubectl -n grafana get secret grafana -o jsonpath='{.data.admin-password}' | base64 -d; echo
+
+.PHONY: deploy-opencost
+## deploy-opencost: deploy/update opencost
+deploy-opencost:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/opencost.sh
 # ======================================================================================================================
