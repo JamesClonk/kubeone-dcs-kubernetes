@@ -38,7 +38,8 @@ Table of Contents
 ## Kubernetes cluster with KubeOne
 
 ### Architecture
-![DCS+ KubeOne Architecture](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_kubeone.png)
+![DCS+ KubeOne Architecture](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_k8s.png)
+![DCS+ KubeOne Infrastructure](https://d33wubrfki0l68.cloudfront.net/e03c9a4bf4744091c11730f7563cccfe859687e7/09afc/static/infrastructure-provider_kubeone_overview.png)
 
 ### Components on cluster
 
