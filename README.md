@@ -11,7 +11,7 @@ Deploy Kubernetes with [KubeOne](https://www.kubermatic.com/products/kubermatic-
 
 Table of Contents
 =================
-* [Kubernetes cluster with KubeOne](#kubernetes-cluster-with-kubeone)
+* [Kubernetes clusters with KubeOne](#kubernetes-clusters-with-kubeone)
   + [Architecture](#architecture)
   + [Components on cluster](#components-on-cluster)
 * [How to deploy](#how-to-deploy)
@@ -35,10 +35,11 @@ Table of Contents
 * [Q&A](#q-a)
   + [Why have shell scripts for deployments?](#why-have-shell-scripts-for-deployments)
 
-## Kubernetes cluster with KubeOne
+## Kubernetes clusters with KubeOne
 
 ### Architecture
 ![DCS+ KubeOne Architecture](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_k8s.png)
+#### KubeOne overview
 ![DCS+ KubeOne Infrastructure](https://d33wubrfki0l68.cloudfront.net/e03c9a4bf4744091c11730f7563cccfe859687e7/09afc/static/infrastructure-provider_kubeone_overview.png)
 
 ### Components on cluster
