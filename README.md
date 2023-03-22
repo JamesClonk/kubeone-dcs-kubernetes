@@ -192,9 +192,9 @@ Run the Helm deployment again once the chart rollback is successful and it is no
 
 Why not using just `helm install ...` directly or KubeOne's `addon` or `helmReleases` functionality, and instead have custom shell scripts for each and every additional Helm chart that gets installed into the cluster?
 
-Consider this: https://github.com/prometheus-community/helm-charts/tree/prometheus-19.7.2/charts/prometheus#to-190
+Consider these examples: https://github.com/prometheus-community/helm-charts/tree/prometheus-19.7.2/charts/prometheus#to-190 or https://grafana.com/docs/loki/latest/installation/helm/upgrade-from-2.x/
 
-Some Helm charts require manual actions to be taken by users when upgrading between major/minor versions of theirs. Your Helm upgrade might fail if you miss these steps (actually it will almost definitely fail in the mentioned example). While the easy way out would be to just casually mention such issues in the release notes (if you don't forget), that's not exactly very user friendly however.
+Some Helm charts require manual actions to be taken by users when upgrading between major/minor versions of theirs. Your Helm upgrade might fail if you miss these steps (actually it will almost definitely fail in the mentioned examples). While the easy way out would be to just casually mention such issues in the release notes (if you don't forget), that's not exactly very user friendly however.
 From experience Helm has also otherwise quite often proven itself to be flaky during upgrade operations, frequently getting stuck in pending or failed states.
 
 Shell scripts on the other hand can contain very specific *if/else/case* code paths for any such upgrade scenarios to be taken into consideration and implemented accordingly.
