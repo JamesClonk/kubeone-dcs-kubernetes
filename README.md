@@ -143,7 +143,7 @@ $ kubectl -n grafana get secret grafana -o jsonpath='{.data.admin-password}' | b
 ```
 
 ### OpenCost
-![DCS+ Grafana](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_k8s_opencost.png)
+![DCS+ Grafana](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_opencost.png)
 
 To access the OpenCost dashboard you have to initialize a localhost port-forwarding towards the service on the cluster, since it is not exposed externally:
 ```bash
