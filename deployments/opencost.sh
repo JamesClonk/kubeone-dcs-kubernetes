@@ -11,7 +11,6 @@ chart="opencost"
 version="1.7.0"
 namespace="${chart}"
 
-kubeapi_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)
 cat > "deployments/${chart}.values.yaml" <<EOF
 service:
   annotations:
