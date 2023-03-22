@@ -32,7 +32,8 @@ Table of Contents
   + [OpenCost](#opencost)
   + [Cilium Hubble UI](#cilium-hubble-ui)
 * [Troubleshooting](#troubleshooting)
-* [Q&A](#q-a)
+  + [Helm chart failures](#helm-chart-failures)
+* [Q&A](#qa)
   + [Why have shell scripts for deployments?](#why-have-shell-scripts-for-deployments)
 
 ## Kubernetes clusters with KubeOne
@@ -165,11 +166,31 @@ This will setup a port-forwarding in the background and open up a browser, point
 
 ## Troubleshooting
 
+### Helm chart failures
+
+There could be an issue where a Helm chart deployment fails with an error message such as this:
+```
+Error: UPGRADE FAILED: another operation (install/upgrade/rollback) is in progress
+```
+
+In order to fix this issue the release has to either be deleted entirely or rolled back to a previous revision. The commands for rolling back would be the following:
+```
+# check for failed deployments
+helm list --failed -a -A
+# show history of a specific chart
+helm history [chart] -n [namespace]
+# rollback chart to a previous revision
+helm rollback [chart] [revision]
+```
+
+`helm history` should return information regarding the chart revisions, their status and description as to whether it completed successfully or not.
+Run the Helm deployment again once the chart rollback is successful and it is not listed as *pending* anymore.
+
 ## Q&A
 
 ### Why have shell scripts for deployments?
 
-Why not using just `helm install ...` or KubeOne's `addon` or `helmReleases` functionality, and have custom shell scripts for each and every additional Helm chart that gets installed into the cluster?
+Why not using just `helm install ...` directly or KubeOne's `addon` or `helmReleases` functionality, and instead have custom shell scripts for each and every additional Helm chart that gets installed into the cluster?
 
 Consider this: https://github.com/prometheus-community/helm-charts/tree/prometheus-19.7.2/charts/prometheus#to-190
 
