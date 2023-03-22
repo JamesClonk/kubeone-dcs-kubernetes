@@ -24,6 +24,13 @@ Table of Contents
   + [Configuration](#configuration)
     - [Hostname](#hostname)
   + [Installation](#installation)
+* [Up and running](#up-and-running)
+  + [kubectl](#kubectl)
+  + [DCS+](#dcs)
+  + [Kubernetes-Dashboard](#kubernetes-dashboard)
+  + [Grafana](#grafana)
+  + [OpenCost](#opencost)
+  + [Cilium Hubble UI](#cilium-hubble-ui)
 * [Troubleshooting](#troubleshooting)
 * [Q&A](#q-a)
   + [Why have shell scripts for deployments?](#why-have-shell-scripts-for-deployments)
@@ -64,6 +71,96 @@ For deploying a Kubernetes cluster with this module you will need to have all th
 - [make](https://www.gnu.org/software/make/)
 
 This module has so far only been tested running under Linux and MacOSX. Your experience with Windows tooling may vary.
+
+## Up and running
+
+TODO: ...
+
+### kubectl
+
+There should be a `kubeone-kubeconfig` file written to the root directory. This file contains the configuration and credentials to access and manage your Kubernetes cluster. You can set the environment variable `KUBECONFIG` to this file to have your `kubectl` CLI use it for the remainder of your terminal session.
+```bash
+$ export KUBECONFIG=$(pwd)/kubeconfig
+```
+Now you can run any `kubectl` commands you want to manage your cluster, for example:
+```bash
+$ kubectl cluster-info
+Kubernetes control plane is running at https://my-kubernetes.my-domain.com:6443
+CoreDNS is running at https://my-kubernetes.my-domain.com:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+KubeDNSUpstream is running at https://my-kubernetes.my-domain.com:6443/api/v1/namespaces/kube-system/services/kube-dns-upstream:dns/proxy
+
+$ kubectl get nodes -o wide
+NAME                                   STATUS   ROLES           AGE     VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+kubeone-cp-1                           Ready    control-plane   4d22h   v1.25.6   192.168.1.10   <none>        Ubuntu 20.04.5 LTS   5.4.0-144-generic   containerd://1.6.18
+kubeone-cp-2                           Ready    control-plane   4d22h   v1.25.6   192.168.1.11   <none>        Ubuntu 20.04.5 LTS   5.4.0-144-generic   containerd://1.6.18
+kubeone-cp-3                           Ready    control-plane   4d22h   v1.25.6   192.168.1.12   <none>        Ubuntu 20.04.5 LTS   5.4.0-144-generic   containerd://1.6.18
+kubeone-worker-pool-64578b898d-kbbgs   Ready    <none>          4d16h   v1.25.6   192.168.1.54   <none>        Ubuntu 20.04.5 LTS   5.4.0-144-generic   containerd://1.6.18
+kubeone-worker-pool-64578b898d-sqlhk   Ready    <none>          4d16h   v1.25.6   192.168.1.55   <none>        Ubuntu 20.04.5 LTS   5.4.0-144-generic   containerd://1.6.18
+
+$ kubectl get namespaces
+NAME                   STATUS   AGE
+cert-manager           Active   4d21h
+cloud-init-settings    Active   4d22h
+default                Active   4d22h
+grafana                Active   4d20h
+ingress-nginx          Active   4d21h
+kube-node-lease        Active   4d22h
+kube-public            Active   4d22h
+kube-system            Active   4d22h
+kubernetes-dashboard   Active   4d21h
+loki                   Active   4d20h
+opencost               Active   4d20h
+prometheus             Active   4d21h
+promtail               Active   4d21h
+reboot-coordinator     Active   4d22h
+```
+
+### DCS+
+![DCS+ Dashboard](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_dashboard.png)
+
+By default (unless configured otherwise in your `terraform.tfvars`) once the deployment is done you should see something similar to above in your DCS+ Portal. There will be 1 bastion host (a jumphost VM for SSH access to the other VMs), 3 control plane VMs for the Kubernetes server nodes, and several worker VMs that are responsible for running your Kubernetes workload.
+
+### Kubernetes-Dashboard
+![DCS+ Dashboard](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_k8s_dashboard.png)
+
+The Kubernetes dashboard will automatically be available to you after installation under [https://dashboard.my-kubernetes.my-domain.com](https://grafana.my-kubernetes.my-domain.com) (with *my-kubernetes.my-domain.com* being the value you configured in `terraform.tfvars -> kubeapi_hostname`)
+
+In order to login you will first need to request a temporary access token from your Kubernetes cluster:
+```bash
+$ kubectl -n kubernetes-dashboard create token kubernetes-dashboard
+```
+With this token you will be able to sign in into the dashboard.
+> **Note**: This token is only valid temporarily, you will need request a new one each time it has expired.
+
+### Grafana
+![DCS+ Grafana](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_grafana.png)
+
+The Grafana dashboard will automatically be available to you after installation under [https://grafana.my-kubernetes.my-domain.com](https://grafana.my-kubernetes.my-domain.com) (with *my-kubernetes.my-domain.com* being the value you configured in `terraform.tfvars -> kubeapi_hostname`)
+
+The username for accessing Grafana will be `admin` and the password can be retrieved from Kubernetes by running:
+```bash
+$ kubectl -n grafana get secret grafana -o jsonpath='{.data.admin-password}' | base64 -d; echo
+```
+
+### OpenCost
+![DCS+ Grafana](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_k8s_opencost.png)
+
+To access the OpenCost dashboard you have to initialize a localhost port-forwarding towards the service on the cluster, since it is not exposed externally:
+```bash
+$ kubectl -n opencost port-forward service/opencost 9090:9090
+```
+This will setup a port-forwarding for `localhost:9090` on your machine. Now you can open the OpenCost dashboard in your browser by going to [http://localhost:9090/](http://localhost:9090/).
+
+### Cilium Hubble UI
+![DCS+ Hubble](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_cilium_hubble.png)
+
+The easiest way to access the Cilium Hubble UI is to download and install the [Cilium CLI](https://github.com/cilium/cilium-cli), and then simply run the following command:
+```bash
+$ cilium hubble ui
+```
+This will setup a port-forwarding in the background and open up a browser, pointing to the Hubble UI at [http://localhost:12000](http://localhost:12000).
+
+## Troubleshooting
 
 ## Q&A
 
