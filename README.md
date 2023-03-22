@@ -127,7 +127,7 @@ The Kubernetes dashboard will automatically be available to you after installati
 
 In order to login you will first need to request a temporary access token from your Kubernetes cluster:
 ```bash
-$ kubectl -n kubernetes-dashboard create token kubernetes-dashboard
+$ kubectl -n kubernetes-dashboard create token kubernetes-dashboard --duration "60m"
 ```
 With this token you will be able to sign in into the dashboard.
 > **Note**: This token is only valid temporarily, you will need request a new one each time it has expired.
