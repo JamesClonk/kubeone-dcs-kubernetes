@@ -80,7 +80,7 @@ TODO: ...
 
 There should be a `kubeone-kubeconfig` file written to the root directory. This file contains the configuration and credentials to access and manage your Kubernetes cluster. You can set the environment variable `KUBECONFIG` to this file to have your `kubectl` CLI use it for the remainder of your terminal session.
 ```bash
-$ export KUBECONFIG=$(pwd)/kubeconfig
+$ export KUBECONFIG=kubeone-kubeconfig
 ```
 Now you can run any `kubectl` commands you want to manage your cluster, for example:
 ```bash
