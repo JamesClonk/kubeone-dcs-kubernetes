@@ -34,4 +34,4 @@ spec:
         ingress:
           class: nginx
 EOF
-kubectl apply -f "deployments/${chart}.cluster-issuer.yaml"
+kubectl -n ${namespace} apply -f "deployments/${chart}.cluster-issuer.yaml"

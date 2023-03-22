@@ -17,6 +17,12 @@ service:
     prometheus.io/scrape: "true"
     prometheus.io/port: "9003"
 opencost:
+  exporter:
+    extraEnv:
+      CONFIG_PATH: /tmp/opencost-config
+    extraVolumeMounts:
+    - mountPath: /tmp/opencost-config
+      name: opencost-config
   prometheus:
     external:
       enabled: false
@@ -25,8 +31,36 @@ opencost:
       namespaceName: prometheus
       serviceName: prometheus-server
       port: 80
+extraVolumes:
+- name: opencost-config
+  configMap:
+    name: opencost-config
 EOF
 deployments/install-chart.sh "${repository}" "${chart}" "${version}" "deployments/${chart}.values.yaml"
+echo " "
+
+# additional configuration, add a ConfigMap
+cat > "deployments/${chart}.crb.yaml" <<EOF
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opencost-config
+  namespace: ${namespace}
+data:
+  default.json: |
+    {
+        "provider": "custom",
+        "description": "Default prices based on DCS Price List",
+        "CPU": "0.02777",
+        "RAM": "0.01254 ",
+        "storage": "0.00048",
+        "zoneNetworkEgress": "0.0",
+        "regionNetworkEgress": "0.0",
+        "internetNetworkEgress": "0.0"
+    }
+EOF
+kubectl -n ${namespace} apply -f "deployments/${chart}.crb.yaml"
 
 echo " "
 echo "================================================================================================================="

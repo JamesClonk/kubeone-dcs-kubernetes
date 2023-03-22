@@ -51,7 +51,7 @@ subjects:
   name: kubernetes-dashboard
   namespace: kubernetes-dashboard
 EOF
-kubectl apply -f "deployments/${chart}.crb.yaml"
+kubectl -n ${namespace} apply -f "deployments/${chart}.crb.yaml"
 
 echo " "
 echo "================================================================================================================="

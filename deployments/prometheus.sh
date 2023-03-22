@@ -38,3 +38,9 @@ prometheus-pushgateway:
   enabled: true
 EOF
 deployments/install-chart.sh "${repository}" "${chart}" "${version}" "deployments/${chart}.values.yaml"
+
+echo " "
+echo "================================================================================================================="
+echo "Prometheus has been installed ..."
+echo "To access, open a port-forwarding by running: kubectl -n prometheus port-forward svc/prometheus-server 9090:80"
+echo "================================================================================================================="
