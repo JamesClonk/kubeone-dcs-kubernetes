@@ -249,32 +249,32 @@ To get a list of all possible `make` commands available, you can consult the hel
 $ make help
 
 Usage:
-  help                          prints this help message
-  check-env                     verifies current working environment meets all requirements
+  help                          print this help message
+  check-env                     verify current working environment meets all requirements
   terraform                     provision all infrastructure
-  terraform-init                initialize terraform
-  terraform-check               validate terraform configuration and show plan
-  terraform-apply               apply terraform configuration and provision infrastructure
-  terraform-refresh             refresh and view terraform state
-  terraform-output              output terraform information into file for KubeOne
+  terraform-init                initialize Terraform
+  terraform-check               validate Terraform configuration and show plan
+  terraform-apply               apply Terraform configuration and provision infrastructure
+  terraform-refresh             refresh and view Terraform state
+  terraform-output              output Terraform information into file for KubeOne
   terraform-destroy             delete and cleanup infrastructure
   kubeone                       run all KubeOne / Kubernetes provisioning steps
-  kubeone-apply                 run KubeOne to deploy kubernetes
+  kubeone-apply                 run KubeOne to deploy Kubernetes
   kubeone-kubeconfig            write kubeconfig file
   kubeone-generate-workers      generate a machinedeployments manifest for the cluster
   kubeone-apply-workers         apply machinedeployments to the cluster
   kubeone-addons                list KubeOne addons
   deployments                   install all deployments on Kubernetes
-  deploy-ingress-nginx          deploy/update nginx ingress-controller
-  deploy-cert-manager           deploy/update cert-manager
-  deploy-kubernetes-dashboard   deploy/update kubernetes dashboard
-  dashboard-token               create a temporary login token for kubernetes dashboard
-  deploy-prometheus             deploy/update prometheus
-  deploy-loki                   deploy/update loki
-  deploy-promtail               deploy/update promtail
-  deploy-grafana                deploy/update grafana
-  grafana-password              get the admin password for grafana
-  deploy-opencost               deploy/update opencost
+  deploy-ingress-nginx          deploy/update Nginx Ingress-controller
+  deploy-cert-manager           deploy/update Cert-Manager
+  deploy-kubernetes-dashboard   deploy/update Kubernetes dashboard
+  dashboard-token               create a temporary login token for Kubernetes dashboard
+  deploy-prometheus             deploy/update Prometheus
+  deploy-loki                   deploy/update Loki
+  deploy-promtail               deploy/update Promtail
+  deploy-grafana                deploy/update Grafana
+  grafana-password              get the admin password for Grafana
+  deploy-opencost               deploy/update OpenCost
 ```
 
 #### Infrastructure
@@ -291,7 +291,7 @@ That command will run all necessary steps. If it is the first run then it is lik
 
 If you want to have more fine-grained control over the various steps being executed, you could also run them manually in this order:
 ```bash
-$ make check-env
+$ make check-env # verifies current working environment meets all requirements
 $ make terraform-init
 $ make terraform-apply
 $ make terraform-output
@@ -305,7 +305,27 @@ Everything shown here is what Terraform will create or modify for you in Swissco
 
 #### Kubernetes
 
-TODO: ....
+The second step is to setup (or upgrade) a Kubernetes cluster on our newly provisioned infrastructure with KubeOne.
+
+Install [KubeOne](https://docs.kubermatic.com/kubeone/v1.6/getting-kubeone/) on your machine if you do not have it already. See the section about [local CLI tools](#local-cli-tools) above for all required tools needed.
+
+After you have configured `kubeone.yaml` and `credentials.yaml` you can run the Kubernetes installation by typing:
+```bash
+$ make kubeone
+```
+That command will run all necessary steps. If it is the first run then it is likely going to take quite a bit of time to finish, up to 15-20 minutes, as it needs to create a lot of new resources on DCS+. Just let it run until it finishes.
+
+> **Note**: The kubeone commands will only work if you previously ran the terraform steps, as they depend on output files being generated there.
+
+If you want to have more fine-grained control over the various steps being executed, you could also run them manually in this order:
+```bash
+$ make check-env # verifies current working environment meets all requirements
+$ make kubeone-apply # runs KubeOne to deploy Kubernetes
+$ make kubeone-kubeconfig # writes the kubeconfig file
+$ make kubeone-generate-workers # generates a machinedeployments manifest for the cluster
+$ make kubeone-apply-workers # applies machinedeployments manifest to the cluster
+```
+
 
 #### Deployments
 
