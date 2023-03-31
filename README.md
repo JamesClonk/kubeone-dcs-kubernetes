@@ -242,6 +242,14 @@ TODO: ....
 
 ### Installation
 
+If you are impatient and don't want to read any further then you can simply run this command after previously having [configured](#configuration) `terraform.tfstate`, `kubeone.yaml` and `credentials.yaml`:
+```bash
+make all
+```
+Continue reading for a detailed explanation on what this all entails.
+
+---
+
 This repository includes a `Makefile` in the root directory. All steps necessary to provision a Kubernetes cluster are defined within there.
 
 To get a list of all possible `make` commands available, you can consult the help message:
@@ -250,6 +258,7 @@ $ make help
 
 Usage:
   help                          print this help message
+  all                           runs all steps to provision and setup Kubernetes
   check-env                     verify current working environment meets all requirements
   terraform                     provision all infrastructure
   terraform-init                initialize Terraform
