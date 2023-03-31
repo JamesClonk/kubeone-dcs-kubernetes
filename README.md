@@ -214,3 +214,5 @@ Some Helm charts require manual actions to be taken by users when upgrading betw
 From experience Helm has also otherwise quite often proven itself to be flaky during upgrade operations, frequently getting stuck in pending or failed states.
 
 Shell scripts on the other hand can contain very specific *if/else/case* code paths for any such upgrade scenarios to be taken into consideration and implemented accordingly.
+
+See [`/deployments/prometheus.sh`](https://github.com/JamesClonk/kubeone-dcs-kubernetes/blob/e11db365f1d85a76da61ecac162240065a4d1b4d/deployments/prometheus.sh#L27-L35) as an example, it deals specifically with the upgrade path from *pre-v15.0* to *v18.0+*.
