@@ -17,7 +17,7 @@ Table of Contents
 * [How to deploy](#how-to-deploy)
   + [Requirements](#requirements)
     - [DCS+ resources](#dcs-resources)
-      * [Virtual Data Center](#virtual-data-center)
+      * [Dynamic Data Center](#dynamic-data-center)
       * [Edge Gateway](#edge-gateway)
       * [API User](#api-user)
     - [Local CLI tools](#local-cli-tools)
@@ -79,6 +79,44 @@ The final result is a fully functioning, highly available, autoscaling Kubernete
 ## How to deploy
 
 ### Requirements
+
+To use this repository you will need to have a valid account / contract number on [Swisscom DCS+](https://dcsguide.scapp.swisscom.com/).
+
+Configure your contract number (PRO-number) in `terraform.tfvars -> vcd_org` and `credentials.yaml -> VCD_ORG`.
+
+#### DCS+ resources
+
+For deploying a Kubernetes cluster on DCS+ you will need to manually create the following resources first before you can proceed:
+- a VDC / Dynamic Data Center (DDC)
+- an Edge Gateway with Internet in your VDC/DDC
+- an API User
+
+##### Dynamic Data Center
+
+Login to the DCS+ management portal and go to [Catalog](https://portal.swisscomcloud.com/catalog/). From there you can order a new **Dynamic Data Center**. The *"Service Level"* does not matter for Kubernetes, pick anything you want.
+
+See the official DCS+ documentation on [Dynamic Data Center](https://dcsguide.scapp.swisscom.com/ug3/dcs_portal.html#dynamic-data-center) for more information.
+
+Configure the name of your newly created DDC in `terraform.tfvars -> vcd_vdc` and `credentials.yaml -> VCD_VDC`.
+
+##### Edge Gateway
+
+Login to the DCS+ management portal and go to [My Items](https://portal.swisscomcloud.com/my-items/) view. From here click on the right hand side on *"Actions"* and then select **Create Internet Access** for your *Dynamic Data Center*. Make sure to check the box *"Edge Gateway"* and then fill out all the other values. For *"IP Range Size"* you can select the smallest value available, this installation will only need one public IP for an external LoadBalancer. On *"Edge Gateway Configuration"* it is important that you select the **Large** configuration option to create an Edge Gateway with an advanced feature set, otherwise it will be missing loadbalancing features and not function correctly!
+
+See the official DCS+ documentation on [Create Internet Access](https://dcsguide.scapp.swisscom.com/ug3/dcs_portal.html#internet-access) for more information.
+
+Configure the name of this Edge Gateway in `terraform.tfvars -> vcd_edge_gateway_name`.
+
+> **Note**: Also have a look in the vCloud Director web UI and check what the external/public IP assigned to this newly created Edge Gateway is by going to its **Configuration -> Gateway Interfaces** page and looking for the **Primary IP**. You will need this IP to set up DNS *A* and *CNAME* records for your Kubernetes cluster hostname.
+
+##### API User
+
+Login to the DCS+ management portal and go to [Catalog](https://portal.swisscomcloud.com/catalog/). From there you can order a new **vCloudDirector API User**. Make sure to leave *"Read only user?"* unchecked, otherwise your new API user will not be able to do anything!
+
+See the official DCS+ documentation on [Cloud Director API Users](https://dcsguide.scapp.swisscom.com/ug3/dcs_portal.html#cloud-director-api-user) for more information.
+
+Configure the new API username and password in `terraform.tfvars -> vcd_user | vcd_password` and `credentials.yaml -> VCD_USER | VCD_PASSWORD`.
+Make sure to also set the API URL at `vcd_url` and `VCD_URL` respectively. Check out the official DCS+ documentation on how to determine the API URL value, see [Cloud Director API - API access methods](https://dcsguide.scapp.swisscom.com/ug3/vcloud_director.html#api-access-methods).
 
 #### Local CLI tools
 
