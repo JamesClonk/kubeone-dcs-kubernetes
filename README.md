@@ -38,6 +38,21 @@ Table of Contents
 
 ## Kubernetes clusters with KubeOne
 
+This repository supports you in creating an autoscaling Kubernetes cluster with [KubeOne](https://github.com/kubermatic/kubeone) on [Swisscom DCS+](https://www.swisscom.ch/en/business/enterprise/offer/cloud/cloudservices/dynamic-computing-services.html) infrastructure. It also installs and manages additional deployments on the cluster, such as ingress-nginx, cert-manager and a whole set of logging/metrics/monitoring related components.
+It consists of three main components:
+- Infrastructure provisioning via [Terraform](/terraform/)
+- Kubernetes cluster and autoscaling workers via [KubeOne / kubeone.yaml](/kubeone.yaml)
+- Helm chart [deployments](/deployments/) for all additional components
+Each of these is responsible for a specific subset of features provided by the overall solution.
+
+The **terraform** module will provision resources on DCS+ and setup a private internal network (192.168.1.0/24 CIDR by default), attach an Edge Gateway with an external public IP and configure loadbalancing services, deploy a bastion host (jumphost) for external SSH access into the private network, and finally a set of Kubernetes control plane VMs.
+
+The **kubeone** automation will then connect via SSH over the bastion host to all those control plane nodes and install a vanilla Kubernetes cluster on them. It will also install the [machine-controller](https://github.com/kubermatic/machine-controller) and [cluster-autoscaler](https://github.com/kubernetes/autoscaler), which will then dynamically provision additional VMs to be used as worker nodes for hosting your workload.
+
+Finally the **deployments** component is responsible for installing other system components and software on to the Kubernetes cluster. It does most of its work through official Helm charts, plus some additional customization directly via kubectl / manifests and some shell scripting.
+
+The final result is a fully functioning, highly available, autoscaling Kubernetes cluster, complete with all the batteries included you need to get you started. *Ingress* Controller for HTTP virtual hosting / routing, TLS certificate management with automatic Let's Encrypt certificates for all your HTTPS traffic, dynamic cluster-autoscaling of worker nodes, *PersistentVolume* support, and an entire monitoring stack for metrics and logs.
+
 ### Architecture
 ![DCS+ KubeOne Architecture](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_k8s.png)
 #### KubeOne overview
@@ -49,6 +64,7 @@ Table of Contents
 | --- | --- | --- |
 | [Cilium](https://cilium.io/) | Networking | An open-source, cloud native and eBPF-based Kubernetes CNI that is providing, securing and observing network connectivity between container workloads |
 | [vCloud CSI driver](https://github.com/vmware/cloud-director-named-disk-csi-driver) | Storage | Container Storage Interface (CSI) driver for VMware Cloud Director |
+| [Machine-Controller](https://github.com/kubermatic/machine-controller) | Compute | Dynamic creation of Kubernetes worker nodes on VMware Cloud Director |
 | [Ingress NGINX](https://kubernetes.github.io/ingress-nginx/) | Routing | Provides HTTP traffic routing, load balancing, SSL termination and name-based virtual hosting |
 | [Cert Manager](https://cert-manager.io/) | Certificates | Cloud-native, automated TLS certificate management and [Let's Encrypt](https://letsencrypt.org/) integration for Kubernetes |
 | [Kubernetes Dashboard](https://github.com/kubernetes/dashboard) | Dashboard | A general purpose, web-based UI for Kubernetes clusters that allows users to manage and troubleshoot applications on the cluster, as well as manage the cluster itself |
