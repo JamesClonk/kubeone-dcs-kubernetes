@@ -28,6 +28,7 @@ Table of Contents
   + [kubectl](#kubectl)
   + [DCS+](#dcs)
   + [Kubernetes-Dashboard](#kubernetes-dashboard)
+  + [Prometheus](#prometheus)
   + [Grafana](#grafana)
   + [OpenCost](#opencost)
   + [Cilium Hubble UI](#cilium-hubble-ui)
@@ -151,6 +152,15 @@ $ kubectl -n kubernetes-dashboard create token kubernetes-dashboard --duration "
 ```
 With this token you will be able to sign in into the dashboard.
 > **Note**: This token is only valid temporarily, you will need request a new one each time it has expired.
+
+### Prometheus
+![DCS+ Prometheus](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_prometheus.png)
+
+To access the Prometheus UI you have to initialize a localhost port-forwarding towards the service on the cluster, since it is not exposed externally:
+```bash
+$ kubectl -n prometheus port-forward service/prometheus-server 9090:80
+```
+This will setup a port-forwarding for `localhost:9090` on your machine. Now you can open the Prometheus UI in your browser by going to [http://localhost:9090/](http://localhost:9090/).
 
 ### Grafana
 ![DCS+ Grafana](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_grafana.png)
