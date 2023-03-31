@@ -30,6 +30,9 @@ Table of Contents
         + [Large](#large)
     - [KubeOne](#kubeone)
   + [Installation](#installation)
+    - [Infrastructure](#infrastructure)
+    - [Kubernetes](#kubernetes)
+    - [Deployments](#deployments)
 * [Up and running](#up-and-running)
   + [kubectl](#kubectl)
   + [DCS+](#dcs)
@@ -233,6 +236,100 @@ The initial, minimum and maximum amount of worker nodes can be set to anything b
 #### KubeOne
 
 TODO: ....
+
+
+
+
+### Installation
+
+This repository includes a `Makefile` in the root directory. All steps necessary to provision a Kubernetes cluster are defined within there.
+
+To get a list of all possible `make` commands available, you can consult the help message:
+```bash
+$ make help
+
+Usage:
+  help                          prints this help message
+  check-env                     verifies current working environment meets all requirements
+  terraform                     provision all infrastructure
+  terraform-init                initialize terraform
+  terraform-check               validate terraform configuration and show plan
+  terraform-apply               apply terraform configuration and provision infrastructure
+  terraform-refresh             refresh and view terraform state
+  terraform-output              output terraform information into file for KubeOne
+  terraform-destroy             delete and cleanup infrastructure
+  kubeone                       run all KubeOne / Kubernetes provisioning steps
+  kubeone-apply                 run KubeOne to deploy kubernetes
+  kubeone-kubeconfig            write kubeconfig file
+  kubeone-generate-workers      generate a machinedeployments manifest for the cluster
+  kubeone-apply-workers         apply machinedeployments to the cluster
+  kubeone-addons                list KubeOne addons
+  deployments                   install all deployments on Kubernetes
+  deploy-ingress-nginx          deploy/update nginx ingress-controller
+  deploy-cert-manager           deploy/update cert-manager
+  deploy-kubernetes-dashboard   deploy/update kubernetes dashboard
+  dashboard-token               create a temporary login token for kubernetes dashboard
+  deploy-prometheus             deploy/update prometheus
+  deploy-loki                   deploy/update loki
+  deploy-promtail               deploy/update promtail
+  deploy-grafana                deploy/update grafana
+  grafana-password              get the admin password for grafana
+  deploy-opencost               deploy/update opencost
+```
+
+#### Infrastructure
+
+The first step towards our goal is to provision the infrastructure.
+
+Install [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) on your machine if you do not have it already. See the section about [local CLI tools](#local-cli-tools) above for all required tools needed.
+
+After you have configured `terraform.tfvars` you can start the entire Terraform infrastructure provisioning by simply typing:
+```bash
+$ make terraform
+```
+That command will run all necessary steps. If it is the first run then it is likely going to take quite a bit of time to finish, up to 15-20 minutes, as it needs to create a lot of new resources on DCS+. Just let it run until it finishes.
+
+If you want to have more fine-grained control over the various steps being executed, you could also run them manually in this order:
+```bash
+$ make check-env
+$ make terraform-init
+$ make terraform-apply
+$ make terraform-output
+```
+
+Each time before you provision or modify the infrastructure you can do a "dry-run" first and check what changes Terraform would do:
+```bash
+$ make terraform-check
+```
+Everything shown here is what Terraform will create or modify for you in Swisscom DCS+.
+
+#### Kubernetes
+
+TODO: ....
+
+#### Deployments
+
+TODO: ....
+
+
+
+
+
+
+
+Before you provision the new Kubernetes cluster you can do a "dry-run" and check what Terraform would do:
+```bash
+$ terraform plan
+```
+If this is your first run of `terraform plan` this will likely show you a huge list of changes and missing resources. Everything shown here is what Terraform will create for you in order to provision a Kubernetes cluster on DCS+.
+
+Finally once everything is ready and you are satisfied with the `plan` output, you can then run `terraform apply` to actually create the Kubernetes cluster:
+```bash
+$ terraform apply
+```
+It will once more display the difference between current and target state, and ask you to confirm if you want to proceed. Type `yes` and hit Enter to continue.
+
+The first run of `terraform apply` is likely going to take quite a bit of time to finish, up to 20 minutes, as it needs to create a lot of new resources on DCS+. Just let it run until it finishes.
 
 
 

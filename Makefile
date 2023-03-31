@@ -74,7 +74,7 @@ terraform-output:
 		terraform output -json > ${TERRAFORM_OUTPUT}
 
 .PHONY: terraform-destroy
-## kterraform-destroy: delete and cleanup infrastructure
+## terraform-destroy: delete and cleanup infrastructure
 terraform-destroy:
 	cd ${TERRAFORM_DIR} && \
 		terraform destroy
