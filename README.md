@@ -40,9 +40,9 @@ Table of Contents
 
 This repository supports you in creating an autoscaling Kubernetes cluster with [KubeOne](https://github.com/kubermatic/kubeone) on [Swisscom DCS+](https://www.swisscom.ch/en/business/enterprise/offer/cloud/cloudservices/dynamic-computing-services.html) infrastructure. It also installs and manages additional deployments on the cluster, such as ingress-nginx, cert-manager and a whole set of logging/metrics/monitoring related components.
 It consists of three main components:
-- Infrastructure provisioning via [Terraform](/terraform/)
-- Kubernetes cluster and autoscaling workers via [KubeOne / kubeone.yaml](/kubeone.yaml)
-- Helm chart [deployments](/deployments/) for all additional components
+- Infrastructure provisioning via [`/terraform/`](/terraform/)
+- Kubernetes cluster and autoscaling workers via [`/kubeone.yaml`](/kubeone.yaml)
+- Helm chart [`/deployments/`](/deployments/) for all additional components
 Each of these is responsible for a specific subset of features provided by the overall solution.
 
 The **terraform** module will provision resources on DCS+ and setup a private internal network (192.168.1.0/24 CIDR by default), attach an Edge Gateway with an external public IP and configure loadbalancing services, deploy a bastion host (jumphost) for external SSH access into the private network, and finally a set of Kubernetes control plane VMs.
