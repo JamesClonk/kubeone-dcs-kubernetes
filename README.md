@@ -22,7 +22,13 @@ Table of Contents
       * [API User](#api-user)
     - [Local CLI tools](#local-cli-tools)
   + [Configuration](#configuration)
-    - [Hostname](#hostname)
+    - [Terraform](#terraform)
+      * [Hostname](#hostname)
+      * [Cluster sizing recommendations](#cluster-sizing-recommendations)
+        + [Small / Starter](#small--starter)
+        + [Medium / Default values](#medium--default-values)
+        + [Large](#large)
+    - [KubeOne](#kubeone)
   + [Installation](#installation)
 * [Up and running](#up-and-running)
   + [kubectl](#kubectl)
@@ -107,7 +113,7 @@ See the official DCS+ documentation on [Create Internet Access](https://dcsguide
 
 Configure the name of this Edge Gateway in `terraform.tfvars -> vcd_edge_gateway_name`.
 
-> **Note**: Also have a look in the vCloud Director web UI and check what the external/public IP assigned to this newly created Edge Gateway is by going to its **Configuration -> Gateway Interfaces** page and looking for the **Primary IP**. You will need this IP to set up DNS *A* and *CNAME* records for your Kubernetes cluster hostname.
+> **Note**: Also have a look in the vCloud Director web UI and check what the external/public IP assigned to this newly created Edge Gateway is by going to its **Configuration -> Gateway Interfaces** page and looking for the **Primary IP**. You will need this IP to set up DNS *A* and *CNAME* records with your Kubernetes cluster hostname.
 
 ##### API User
 
@@ -130,6 +136,111 @@ For deploying a Kubernetes cluster with this repository you will need to have al
 - [make](https://www.gnu.org/software/make/)
 
 This repository has so far only been tested running under Linux and MacOSX. Your experience with Windows tooling may vary.
+
+### Configuration
+
+#### Terraform
+
+All data for the infrastructure provisioning part via Terraform lives in the [/terraform](/terraform) subdirectory of this repository, and all possible configuration variables are defined in the [variables.tf](/terraform/variables.tf) file. Most of them already have a sensible default value and only a small handful are required to be configured manually. For any such variable that does not have a default (or you want to set to a different value) you will have to create and add a configuration entry in your `terraform.tfvars` file.
+
+To get you started quickly there is also an example configuration file included, [terraform.example.tfvars](/terraform/terraform.example.tfvars), which contains the minimal set of variables required to provision the infrastructure.
+
+```terraform
+vcd_url      = "https://vcd-pod-bravo.swisscomcloud.com/api"
+vcd_user     = "api_vcd_my_username"
+vcd_password = "my_password"
+
+vcd_org         = "PRO-0123456789"
+vcd_vdc         = "my-data-center"
+vcd_edgegateway = "PRO-0123456789-my-edge-gateway"
+
+cluster_hostname = "my-kubernetes.my-domain.com"
+```
+
+You can just copy this file over to `terraform.tfvars` and start editing it to fill in your values:
+```bash
+$ cp terraform/terraform.example.tfvars terraform/terraform.tfvars
+$ vim terraform/terraform.tfvars
+```
+
+##### Hostname
+
+The variable `cluster_hostname` plays an important role in setting up your Kubernetes cluster. Many of the components that are installed will have [Ingresses](https://kubernetes.io/docs/concepts/services-networking/ingress/) created and configured with that domain name as part of their hostname. For example Grafana will be made available on `https://grafana.<cluster_hostname>`.
+
+In order for this to work correctly you should setup a new DNS **A** record for the domain name you want to be using, pointing it to the external/public IP of the Edge Gateway. Look for the IP in the vCloud Director web UI. After that you will also have to add a wildcard **CNAME** record, pointing to the newly created *A* record.
+
+For example, if you want to use `my-kubernetes.my-domain.com`, the DNS entries would look something like this:
+```bash
+;ANSWER
+*.my-kubernetes.my-domain.com. 600 IN CNAME my-kubernetes.my-domain.com.
+my-kubernetes.my-domain.com. 600 IN A 147.5.206.13
+```
+
+##### Cluster sizing recommendations
+
+There are also separate configuration variables for each aspect of the virtual machines that will be provisioned by Terraform initially and later on dynamically by the machine-controller and cluster-autoscaler components. These are all the variables starting with `control_plane_*` or `worker_*`, or ending with `*_replicas` in `variables.tf`.
+
+Here are some examples for possible cluster size customizations:
+
+###### Small / Starter
+| Node type | Setting | Variable name | Value |
+| --- | --- | --- | --- |
+| Control plane | Number of VMs | `control_plane_vm_count` | `1` |
+| Control plane | vCPUs | `control_plane_cpus` | `1` |
+| Control plane | Memory (in MB) | `control_plane_memory` | `2048` |
+| Worker | Initial number of VMs | `initial_machinedeployment_replicas` | `1` |
+| Worker | Minimum number of VMs | `cluster_autoscaler_min_replicas` | `1` |
+| Worker | Maximum number of VMs | `cluster_autoscaler_max_replicas` | `3` |
+| Worker | vCPUs | `worker_cpus` | `2` |
+| Worker | Memory (in MB) | `worker_memory` | `4096` |
+| Worker | Disk size (in GB) | `worker_disk_size_gb` | `50` |
+
+###### Medium / Default values
+| Node type | Setting | Variable name | Value |
+| --- | --- | --- | --- |
+| Control plane | Number of VMs | `control_plane_vm_count` | `3` |
+| Control plane | vCPUs | `control_plane_cpus` | `2` |
+| Control plane | Memory (in MB) | `control_plane_memory` | `4096` |
+| Worker | Initial number of VMs | `initial_machinedeployment_replicas` | `2` |
+| Worker | Minimum number of VMs | `cluster_autoscaler_min_replicas` | `2` |
+| Worker | Maximum number of VMs | `cluster_autoscaler_max_replicas` | `5` |
+| Worker | vCPUs | `worker_cpus` | `4` |
+| Worker | Memory (in MB) | `worker_memory` | `8192` |
+| Worker | Disk size (in GB) | `worker_disk_size_gb` | `50` |
+
+###### Large
+| Node type | Setting | Variable name | Value |
+| --- | --- | --- | --- |
+| Control plane | Number of VMs | `control_plane_vm_count` | `3` |
+| Control plane | vCPUs | `control_plane_cpus` | `4` |
+| Control plane | Memory (in MB) | `control_plane_memory` | `4096` |
+| Worker | Initial number of VMs | `initial_machinedeployment_replicas` | `5` |
+| Worker | Minimum number of VMs | `cluster_autoscaler_min_replicas` | `3` |
+| Worker | Maximum number of VMs | `cluster_autoscaler_max_replicas` | `15` |
+| Worker | vCPUs | `worker_cpus` | `4` |
+| Worker | Memory (in MB) | `worker_memory` | `16384` |
+| Worker | Disk size (in GB) | `worker_disk_size_gb` | `50` |
+
+Set the amount of control plane nodes to either be 1, 3 or 5. They have to be an odd number for the quorum to work correctly, and anything above 5 is not really that beneficial anymore. For a highly-available setup usually the perfect number of control plane nodes is `3`.
+
+The initial, minimum and maximum amount of worker nodes can be set to anything between 1 and 100. Do not set it to a number higher than that unless you know what you are doing, other variables would need to be changed too since by default the network configuration currently supports only a maximum of 100 worker nodes!
+
+> **Note**: Please be aware that if you use only 1 worker or control plane VM your workload will not be highly-available anymore, for if any of these VMs crashes or becomes unavailable it might affect your running containers.
+
+
+
+
+#### KubeOne
+
+TODO: ....
+
+
+
+
+
+
+
+
 
 ## Up and running
 
