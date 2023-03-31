@@ -55,11 +55,11 @@ It consists of three main components:
 - Helm chart [`/deployments/`](/deployments/) for all additional components
 Each of these is responsible for a specific subset of features provided by the overall solution.
 
-The **terraform** module will provision resources on DCS+ and setup a private internal network (192.168.1.0/24 CIDR by default), attach an Edge Gateway with an external public IP and configure loadbalancing services, deploy a bastion host (jumphost) for external SSH access into the private network, and finally a set of Kubernetes control plane VMs.
+The **Terraform** module will provision resources on DCS+ and setup a private internal network (192.168.1.0/24 CIDR by default), attach an Edge Gateway with an external public IP and configure loadbalancing services, deploy a bastion host (jumphost) for external SSH access into the private network, and finally a set of Kubernetes control plane VMs.
 
-The **kubeone** automation will then connect via SSH over the bastion host to all those control plane nodes and install a vanilla Kubernetes cluster on them. It will also install the [machine-controller](https://github.com/kubermatic/machine-controller) and [cluster-autoscaler](https://github.com/kubernetes/autoscaler), which will then dynamically provision additional VMs to be used as worker nodes for hosting your workload.
+The **KubeOne** automation will then connect via SSH over the bastion host to all those control plane nodes and install a vanilla Kubernetes cluster on them. It will also install the [machine-controller](https://github.com/kubermatic/machine-controller) and [cluster-autoscaler](https://github.com/kubernetes/autoscaler), which will then dynamically provision additional VMs to be used as worker nodes for hosting your workload.
 
-Finally the **deployments** component is responsible for installing other system components and software on to the Kubernetes cluster. It does most of its work through official Helm charts, plus some additional customization directly via kubectl / manifests and some shell scripting.
+Finally the **Deployments** component is responsible for installing other system components and software on to the Kubernetes cluster. It does most of its work through official Helm charts, plus some additional customization directly via kubectl / manifests and some shell scripting.
 
 The final result is a fully functioning, highly available, autoscaling Kubernetes cluster, complete with all the batteries included you need to get you started. *Ingress* Controller for HTTP virtual hosting / routing, TLS certificate management with automatic Let's Encrypt certificates for all your HTTPS traffic, dynamic cluster-autoscaling of worker nodes, *PersistentVolume* support, and an entire monitoring stack for metrics and logs.
 
@@ -292,14 +292,14 @@ That command will run all necessary steps. If it is the first run then it is lik
 If you want to have more fine-grained control over the various steps being executed, you could also run them manually in this order:
 ```bash
 $ make check-env # verifies current working environment meets all requirements
-$ make terraform-init
-$ make terraform-apply
-$ make terraform-output
+$ make terraform-init # initializes Terraform
+$ make terraform-apply # applies Terraform configuration and provisions infrastructure
+$ make terraform-output # outputs Terraform information into file for KubeOne
 ```
 
 Each time before you provision or modify the infrastructure you can do a "dry-run" first and check what changes Terraform would do:
 ```bash
-$ make terraform-check
+$ make terraform-check # validates Terraform configuration and shows plan
 ```
 Everything shown here is what Terraform will create or modify for you in Swisscom DCS+.
 
@@ -309,13 +309,13 @@ The second step is to setup (or upgrade) a Kubernetes cluster on our newly provi
 
 Install [KubeOne](https://docs.kubermatic.com/kubeone/v1.6/getting-kubeone/) on your machine if you do not have it already. See the section about [local CLI tools](#local-cli-tools) above for all required tools needed.
 
-After you have configured `kubeone.yaml` and `credentials.yaml` you can run the Kubernetes installation by typing:
+After you have configured `kubeone.yaml` and `credentials.yaml` you can proceed with the installation of Kubernetes by typing:
 ```bash
 $ make kubeone
 ```
-That command will run all necessary steps. If it is the first run then it is likely going to take quite a bit of time to finish, up to 15-20 minutes, as it needs to create a lot of new resources on DCS+. Just let it run until it finishes.
+That command will then connect via SSH over the bastion host to the previously provisioned control plane VMs and install Kubernetes on them.
 
-> **Note**: The kubeone commands will only work if you previously ran the terraform steps, as they depend on output files being generated there.
+> **Note**: The KubeOne commands will only work if you previously ran the Terraform steps, as they depend on output files being generated there.
 
 If you want to have more fine-grained control over the various steps being executed, you could also run them manually in this order:
 ```bash
@@ -326,38 +326,29 @@ $ make kubeone-generate-workers # generates a machinedeployments manifest for th
 $ make kubeone-apply-workers # applies machinedeployments manifest to the cluster
 ```
 
-
 #### Deployments
 
-TODO: ....
+The final step is to deploy all other additional components on to the newly installed Kubernetes cluster.
 
+Install [Helm](https://helm.sh/docs/intro/install/) on your machine if you do not have it already. See the section about [local CLI tools](#local-cli-tools) above for all required tools needed.
 
-
-
-
-
-
-Before you provision the new Kubernetes cluster you can do a "dry-run" and check what Terraform would do:
+After you have installed Kubernetes via KubeOne you can install all additional components by typing:
 ```bash
-$ terraform plan
+$ make deployments
 ```
-If this is your first run of `terraform plan` this will likely show you a huge list of changes and missing resources. Everything shown here is what Terraform will create for you in order to provision a Kubernetes cluster on DCS+.
+That command will then install a collection of useful addons and components via Helm charts onto your Kubernetes cluster.
 
-Finally once everything is ready and you are satisfied with the `plan` output, you can then run `terraform apply` to actually create the Kubernetes cluster:
+All of them are optional and not strictly required, but provide quality-of-life improvements for your Kubernetes experience. If you want to have more fine-grained control over all the various components being installed, you could also deploy them manually and pick and choose which ones you want to install:
 ```bash
-$ terraform apply
+$ make deploy-ingress-nginx # deploys or updates Nginx Ingress-controller
+$ make deploy-cert-manager # deploys or updates Cert-Manager
+$ make deploy-kubernetes-dashboard # deploys or updates Kubernetes-Dashboard
+$ make deploy-prometheus # deploys or updates Promethes
+$ make deploy-loki # deploys or updates Loki
+$ make deploy-promtail # deploys or updates Promtail
+$ make deploy-grafana # deploys or updates Grafana
+$ make deploy-opencost # deploys or updates OpenCost
 ```
-It will once more display the difference between current and target state, and ask you to confirm if you want to proceed. Type `yes` and hit Enter to continue.
-
-The first run of `terraform apply` is likely going to take quite a bit of time to finish, up to 20 minutes, as it needs to create a lot of new resources on DCS+. Just let it run until it finishes.
-
-
-
-
-
-
-
-
 
 ## Up and running
 
