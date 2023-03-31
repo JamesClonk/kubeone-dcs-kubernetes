@@ -22,8 +22,8 @@ output "kubeone_api" {
   description = "kube-apiserver LB endpoint"
 
   value = {
-    endpoint                    = var.kubeapi_hostname
-    apiserver_alternative_names = [var.kubeapi_hostname]
+    endpoint                    = var.cluster_hostname
+    apiserver_alternative_names = [var.cluster_hostname]
   }
 }
 

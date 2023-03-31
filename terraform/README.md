@@ -84,7 +84,7 @@ No modules.
 | <a name="input_gateway_ip"></a> [gateway\_ip](#input\_gateway\_ip) | Gateway IP for the routed network | `string` | `"192.168.1.1"` | no |
 | <a name="input_initial_machinedeployment_operating_system_profile"></a> [initial\_machinedeployment\_operating\_system\_profile](#input\_initial\_machinedeployment\_operating\_system\_profile) | Name of operating system profile for MachineDeployments, only applicable if operating-system-manager addon is enabled.<br>If not specified, the default value will be added by machine-controller addon. | `string` | `""` | no |
 | <a name="input_initial_machinedeployment_replicas"></a> [initial\_machinedeployment\_replicas](#input\_initial\_machinedeployment\_replicas) | number of replicas per MachineDeployment | `number` | `2` | no |
-| <a name="input_kubeapi_hostname"></a> [kubeapi\_hostname](#input\_kubeapi\_hostname) | DNS name for the kube-apiserver | `string` | `""` | no |
+| <a name="input_cluster_hostname"></a> [cluster\_hostname](#input\cluster\_hostname) | DNS hostname for the kube-apiserver | `string` | `""` | no |
 | <a name="input_network_dns_server_1"></a> [network\_dns\_server\_1](#input\_network\_dns\_server\_1) | Primary DNS server for the routed network | `string` | `""` | no |
 | <a name="input_network_dns_server_2"></a> [network\_dns\_server\_2](#input\_network\_dns\_server\_2) | Secondary DNS server for the routed network. | `string` | `""` | no |
 | <a name="input_network_interface_type"></a> [network\_interface\_type](#input\_network\_interface\_type) | Type of interface for the routed network | `string` | `"internal"` | no |

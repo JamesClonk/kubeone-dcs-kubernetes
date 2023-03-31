@@ -26,6 +26,7 @@ variable "vcd_user" {
   description = "Username for the VMware Cloud Director access"
   type        = string
 }
+
 variable "vcd_password" {
   description = "Password for the VMware Cloud Director access"
   type        = string
@@ -71,8 +72,8 @@ variable "cluster_name" {
   }
 }
 
-variable "kubeapi_hostname" {
-  description = "DNS name for the kube-apiserver"
+variable "cluster_hostname" {
+  description = "DNS hostname for the Kubernetes cluster"
   default     = ""
   type        = string
 }
@@ -148,7 +149,6 @@ variable "os_image_file" {
   default     = "ubuntu-20.04-server-cloudimg-amd64.ova"
   type        = string
 }
-
 
 variable "control_plane_vm_count" {
   description = "number of control plane instances"

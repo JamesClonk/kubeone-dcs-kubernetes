@@ -11,7 +11,7 @@ chart="kubernetes-dashboard"
 version="6.0.5"
 namespace="${chart}"
 
-kubeapi_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)
+cluster_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)
 cat > "deployments/${chart}.values.yaml" <<EOF
 metricsScraper:
   enabled: true
@@ -24,11 +24,11 @@ ingress:
   enabled: true
   className: nginx
   hosts:
-  - dashboard.${kubeapi_hostname}
+  - dashboard.${cluster_hostname}
   tls:
   - secretName: kubernetes-dashboard-tls
     hosts:
-    - dashboard.${kubeapi_hostname}
+    - dashboard.${cluster_hostname}
   annotations:
     cert-manager.io/cluster-issuer: "lets-encrypt"
 EOF
@@ -55,6 +55,6 @@ kubectl -n ${namespace} apply -f "deployments/${chart}.crb.yaml"
 
 echo " "
 echo "================================================================================================================="
-echo "Kubernetes dashboard has been installed, visit: https://dashboard.${kubeapi_hostname}"
+echo "Kubernetes dashboard has been installed, visit: https://dashboard.${cluster_hostname}"
 echo "To login, create a temporary token by running: kubectl -n kubernetes-dashboard create token kubernetes-dashboard"
 echo "================================================================================================================="

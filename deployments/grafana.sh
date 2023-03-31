@@ -11,7 +11,7 @@ chart="grafana"
 version="6.52.4"
 namespace="${chart}"
 
-kubeapi_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)
+cluster_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)
 cat > "deployments/${chart}.values.yaml" <<EOF
 deploymentStrategy:
   type: Recreate
@@ -22,11 +22,11 @@ ingress:
   enabled: true
   ingressClassName: nginx
   hosts:
-  - grafana.${kubeapi_hostname}
+  - grafana.${cluster_hostname}
   tls:
   - secretName: grafana-tls
     hosts:
-    - grafana.${kubeapi_hostname}
+    - grafana.${cluster_hostname}
   annotations:
     cert-manager.io/cluster-issuer: "lets-encrypt"
 datasources:
@@ -75,6 +75,6 @@ deployments/install-chart.sh "${repository}" "${chart}" "${version}" "deployment
 
 echo " "
 echo "================================================================================================================="
-echo "Grafana has been installed, visit: https://grafana.${kubeapi_hostname}"
+echo "Grafana has been installed, visit: https://grafana.${cluster_hostname}"
 echo "Get the admin password: kubectl -n grafana get secret grafana -o jsonpath='{.data.admin-password}' | base64 -d; echo"
 echo "================================================================================================================="

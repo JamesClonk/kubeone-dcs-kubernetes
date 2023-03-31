@@ -65,7 +65,7 @@ Table of Contents
 
 #### Local CLI tools
 
-For deploying a Kubernetes cluster with this module you will need to have all the following CLI tools installed on your machine:
+For deploying a Kubernetes cluster with this repository you will need to have all the following CLI tools installed on your machine:
 - [kubeone](https://docs.kubermatic.com/kubeone/v1.6/getting-kubeone/)
 - [terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 - [helm](https://helm.sh/docs/intro/install/)
@@ -74,7 +74,7 @@ For deploying a Kubernetes cluster with this module you will need to have all th
 - [git](https://git-scm.com/)
 - [make](https://www.gnu.org/software/make/)
 
-This module has so far only been tested running under Linux and MacOSX. Your experience with Windows tooling may vary.
+This repository has so far only been tested running under Linux and MacOSX. Your experience with Windows tooling may vary.
 
 ## Up and running
 
@@ -122,12 +122,12 @@ reboot-coordinator     Active   4d22h
 ### DCS+
 ![DCS+ Dashboard](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_dashboard.png)
 
-By default (unless configured otherwise in your `terraform.tfvars`) once the deployment is done you should see something similar to above in your DCS+ Portal. There will be 1 bastion host (a jumphost VM for SSH access to the other VMs), 3 control plane VMs for the Kubernetes server nodes, and several worker VMs that are responsible for running your Kubernetes workload.
+By default (unless configured otherwise in your `terraform.tfvars`) once the deployment is done you should see something similar to the picture above in your DCS+ Portal. There will be 1 bastion host (a jumphost VM for SSH access to the other VMs), 3 control plane VMs for the Kubernetes server nodes, and several dynamically created worker VMs that are responsible for running your Kubernetes workload.
 
 ### Kubernetes-Dashboard
 ![DCS+ Dashboard](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_k8s_dashboard.png)
 
-The Kubernetes dashboard will automatically be available to you after installation under [https://dashboard.my-kubernetes.my-domain.com](https://grafana.my-kubernetes.my-domain.com) (with *my-kubernetes.my-domain.com* being the value you configured in `terraform.tfvars -> kubeapi_hostname`)
+The Kubernetes dashboard will automatically be available to you after installation under [https://dashboard.my-kubernetes.my-domain.com](https://grafana.my-kubernetes.my-domain.com) (with *my-kubernetes.my-domain.com* being the value you configured in `terraform.tfvars -> cluster_hostname`)
 
 In order to login you will first need to request a temporary access token from your Kubernetes cluster:
 ```bash
@@ -139,7 +139,7 @@ With this token you will be able to sign in into the dashboard.
 ### Grafana
 ![DCS+ Grafana](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_grafana.png)
 
-The Grafana dashboard will automatically be available to you after installation under [https://grafana.my-kubernetes.my-domain.com](https://grafana.my-kubernetes.my-domain.com) (with *my-kubernetes.my-domain.com* being the value you configured in `terraform.tfvars -> kubeapi_hostname`)
+The Grafana dashboard will automatically be available to you after installation under [https://grafana.my-kubernetes.my-domain.com](https://grafana.my-kubernetes.my-domain.com) (with *my-kubernetes.my-domain.com* being the value you configured in `terraform.tfvars -> cluster_hostname`)
 
 The username for accessing Grafana will be `admin` and the password can be retrieved from Kubernetes by running:
 ```bash
