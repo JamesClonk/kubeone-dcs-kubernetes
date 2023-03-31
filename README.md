@@ -94,11 +94,11 @@ This repository has so far only been tested running under Linux and MacOSX. Your
 
 ## Up and running
 
-TODO: ...
+Once the installation of all the components has finished you should have a fully functioning Kubernetes cluster up and running in your Swisscom DCS+ data center. Here are a few examples on how to access these components and the cluster itself:
 
 ### kubectl
 
-There should be a `kubeone-kubeconfig` file written to the root directory. This file contains the configuration and credentials to access and manage your Kubernetes cluster. You can set the environment variable `KUBECONFIG` to this file to have your `kubectl` CLI use it for the remainder of your terminal session.
+There should be a `kubeone-kubeconfig` file written to the root directory. This file contains the configuration and credentials to access and manage your Kubernetes cluster. You can set the environment variable `KUBECONFIG` to this file to have your `kubectl` CLI use it automatically for the remainder of your terminal session.
 ```bash
 $ export KUBECONFIG=kubeone-kubeconfig
 ```
@@ -138,12 +138,12 @@ reboot-coordinator     Active   4d22h
 ### DCS+
 ![DCS+ Dashboard](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_dashboard.png)
 
-By default (unless configured otherwise in your `terraform.tfvars`) once the deployment is done you should see something similar to the picture above in your DCS+ Portal. There will be 1 bastion host (a jumphost VM for SSH access to the other VMs), 3 control plane VMs for the Kubernetes server nodes, and several dynamically created worker VMs that are responsible for running your Kubernetes workload.
+By default (unless configured otherwise in your `terraform.tfvars` or `kubeone.yaml`) once the deployment is done you should see something similar to the picture above in your DCS+ Portal. There will be 1 bastion host (a jumphost VM for SSH access to the other VMs), 3 control plane VMs for the Kubernetes server nodes, and several dynamically created worker VMs that are responsible for running your Kubernetes workload.
 
 ### Kubernetes-Dashboard
 ![DCS+ Dashboard](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_k8s_dashboard.png)
 
-The Kubernetes dashboard will automatically be available to you after installation under [https://dashboard.my-kubernetes.my-domain.com](https://grafana.my-kubernetes.my-domain.com) (with *my-kubernetes.my-domain.com* being the value you configured in `terraform.tfvars -> cluster_hostname`)
+The Kubernetes dashboard will automatically be available to you after the installation under [https://dashboard.my-kubernetes.my-domain.com](https://grafana.my-kubernetes.my-domain.com) (with *my-kubernetes.my-domain.com* being the value you configured in `terraform.tfvars -> cluster_hostname`)
 
 In order to login you will first need to request a temporary access token from your Kubernetes cluster:
 ```bash
