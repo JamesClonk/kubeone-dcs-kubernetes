@@ -230,19 +230,47 @@ The initial, minimum and maximum amount of worker nodes can be set to anything b
 
 > **Note**: Please be aware that if you use only 1 worker or control plane VM your workload will not be highly-available anymore, for if any of these VMs crashes or becomes unavailable it might affect your running containers.
 
-
-
-
 #### KubeOne
 
-TODO: ....
+KubeOne's purpose is to install Kubernetes itself onto the virtual machines provisioned by Terraform. As part of that process it will also install machine-controller onto the cluster, a component which will allow Kubernetes via cluster-autoscaler to dynamically provision further virtual machines on Swisscom DCS+, serving as additional worker nodes for the cluster.
 
+For KubeOne and the machine-controller to work correctly they will need to know about the infrastructure in advance and more specifically also the credentials necessary to interact with Swisscom DCS+.
 
+To get you started quickly there is an example configuration file included, [credentials.example.yaml](/credentials.example.yaml), which contains all the values that must be configured first before using KubeOne.
 
+```yaml
+VCD_URL: https://vcd-pod-bravo.swisscomcloud.com/api
+VCD_ORG: PRO-0123456789
+VCD_VDC: my-data-center
+VCD_USER: api_vcd_my_username
+VCD_PASSWORD: my_password
+```
+
+You can just copy this file over to `credentials.yaml` and start editing it to fill in your values:
+```bash
+$ cp credentials.example.yaml credentials.yaml
+$ vim credentials.yaml
+```
+
+The other file of interest is the main configuration file of KubeOne itself, [kubeone.yaml](/kubeone.yaml). In this file you can configure various aspects of the Kubernetes cluster setup it will perform, what version to install, what CNI to use, what CSI to use, etc..
+
+Please refer to the [Kubermatic KubeOne - v1beta2 API Reference](https://docs.kubermatic.com/kubeone/v1.6/references/kubeone-cluster-v1beta2/) for a full list of all configuration settings available.
+
+The `kubeone.yaml` provided in this repository should mostly already have sensible defaults and only really needs one specific property to be adjusted, the `storageProfile` of the `default-storage-class`:
+```yaml
+addons:
+  addons:
+  - name: default-storage-class
+    params:
+      storageProfile: Ultra Fast Storage A # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
+```
+Please adjust the `storageProfile` to one of the storage policies available to you in your Swisscom DCS+ data center. You can view the storage policies from the DCS+ UI by clicking on **Data Centers** -> **Storage** -> **Storage Policies**.
+
+> **Note**: If you do not adjust `storageProfile` it is highly likely that *PersistentVolumes* will not work in Kubernetes!
 
 ### Installation
 
-If you are impatient and don't want to read any further then you can simply run this command after previously having [configured](#configuration) `terraform.tfstate`, `kubeone.yaml` and `credentials.yaml`:
+:warning: If you are impatient and don't want to read any further then you can simply run this command after previously having [configured](#configuration) `terraform.tfstate`, `kubeone.yaml` and `credentials.yaml`:
 ```bash
 make all
 ```
@@ -405,7 +433,7 @@ reboot-coordinator     Active   4d22h
 ### DCS+
 ![DCS+ Dashboard](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_dashboard.png)
 
-By default (unless configured otherwise in your `terraform.tfvars` or `kubeone.yaml`) once the deployment is done you should see something similar to the picture above in your DCS+ Portal. There will be 1 bastion host (a jumphost VM for SSH access to the other VMs), 3 control plane VMs for the Kubernetes server nodes, and several dynamically created worker VMs that are responsible for running your Kubernetes workload.
+By default (unless configured otherwise in your `terraform.tfvars` or `kubeone.yaml`) once the deployment is done you should see something similar to the picture above in your DCS+ UI. There will be 1 bastion host (a jumphost VM for SSH access to the other VMs), 3 control plane VMs for the Kubernetes server nodes, and several dynamically created worker VMs that are responsible for running your Kubernetes workload.
 
 ### Kubernetes-Dashboard
 ![DCS+ Dashboard](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_k8s_dashboard.png)
