@@ -24,17 +24,18 @@ help:
 .PHONY: check-env
 ## check-env: verifies current working environment meets all requirements
 check-env:
-	which bash
-	which terraform
-	which kubeone
-	which helm
-	which jq
-	test -f "${OS_IMAGE}" || curl -s https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.ova > "${OS_IMAGE}"
-	test -f "${SSH_KEY}" || ssh-keygen -t rsa -b 4096 -f "${SSH_KEY}" -N ''
-	chmod 640 "${SSH_PUB_KEY}" && chmod 600 "${SSH_KEY}"
-	ssh-add "${SSH_KEY}" || true
-	kubeone version > ${ROOT_DIR}/kubeone.version.json
-	test -f "${TERRAFORM_DIR}/main.tf" || kubeone init --provider vmware-cloud-director --terraform --path ${TERRAFORM_DIR} --cluster-name ${CLUSTER_NAME} -c ${CREDENTIALS_FILE}
+	@which bash 1>/dev/null || (echo 'You have no [bash] ???' && exit 1)
+	@which terraform 1>/dev/null || (echo '[terraform] is missing! Get it from https://www.terraform.io/ ...' && exit 1)
+	@which kubeone 1>/dev/null || (echo '[kubeone] is missing! Get it from https://github.com/kubermatic/kubeone/ ...' && exit 1)
+	@which helm 1>/dev/null || (echo '[helm] is missing! Get it from https://helm.sh/ ...' && exit 1)
+	@which jq 1>/dev/null || (echo '[jq] is missing! Get it from https://stedolan.github.io/jq/ ...' && exit 1)
+	@which curl 1>/dev/null || (echo '[curl] is missing! Get it from https://curl.se/ ...' && exit 1)
+	@test -f "${OS_IMAGE}" || (echo "downloading OS image to [${OS_IMAGE}] ..." && curl -s https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.ova > "${OS_IMAGE}")
+	@test -f "${SSH_KEY}" || ssh-keygen -t rsa -b 4096 -f "${SSH_KEY}" -N ''
+	@chmod 640 "${SSH_PUB_KEY}" && chmod 600 "${SSH_KEY}"
+	@ssh-add "${SSH_KEY}" || true
+	@kubeone version > ${ROOT_DIR}/kubeone.version.json
+	@test -f "${TERRAFORM_DIR}/main.tf" || kubeone init --provider vmware-cloud-director --terraform --path ${TERRAFORM_DIR} --cluster-name ${CLUSTER_NAME} -c ${CREDENTIALS_FILE}
 # ======================================================================================================================
 
 # ======================================================================================================================
@@ -114,8 +115,7 @@ kubeone-addons:
 # ======================================================================================================================
 .PHONY: deployments
 ## deployments: install all deployments on Kubernetes
-deployments: check-env deploy-ingress-nginx deploy-cert-manager deploy-kubernetes-dashboard deploy-prometheus deploy-loki  deploy-promtail deploy-grafana
-	# TODO: configure it properly, and then add deploy-opencost
+deployments: check-env deploy-ingress-nginx deploy-cert-manager deploy-kubernetes-dashboard deploy-prometheus deploy-loki  deploy-promtail deploy-grafana deploy-opencost
 
 .PHONY: deploy-ingress-nginx
 ## deploy-ingress-nginx: deploy/update nginx ingress-controller
