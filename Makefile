@@ -36,12 +36,17 @@ check-env:
 	@which helm 1>/dev/null || (echo '[helm] is missing! Get it from https://helm.sh/ ...' && exit 1)
 	@which jq 1>/dev/null || (echo '[jq] is missing! Get it from https://stedolan.github.io/jq/ ...' && exit 1)
 	@which curl 1>/dev/null || (echo '[curl] is missing! Get it from https://curl.se/ ...' && exit 1)
-	@test -f "${OS_IMAGE}" || (echo "downloading OS image to [${OS_IMAGE}] ..." && curl -s https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.ova > "${OS_IMAGE}")
+	@test -f "${OS_IMAGE}" || (echo "downloading OS image to [${OS_IMAGE}] ..." && curl -s https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.ova -o "${OS_IMAGE}")
 	@test -f "${SSH_KEY}" || ssh-keygen -t rsa -b 4096 -f "${SSH_KEY}" -N ''
 	@chmod 640 "${SSH_PUB_KEY}" && chmod 600 "${SSH_KEY}"
 	@ssh-add "${SSH_KEY}" || true
 	@kubeone version > ${ROOT_DIR}/kubeone.version.json
 	@test -f "${TERRAFORM_DIR}/main.tf" || kubeone init --provider vmware-cloud-director --terraform --path ${TERRAFORM_DIR} --cluster-name ${CLUSTER_NAME} -c ${CREDENTIALS_FILE}
+
+.PHONY: install-tools
+## install-tools: download and install all required CLI tools into ~/bin
+install-tools:
+	@tools/install_tools.sh
 # ======================================================================================================================
 
 # ======================================================================================================================

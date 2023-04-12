@@ -58,7 +58,6 @@ jobs:
       if: ${{ always() }}
       run: |
         rm -f terraform.tfvars || true
-        rm -f kubeconfig || true
 
     - name: Terraform Plan Status
       if: steps.plan.outcome == 'failure'

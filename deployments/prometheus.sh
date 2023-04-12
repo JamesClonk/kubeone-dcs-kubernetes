@@ -5,7 +5,7 @@ set -o pipefail
 if [[ "$(basename ${PWD})" == "deployments" ]]; then
 	cd ..
 fi
-source "deployments/semver.sh"
+source "tools/semver.sh"
 
 repository="https://prometheus-community.github.io/helm-charts"
 chart="prometheus"
