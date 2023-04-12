@@ -46,19 +46,8 @@ jobs:
 
     - name: Setup tooling
       run: |
-        mkdir -p ~/tmp/tooling && cd ~/tmp/tooling
-        curl -sLO "https://github.com/kubermatic/kubeone/releases/download/v1.6.0/kubeone_1.6.0_linux_amd64.zip"
-        unzip kubeone_1.6.0_linux_amd64.zip kubeone -d .
-        sudo mv -f kubeone /usr/local/bin
-        rm -rf ~/tmp/tooling/*
-        curl -sLO "https://get.helm.sh/helm-v3.10.3-linux-amd64.tar.gz"
-        tar -xzvf helm-v3.10.3-linux-amd64.tar.gz linux-amd64/helm
-        sudo mv -f linux-amd64/helm /usr/local/bin
-        rm -rf ~/tmp/tooling/*
-        curl -sLO "https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip"
-        unzip terraform_1.2.9_linux_amd64.zip
-        sudo mv -f terraform /usr/local/bin
-        rm -rf ~/tmp/tooling/*
+        make install-tools
+        sudo mv -f ~/bin/* /usr/local/bin/
 
     - name: Run Terraform
       if: github.ref == 'refs/heads/master'
