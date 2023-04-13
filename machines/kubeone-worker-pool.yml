@@ -61,7 +61,7 @@ spec:
           - |
             ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCipOCiyYaAXFDGY4F6bDuafSBax+iXEID338Mms7movZvv37DVYOktbCx0OyoWoYNXmm1w3s7MqqnEQYtYzB/qNWRkm2dBTRqvw8bMuvEa0srfo5sX/g7EuljsvpKG7rYoZXNk7+7lU7Bx4RRi2K7fKrQ8e30Mi9yjai3QHK5G8NTo0gapzdReb9NiTPofW39G3jm7U2B5gqzpbleUyrxfuNEv6iyayR7UXLcgCeEPH0vAhnXKnPgFSSL0dO8FbDUXvWCZlNmkDG8c18iRSfclHDqG2y9Nw7bd2sQnGM/z3mrAdlVlWgj9Vtx2OC/xGB1dBLwRuukiOT9rDGN/f4U+f2hwXgIr8LWVfKJqYbXf8ICePdw1O+iA9pDqIj7T3CbSumqL4+cmmZhea7Xp7Udy9Bf83Zl0NIibu6oidD/UNCcD9zCkdkHKAY28jZq4qSgHRA31hB25Fk2PpSHDdmGI2IyaGx8V4N92J4f5nYD/CkVDVLxmtcBD+FgXrwzResEJR0ftn9xjjP+SmE8iiW7MwqRil86EOsaQ0Po3vG2x7JTsQJrxwhf2nC2v6dhcaLjTsl6BwOq95+JzRHrniOhXe2sIl4AZRdKwjxADUYU0f7IiH5Ef+BwA8n5jMG0P5fha/S0BQhbhhvwvlb3UZGlirzTjFytdPQ/yz/ouhN+iFQ== jamesclonk@cluster-admin
       versions:
-        kubelet: 1.25.8
+        kubelet: 1.26.3
 status: {}
 
 ---
