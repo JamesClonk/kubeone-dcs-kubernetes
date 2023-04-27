@@ -136,7 +136,7 @@ resource "vcd_catalog_vapp_template" "vapp_template" {
   catalog_id = vcd_catalog.catalog.id
   name       = var.template_name
 
-  ova_path          = var.os_image_file
+  ovf_url           = var.os_image_url
   upload_piece_size = 10
 }
 

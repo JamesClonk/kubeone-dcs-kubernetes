@@ -39,4 +39,4 @@ singleBinary:
   persistence:
     size: 20Gi
 EOF
-deployments/install-chart.sh "${repository}" "${chart}" "${version}" "deployments/${chart}.values.yaml"
+deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${version}" "deployments/${chart}.values.yaml"

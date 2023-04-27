@@ -39,6 +39,7 @@ Table of Contents
   + [Kubernetes-Dashboard](#kubernetes-dashboard)
   + [Prometheus](#prometheus)
   + [Grafana](#grafana)
+  + [Longhorn](#longhorn)
   + [OpenCost](#opencost)
   + [Cilium Hubble UI](#cilium-hubble-ui)
 * [Troubleshooting](#troubleshooting)
@@ -48,7 +49,7 @@ Table of Contents
 
 ## Kubernetes clusters with KubeOne
 
-This repository supports you in creating an autoscaling Kubernetes cluster with [KubeOne](https://github.com/kubermatic/kubeone) on [Swisscom DCS+](https://www.swisscom.ch/en/business/enterprise/offer/cloud/cloudservices/dynamic-computing-services.html) infrastructure. It also installs and manages additional deployments on the cluster, such as ingress-nginx, cert-manager and a whole set of logging/metrics/monitoring related components.
+This repository supports you in creating an autoscaling Kubernetes cluster with [KubeOne](https://github.com/kubermatic/kubeone) on [Swisscom DCS+](https://www.swisscom.ch/en/business/enterprise/offer/cloud/cloudservices/dynamic-computing-services.html) infrastructure. It also installs and manages additional deployments on the cluster, such as ingress-nginx, cert-manager, longhorn and a whole set of logging/metrics/monitoring related components.
 It consists of three main components:
 - Infrastructure provisioning via [`/terraform/`](/terraform/)
 - Kubernetes cluster and autoscaling workers via [`/kubeone.yaml`](/kubeone.yaml)
@@ -73,7 +74,8 @@ The final result is a fully functioning, highly available, autoscaling Kubernete
 | Component | Type | Description |
 | --- | --- | --- |
 | [Cilium](https://cilium.io/) | Networking | An open-source, cloud native and eBPF-based Kubernetes CNI that is providing, securing and observing network connectivity between container workloads |
-| [vCloud CSI driver](https://github.com/vmware/cloud-director-named-disk-csi-driver) | Storage | Container Storage Interface (CSI) driver for VMware Cloud Director |
+| [Longhorn](https://longhorn.io/) | Storage (Default) | Highly available persistent storage for Kubernetes, provides cloud-native block storage with backup functionality |
+| [vCloud CSI driver](https://github.com/vmware/cloud-director-named-disk-csi-driver) | Storage (Alternative) | Container Storage Interface (CSI) driver for VMware Cloud Director |
 | [Machine-Controller](https://github.com/kubermatic/machine-controller) | Compute | Dynamic creation of Kubernetes worker nodes on VMware Cloud Director |
 | [Ingress NGINX](https://kubernetes.github.io/ingress-nginx/) | Routing | Provides HTTP traffic routing, load balancing, SSL termination and name-based virtual hosting |
 | [Cert Manager](https://cert-manager.io/) | Certificates | Cloud-native, automated TLS certificate management and [Let's Encrypt](https://letsencrypt.org/) integration for Kubernetes |
@@ -222,7 +224,7 @@ Here are some examples for possible cluster size customizations:
 | Worker | Maximum number of VMs | `cluster_autoscaler_max_replicas` | `3` |
 | Worker | vCPUs | `worker_cpus` | `2` |
 | Worker | Memory (in MB) | `worker_memory` | `4096` |
-| Worker | Disk size (in GB) | `worker_disk_size_gb` | `50` |
+| Worker | Disk size (in GB) | `worker_disk_size_gb` | `80` |
 
 ###### Medium / Default values
 | Node type | Setting | Variable name | Value |
@@ -235,7 +237,7 @@ Here are some examples for possible cluster size customizations:
 | Worker | Maximum number of VMs | `cluster_autoscaler_max_replicas` | `5` |
 | Worker | vCPUs | `worker_cpus` | `4` |
 | Worker | Memory (in MB) | `worker_memory` | `8192` |
-| Worker | Disk size (in GB) | `worker_disk_size_gb` | `50` |
+| Worker | Disk size (in GB) | `worker_disk_size_gb` | `250` |
 
 ###### Large
 | Node type | Setting | Variable name | Value |
@@ -248,7 +250,9 @@ Here are some examples for possible cluster size customizations:
 | Worker | Maximum number of VMs | `cluster_autoscaler_max_replicas` | `15` |
 | Worker | vCPUs | `worker_cpus` | `4` |
 | Worker | Memory (in MB) | `worker_memory` | `16384` |
-| Worker | Disk size (in GB) | `worker_disk_size_gb` | `50` |
+| Worker | Disk size (in GB) | `worker_disk_size_gb` | `180` |
+
+> **Note**: The more worker nodes you have, the smaller the disk size gets that they need in order to distribute and cover all your `PersistentVolume` needs. This is why the worker nodes in the *Large* cluster example actually have a smaller disk than in the *Medium* example.
 
 Set the amount of control plane nodes to either be 1, 3 or 5. They have to be an odd number for the quorum to work correctly, and anything above 5 is not really that beneficial anymore. For a highly-available setup usually the perfect number of control plane nodes is `3`.
 
@@ -282,17 +286,23 @@ The other file of interest is the main configuration file of KubeOne itself, [ku
 
 Please refer to the [Kubermatic KubeOne - v1beta2 API Reference](https://docs.kubermatic.com/kubeone/v1.6/references/kubeone-cluster-v1beta2/) for a full list of all configuration settings available.
 
-The `kubeone.yaml` provided in this repository should mostly already have sensible defaults and only really needs one specific property to be adjusted, the `storageProfile` of the `default-storage-class`:
+The `kubeone.yaml` provided in this repository should mostly already have sensible defaults and only really needs to be adjusted if you want to make use of the vCloud-CSI for volumes on Kubernetes. It is currently not enabled by default since you will need to open up a Service Request with Swisscom first in order to request your API user being able to upload OVF templates while preserving the `ExtraConfig: disk.EnableUUID=true` parameter. By default API users on DCS+ unfortunately do not have the necessary permissions unless explicitely requested.
+If you are sure your API user has the necessary permission, then you can uncomment and modify the `csi-vmware-cloud-director` and `default-storage-class` addons in `kubeone.yaml`, you will also need to adjust the `storageProfile` of the `default-storage-class`:
 ```yaml
 addons:
   addons:
+  - name: csi-vmware-cloud-director
+    params:
+      clusterid: NO_RDE_kubeone
   - name: default-storage-class
     params:
       storageProfile: Ultra Fast Storage A # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
 ```
 Please adjust the `storageProfile` to one of the storage policies available to you in your Swisscom DCS+ data center. You can view the storage policies from the DCS+ UI by clicking on **Data Centers** -> **Storage** -> **Storage Policies**.
 
-> **Note**: If you do not adjust `storageProfile` it is highly likely that *PersistentVolumes* will not work in Kubernetes!
+> **Note**: When using the vCloud-CSI you must adjust the `storageProfile`, or it is highly likely that *PersistentVolumes* will not work! Also make sure that your API user has the necessary*"vApp > Preserve ExtraConfig Elements during OVA Import and Export"* permission!
+
+If you do not want to go through the trouble of having to request these extra permission for your API users, then you simply don't need to do any modifications to `kubeone.yaml`. By default this repository will install Longhorn on your cluster and use it provide volumes.
 
 ### Installation
 
@@ -328,6 +338,7 @@ Usage:
   kubeone-apply-workers         apply machinedeployments to the cluster
   kubeone-addons                list KubeOne addons
   deployments                   install all deployments on Kubernetes
+  deploy-longhorn               deploy/update Longhorn storage
   deploy-ingress-nginx          deploy/update Nginx Ingress-controller
   deploy-cert-manager           deploy/update Cert-Manager
   deploy-kubernetes-dashboard   deploy/update Kubernetes dashboard
@@ -450,6 +461,7 @@ kube-public            Active   4d22h
 kube-system            Active   4d22h
 kubernetes-dashboard   Active   4d21h
 loki                   Active   4d20h
+longhorn-system        Active   4d22h
 opencost               Active   4d20h
 prometheus             Active   4d21h
 promtail               Active   4d21h
@@ -492,8 +504,17 @@ The username for accessing Grafana will be `admin` and the password can be retri
 $ kubectl -n grafana get secret grafana -o jsonpath='{.data.admin-password}' | base64 -d; echo
 ```
 
+### Longhorn
+![DCS+ Longhorn](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_longhorn.png)
+
+To access the Longhorn dashboard you have to initialize a localhost port-forwarding towards the service on the cluster, since it is not exposed externally:
+```bash
+$ kubectl -n longhorn-system port-forward service/longhorn-frontend 9999:80
+```
+This will setup a port-forwarding for `localhost:9999` on your machine. Now you can open the Longhorn dashboard in your browser by going to [http://localhost:9999/#/dashboard](http://localhost:9999/).
+
 ### OpenCost
-![DCS+ Grafana](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_opencost.png)
+![DCS+ OpenCost](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_opencost.png)
 
 To access the OpenCost dashboard you have to initialize a localhost port-forwarding towards the service on the cluster, since it is not exposed externally:
 ```bash

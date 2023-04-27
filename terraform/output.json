@@ -4,6 +4,12 @@
     "type": "string",
     "value": "164.128.161.20"
   },
+  "longhorn_replica_values": {
+    "value": {
+      "initial_machinedeployment_replicas": 3,
+      "cluster_autoscaler_min_replicas": 3
+    }
+  },
   "kubeone_api": {
     "sensitive": false,
     "type": [

@@ -18,6 +18,13 @@ output "external_ip" {
   value = local.external_network_ip
 }
 
+output "longhorn_replica_values" {
+  value = {
+    initial_machinedeployment_replicas = var.initial_machinedeployment_replicas
+    cluster_autoscaler_min_replicas    = local.cluster_autoscaler_min_replicas
+  }
+}
+
 output "kubeone_api" {
   description = "kube-apiserver LB endpoint"
 

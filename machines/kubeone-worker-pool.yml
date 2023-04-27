@@ -3,14 +3,14 @@ kind: MachineDeployment
 metadata:
   annotations:
     cluster.k8s.io/cluster-api-autoscaler-node-group-max-size: "5"
-    cluster.k8s.io/cluster-api-autoscaler-node-group-min-size: "2"
+    cluster.k8s.io/cluster-api-autoscaler-node-group-min-size: "3"
     k8c.io/operating-system-profile: ""
   creationTimestamp: null
   name: kubeone-worker-pool
   namespace: kube-system
 spec:
   minReadySeconds: 0
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       workerset: kubeone-worker-pool
@@ -43,7 +43,7 @@ spec:
             catalog: KubeOne
             cpuCores: 1
             cpus: 4
-            diskSizeGB: 50
+            diskSizeGB: 250
             ipAllocationMode: DHCP
             memoryMB: 8192
             metadata:

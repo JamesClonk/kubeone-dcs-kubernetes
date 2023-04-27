@@ -32,7 +32,7 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: "lets-encrypt"
 EOF
-deployments/install-chart.sh "${repository}" "${chart}" "${version}" "deployments/${chart}.values.yaml"
+deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${version}" "deployments/${chart}.values.yaml"
 echo " "
 
 # additional configuration, add a ClusterRoleBinding

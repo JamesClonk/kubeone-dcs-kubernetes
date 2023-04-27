@@ -126,7 +126,12 @@ kubeone-addons:
 # ======================================================================================================================
 .PHONY: deployments
 ## deployments: install all deployments on Kubernetes
-deployments: check-env deploy-ingress-nginx deploy-cert-manager deploy-kubernetes-dashboard deploy-prometheus deploy-loki  deploy-promtail deploy-grafana deploy-opencost
+deployments: check-env deploy-ingress-longhorn deploy-ingress-nginx deploy-cert-manager deploy-kubernetes-dashboard deploy-prometheus deploy-loki  deploy-promtail deploy-grafana deploy-opencost
+
+.PHONY: deploy-ingress-longhorn
+## deploy-ingress-longhorn: deploy/update Longhorn storage
+deploy-ingress-longhorn:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/ingress-nginx.sh
 
 .PHONY: deploy-ingress-nginx
 ## deploy-ingress-nginx: deploy/update Nginx Ingress-controller

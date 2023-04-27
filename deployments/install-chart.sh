@@ -12,16 +12,16 @@ if [[ -z "${KUBECONFIG}" ]]; then
 fi
 set -u
 
-if [[ "$#" -ne 4 ]]; then
-    echo "usage: ./install-chart.sh <repo> <chart> <version> <values>"
+if [[ "$#" -ne 5 ]]; then
+    echo "usage: ./install-chart.sh <repo> <chart> <namespace> <version> <values>"
     exit 1
 fi
 
 repository=$1
 chart=$2
-version=$3
-values=$4
-namespace="${chart}"
+namespace=$3
+version=$4
+values=$5
 
 echo " "
 if helm history --kubeconfig "${KUBECONFIG}" --max 1 --namespace "${namespace}" "${chart}" 2>/dev/null | grep "FAILED" | cut -f1 | grep -q 1; then

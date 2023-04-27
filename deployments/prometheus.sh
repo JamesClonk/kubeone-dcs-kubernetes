@@ -64,7 +64,7 @@ prometheus-node-exporter:
 prometheus-pushgateway:
   enabled: true
 EOF
-deployments/install-chart.sh "${repository}" "${chart}" "${version}" "deployments/${chart}.values.yaml"
+deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${version}" "deployments/${chart}.values.yaml"
 
 echo " "
 echo "================================================================================================================="

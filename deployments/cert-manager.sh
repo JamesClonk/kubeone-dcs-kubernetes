@@ -14,7 +14,7 @@ namespace="${chart}"
 cat > "deployments/${chart}.values.yaml" <<EOF
 installCRDs: true
 EOF
-deployments/install-chart.sh "${repository}" "${chart}" "${version}" "deployments/${chart}.values.yaml"
+deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${version}" "deployments/${chart}.values.yaml"
 echo " "
 
 # additional configuration, add a ClusterIssuer

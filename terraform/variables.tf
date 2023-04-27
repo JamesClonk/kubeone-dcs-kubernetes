@@ -144,9 +144,9 @@ variable "template_name" {
   type        = string
 }
 
-variable "os_image_file" {
-  description = "Filename of the OS image to upload"
-  default     = "ubuntu-20.04-server-cloudimg-amd64.ova"
+variable "os_image_url" {
+  description = "URL of the OS image to upload"
+  default     = "https://dcs-kubernetes.scapp.swisscom.com/ubuntu-20.04-server-cloudimg-amd64.ovf"
   type        = string
 }
 
@@ -264,13 +264,13 @@ EOF
 }
 
 variable "initial_machinedeployment_replicas" {
-  default     = 2
+  default     = 3
   description = "number of replicas per MachineDeployment"
   type        = number
 }
 
 variable "cluster_autoscaler_min_replicas" {
-  default     = 2
+  default     = 3
   description = "minimum number of replicas per MachineDeployment (requires cluster-autoscaler)"
   type        = number
 }
@@ -283,12 +283,8 @@ variable "cluster_autoscaler_max_replicas" {
 
 variable "worker_os" {
   description = "OS to run on worker machines"
-
-  # valid choices are:
-  # * ubuntu
-  # * flatcar
-  default = "ubuntu"
-  type    = string
+  default     = "ubuntu"
+  type        = string
   validation {
     condition     = can(regex("^ubuntu$|^flatcar$", var.worker_os))
     error_message = "Unsupported OS specified for worker machines."
@@ -314,7 +310,7 @@ variable "worker_cpu_cores" {
 
 variable "worker_disk_size_gb" {
   description = "Disk size for worker VMs in GB"
-  default     = 50
+  default     = 250
   type        = number
 }
 
