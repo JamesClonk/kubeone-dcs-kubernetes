@@ -6,7 +6,6 @@ TERRAFORM_DIR = ${ROOT_DIR}/terraform
 TERRAFORM_OUTPUT = ${TERRAFORM_DIR}/output.json
 SSH_KEY = ${ROOT_DIR}/ssh_key_id_rsa
 SSH_PUB_KEY = ${SSH_KEY}.pub
-OS_IMAGE = ${TERRAFORM_DIR}/ubuntu-20.04-server-cloudimg-amd64.ova
 CLUSTER_NAME = kubeone
 CONFIG_FILE = kubeone.yaml
 CREDENTIALS_FILE = credentials.yaml
@@ -36,7 +35,6 @@ check-env:
 	@which helm 1>/dev/null || (echo '[helm] is missing! Get it from https://helm.sh/ ...' && exit 1)
 	@which jq 1>/dev/null || (echo '[jq] is missing! Get it from https://stedolan.github.io/jq/ ...' && exit 1)
 	@which curl 1>/dev/null || (echo '[curl] is missing! Get it from https://curl.se/ ...' && exit 1)
-	@test -f "${OS_IMAGE}" || (echo "downloading OS image to [${OS_IMAGE}] ..." && curl -s https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.ova -o "${OS_IMAGE}")
 	@test -f "${SSH_KEY}" || ssh-keygen -t rsa -b 4096 -f "${SSH_KEY}" -N ''
 	@chmod 640 "${SSH_PUB_KEY}" && chmod 600 "${SSH_KEY}"
 	@ssh-add "${SSH_KEY}" || true
@@ -131,7 +129,7 @@ deployments: check-env deploy-ingress-longhorn deploy-ingress-nginx deploy-cert-
 .PHONY: deploy-ingress-longhorn
 ## deploy-ingress-longhorn: deploy/update Longhorn storage
 deploy-ingress-longhorn:
-	KUBECONFIG=${KUBECONFIG_FILE} deployments/ingress-nginx.sh
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/longhorn.sh
 
 .PHONY: deploy-ingress-nginx
 ## deploy-ingress-nginx: deploy/update Nginx Ingress-controller

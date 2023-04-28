@@ -29,6 +29,9 @@ persistence:
   defaultClass: true
   defaultFsType: ext4
   defaultClassReplicaCount: ${longhorn_volume_replicas}
+  defaultReplicaAutoBalance: least-effort
+defaultSettings:
+  kubernetesClusterAutoscalerEnabled: true
 EOF
 deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${version}" "deployments/${chart}.values.yaml"
 
