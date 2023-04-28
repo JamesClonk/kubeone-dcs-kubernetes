@@ -5,7 +5,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Kubernetes-blue)](https://kubernetes.io/)
 [![IaC](https://img.shields.io/badge/IaC-Terraform-purple)](https://www.terraform.io/)
 
-Deploy Kubernetes with [KubeOne](https://www.kubermatic.com/products/kubermatic-kubeone/) on vCloud / [Swisscom DCS+](https://dcsguide.scapp.swisscom.com/)
+Deploy Kubernetes with [Kubermatic KubeOne](https://www.kubermatic.com/products/kubermatic-kubeone/) on vCloud / [Swisscom DCS+](https://dcsguide.scapp.swisscom.com/)
 
 -----
 
