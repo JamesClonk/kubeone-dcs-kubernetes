@@ -44,6 +44,7 @@ Table of Contents
   + [Cilium Hubble UI](#cilium-hubble-ui)
 * [Troubleshooting](#troubleshooting)
   + [Helm chart failures](#helm-chart-failures)
+  + [Node eviction blocked](#node-eviction-blocked)
 * [Q&A](#qa)
   + [Why have shell scripts for deployments?](#why-have-shell-scripts-for-deployments)
 
@@ -551,6 +552,14 @@ helm rollback [chart] [revision]
 
 `helm history` should return information regarding the chart revisions, their status and description as to whether it completed successfully or not.
 Run the Helm deployment again once the chart rollback is successful and it is not listed as *pending* anymore.
+
+### Node eviction blocked
+
+Due to the nature of Longhorn and how it distributes volume replicas, it might happen that the draining and eviction of a Kubernetes node can get blocked. Longhorn tries to keep all its volumes (and their replicas) in a *`Healthy`* state and thus can block node eviction.
+
+If you noticed that the cluster-autoscaler or machine-controller cannot remove an old node, scale down to fewer nodes, or a node remaining seemingly forever being stuck in an unschedulable state, then it might be because there are Longhorn volume replicas on those nodes.
+
+To fix the issue, login to the Longhorn UI (check further [above](#longhorn) on how to do that), go to the *"Node"* tab, click on the hamburger menu of the affected node and then select *"Edit Node and Disks"*. In the popup menu you can then forcefully disable *"Node Scheduling"* and enable *"Eviction Requested"*. This will instruct Longhorn to migrate the remaining volume replicas to other available nodes, thus freeing up Kubernetes to fully drain and remove the old node.
 
 ## Q&A
 
