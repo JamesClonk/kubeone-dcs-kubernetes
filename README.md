@@ -561,6 +561,8 @@ If you noticed that the cluster-autoscaler or machine-controller cannot remove a
 
 To fix the issue, login to the Longhorn UI (check further [above](#longhorn) on how to do that), go to the *"Node"* tab, click on the hamburger menu of the affected node and then select *"Edit Node and Disks"*. In the popup menu you can then forcefully disable *"Node Scheduling"* and enable *"Eviction Requested"*. This will instruct Longhorn to migrate the remaining volume replicas to other available nodes, thus freeing up Kubernetes to fully drain and remove the old node.
 
+If you don't want to deal with the hassle of blocked node evictions at all, you could disable and remove the Longhorn deployment completely and instead use the [vCloud-CSI](https://github.com/vmware/cloud-director-named-disk-csi-driver) as an alternative storage provider. See the section about how to configure [`kubeone.yaml`](#kubeone) for caveats.
+
 ## Q&A
 
 ### Why have shell scripts for deployments?
