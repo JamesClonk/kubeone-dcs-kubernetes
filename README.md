@@ -286,14 +286,11 @@ The other file of interest is the main configuration file of KubeOne itself, [ku
 
 Please refer to the [Kubermatic KubeOne - v1beta2 API Reference](https://docs.kubermatic.com/kubeone/v1.6/references/kubeone-cluster-v1beta2/) for a full list of all configuration settings available.
 
-The `kubeone.yaml` provided in this repository should mostly already have sensible defaults and only really needs to be adjusted if you want to make use of the vCloud-CSI for volumes on Kubernetes. It is currently not enabled by default since you will need to open up a Service Request with Swisscom first in order to request your API user being able to upload OVF templates while preserving the `ExtraConfig: disk.EnableUUID=true` parameter. By default API users on DCS+ unfortunately do not have the necessary permissions unless explicitely requested.
-If you are sure your API user has the necessary permission, then you can uncomment and modify the `csi-vmware-cloud-director` and `default-storage-class` addons in `kubeone.yaml`, you will also need to adjust the `storageProfile` of the `default-storage-class`:
+The `kubeone.yaml` provided in this repository should mostly already have sensible defaults and only really needs to be adjusted if you want to make use of the vCloud-CSI for volumes on Kubernetes and set it as your default storage-class. It is currently not set as default since you will need to open up a Service Request with Swisscom first in order to request your API user being able to upload OVF templates while preserving the `ExtraConfig: disk.EnableUUID=true` parameter. By default API users on DCS+ unfortunately do not have the necessary permissions unless explicitely requested. Without that permission the uploaded OS template and any VMs created based on it will not allow the vCloud-CSI to detect attached disks by UUID, and thus not function properly. For this reason it is not set as the default storage-class.
+If you are sure your API user has the necessary permission, then you can uncomment and modify the `default-storage-class` addon in `kubeone.yaml`, you will need to adjust the `storageProfile` of the `default-storage-class`:
 ```yaml
 addons:
   addons:
-  - name: csi-vmware-cloud-director
-    params:
-      clusterid: NO_RDE_kubeone
   - name: default-storage-class
     params:
       storageProfile: Ultra Fast Storage A # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
@@ -302,7 +299,7 @@ Please adjust the `storageProfile` to one of the storage policies available to y
 
 > **Note**: When using the vCloud-CSI you must adjust the `storageProfile`, or it is highly likely that *PersistentVolumes* will not work! Also make sure that your API user has the necessary **"vApp > Preserve ExtraConfig Elements during OVA Import and Export"** permission!
 
-If you do not want to go through the trouble of having to request these extra permission for your API users, then you simply don't need to do any modifications to `kubeone.yaml`. By default this repository will install Longhorn on your cluster and use it provide volumes.
+If you do not want to go through the trouble of having to request these extra permission for your API users, then you simply don't need to do any modifications to `kubeone.yaml`. By default this repository will also install Longhorn on your cluster and use it provide volumes.
 
 ### Installation
 
