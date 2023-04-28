@@ -50,7 +50,7 @@ Table of Contents
 
 ## Kubernetes clusters with KubeOne
 
-This repository supports you in creating an autoscaling Kubernetes cluster with [KubeOne](https://github.com/kubermatic/kubeone) on [Swisscom DCS+](https://www.swisscom.ch/en/business/enterprise/offer/cloud/cloudservices/dynamic-computing-services.html) infrastructure. It also installs and manages additional deployments on the cluster, such as ingress-nginx, cert-manager, longhorn and a whole set of logging/metrics/monitoring related components.
+This repository supports you in creating an autoscaling Kubernetes cluster with [Kubermatic](https://www.kubermatic.com/) [KubeOne](https://github.com/kubermatic/kubeone) on [Swisscom DCS+](https://www.swisscom.ch/en/business/enterprise/offer/cloud/cloudservices/dynamic-computing-services.html) infrastructure. It also installs and manages additional deployments on the cluster, such as ingress-nginx, cert-manager, longhorn and a whole set of logging/metrics/monitoring related components.
 It consists of three main components:
 - Infrastructure provisioning via [`/terraform/`](/terraform/)
 - Kubernetes cluster and autoscaling workers via [`/kubeone.yaml`](/kubeone.yaml)
