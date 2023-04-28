@@ -93,7 +93,7 @@ jobs:
         chmod +x sonobuoy
         export KUBECONFIG=kubeone-kubeconfig
         ./sonobuoy delete --wait || true
-        ./sonobuoy run --mode quick --wait --plugin-env=e2e.E2E_EXTRA_ARGS=--non-blocking-taints=CriticalAddonsOnly,true,NoExecute
+        ./sonobuoy run --mode quick --wait --plugin-env=e2e.E2E_EXTRA_ARGS=--non-blocking-taints=CriticalAddonsOnly,true,NoExecute,NoSchedule,node-role.kubernetes.io/control-plane
         ./sonobuoy status
         results=$(./sonobuoy retrieve)
         ./sonobuoy results $results
