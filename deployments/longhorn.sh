@@ -41,6 +41,7 @@ defaultSettings:
   snapshotDataIntegrity: fast-check
   snapshotDataIntegrityCronjob: 0 3 * * *
   snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: false
+  upgradeChecker: false
 EOF
 deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${version}" "deployments/${chart}.values.yaml"
 
