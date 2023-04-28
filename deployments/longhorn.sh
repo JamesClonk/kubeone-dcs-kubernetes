@@ -32,6 +32,15 @@ persistence:
   defaultReplicaAutoBalance: least-effort
 defaultSettings:
   kubernetesClusterAutoscalerEnabled: true
+  defaultReplicaCount: ${longhorn_volume_replicas}
+  replicaAutoBalance: least-effort
+  # replicaReplenishmentWaitInterval: 300
+  disableSchedulingOnCordonedNode: true
+  allowNodeDrainWithLastHealthyReplica: false
+  fastReplicaRebuildEnabled: true
+  snapshotDataIntegrity: fast-check
+  snapshotDataIntegrityCronjob: 0 3 * * *
+  snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: false
 EOF
 deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${version}" "deployments/${chart}.values.yaml"
 

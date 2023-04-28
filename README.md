@@ -297,6 +297,8 @@ addons:
 ```
 Please adjust the `storageProfile` to one of the storage policies available to you in your Swisscom DCS+ data center. You can view the storage policies from the DCS+ UI by clicking on **Data Centers** -> **Storage** -> **Storage Policies**.
 
+In order to not conflict with Longhorn you will also have to edit `deployments/longhorn.sh` and change the value of `persistence:defaultClass` to `false`. Otherwise Longhorn and vCloud-CSI storage classes would both claim to be the default at the same time!
+
 > **Note**: When using the vCloud-CSI you must adjust the `storageProfile`, or it is highly likely that *PersistentVolumes* will not work! Also make sure that your API user has the necessary **"vApp > Preserve ExtraConfig Elements during OVA Import and Export"** permission!
 
 If you do not want to go through the trouble of having to request these extra permission for your API users, then you simply don't need to do any modifications to `kubeone.yaml`. By default this repository will also install Longhorn on your cluster and use it provide volumes.
