@@ -75,8 +75,8 @@ The final result is a fully functioning, highly available, autoscaling Kubernete
 | Component | Type | Description |
 | --- | --- | --- |
 | [Cilium](https://cilium.io/) | Networking | An open-source, cloud native and eBPF-based Kubernetes CNI that is providing, securing and observing network connectivity between container workloads |
-| [Longhorn](https://longhorn.io/) | Storage (Default) | Highly available persistent storage for Kubernetes, provides cloud-native block storage with backup functionality |
-| [vCloud CSI driver](https://github.com/vmware/cloud-director-named-disk-csi-driver) | Storage (Alternative) | Container Storage Interface (CSI) driver for VMware Cloud Director |
+| [vCloud CSI driver](https://github.com/vmware/cloud-director-named-disk-csi-driver) | Storage (Default) | Container Storage Interface (CSI) driver for VMware Cloud Director |
+| [Longhorn](https://longhorn.io/) | Storage (Alternative) | Highly available persistent storage for Kubernetes, provides cloud-native block storage with backup functionality |
 | [Machine-Controller](https://github.com/kubermatic/machine-controller) | Compute | Dynamic creation of Kubernetes worker nodes on VMware Cloud Director |
 | [Ingress NGINX](https://kubernetes.github.io/ingress-nginx/) | Routing | Provides HTTP traffic routing, load balancing, SSL termination and name-based virtual hosting |
 | [Cert Manager](https://cert-manager.io/) | Certificates | Cloud-native, automated TLS certificate management and [Let's Encrypt](https://letsencrypt.org/) integration for Kubernetes |
@@ -251,9 +251,9 @@ Here are some examples for possible cluster size customizations:
 | Worker | Maximum number of VMs | `cluster_autoscaler_max_replicas` | `15` |
 | Worker | vCPUs | `worker_cpus` | `4` |
 | Worker | Memory (in MB) | `worker_memory` | `16384` |
-| Worker | Disk size (in GB) | `worker_disk_size_gb` | `180` |
+| Worker | Disk size (in GB) | `worker_disk_size_gb` | `150` |
 
-> **Note**: The more worker nodes you have, the smaller the disk size gets that they need in order to distribute and cover all your `PersistentVolume` needs. This is why the worker nodes in the *Large* cluster example actually have a smaller disk than in the *Medium* example.
+> **Note**: The more worker nodes you have, the smaller the disk size gets that they need in order to distribute and cover all your `PersistentVolume` needs if you are using the Longhorn storage class. This is why the worker nodes in the *Large* cluster example actually have a smaller disk than in the *Medium* example. If you don't intend to use Longhorn volumes and mostly rely on the vCloud-CSI, you can reduce your worker disks to less than 100 GB each for example.
 
 Set the amount of control plane nodes to either be 1, 3 or 5. They have to be an odd number for the quorum to work correctly, and anything above 5 is not really that beneficial anymore. For a highly-available setup usually the perfect number of control plane nodes is `3`.
 
@@ -287,8 +287,10 @@ The other file of interest is the main configuration file of KubeOne itself, [ku
 
 Please refer to the [Kubermatic KubeOne - v1beta2 API Reference](https://docs.kubermatic.com/kubeone/v1.6/references/kubeone-cluster-v1beta2/) for a full list of all configuration settings available.
 
-The `kubeone.yaml` provided in this repository should mostly already have sensible defaults and only really needs to be adjusted if you want to make use of the vCloud-CSI for volumes on Kubernetes and set it as your default storage-class. It is currently not set as default since you will need to open up a Service Request with Swisscom first in order to request your API user being able to upload OVF templates while preserving the `ExtraConfig: disk.EnableUUID=true` parameter. By default API users on DCS+ unfortunately do not have the necessary permissions unless explicitely requested. Without that permission the uploaded OS template and any VMs created based on it will not allow the vCloud-CSI to detect attached disks by UUID, and thus not function properly. For this reason it is not set as the default storage-class.
-If you are sure your API user has the necessary permission, then you can uncomment and modify the `default-storage-class` addon in `kubeone.yaml`, you will need to adjust the `storageProfile` of the `default-storage-class`:
+The `kubeone.yaml` provided in this repository should mostly already have sensible defaults and only really needs to be adjusted if you either don't want to make use of the vCloud-CSI for volumes on Kubernetes and set it as your default storage-class, or to adjust the `storageProfile` to match your Swisscom DCS+ storage.
+
+Before you can use the vCloud-CSI you will need to open up a Service Request with Swisscom first in order to request your API user being able to upload OVF templates while preserving the `ExtraConfig: disk.EnableUUID=true` parameter. By default API users on DCS+ unfortunately do not have the necessary permissions unless explicitely requested. Without that permission the uploaded OS template and any VMs created based on it will not allow the vCloud-CSI to detect attached disks by UUID, and thus not function properly.
+If you are sure your API user has the necessary permission, then all that is left to do is to modify the `default-storage-class` addon in `kubeone.yaml`, you will need to adjust the `storageProfile` of the `default-storage-class`:
 ```yaml
 addons:
   addons:
@@ -298,11 +300,9 @@ addons:
 ```
 Please adjust the `storageProfile` to one of the storage policies available to you in your Swisscom DCS+ data center. You can view the storage policies from the DCS+ UI by clicking on **Data Centers** -> **Storage** -> **Storage Policies**.
 
-In order to not conflict with Longhorn you will also have to edit `deployments/longhorn.sh` and change the value of `persistence:defaultClass` to `false`. Otherwise Longhorn and vCloud-CSI storage classes would both claim to be the default at the same time!
+> **Note**: When using the vCloud-CSI you must adjust the `storageProfile` and have the additional permissions for OVF upload on your user/API accounts, or *PersistentVolumes* will not work! Make sure that your API user has the necessary **"vApp > Preserve ExtraConfig Elements during OVA Import and Export"** permission!
 
-> **Note**: When using the vCloud-CSI you must adjust the `storageProfile`, or it is highly likely that *PersistentVolumes* will not work! Also make sure that your API user has the necessary **"vApp > Preserve ExtraConfig Elements during OVA Import and Export"** permission!
-
-If you do not want to go through the trouble of having to request these extra permission for your API users, then you simply don't need to do any modifications to `kubeone.yaml`. By default this repository will also install Longhorn on your cluster and use it provide volumes.
+If you do not want to go through the trouble of having to request these extra permission for your API users, then you simply don't need to deploy the vCloud-CSI. To disable it go into `kubeone.yaml` and comment out the `csi-vmware-cloud-director` and `default-storage-class` addons. This repository will then automatically configure Longhorn to be the default storage class on your cluster and use it provide volumes.
 
 ### Installation
 
@@ -557,11 +557,9 @@ Run the Helm deployment again once the chart rollback is successful and it is no
 
 Due to the nature of Longhorn and how it distributes volume replicas, it might happen that the draining and eviction of a Kubernetes node can get blocked. Longhorn tries to keep all its volumes (and their replicas) in a *`Healthy`* state and thus can block node eviction.
 
-If you noticed that the cluster-autoscaler or machine-controller cannot remove an old node, scale down to fewer nodes, or a node remaining seemingly forever being stuck in an unschedulable state, then it might be because there are Longhorn volume replicas on those nodes.
+If you use Longhorn as your default storage class instead of the vCloud-CSI and you noticed that the cluster-autoscaler or machine-controller cannot remove an old node, scale down to fewer nodes, or a node remaining seemingly forever being stuck in an unschedulable state, then it might be because there are Longhorn volume replicas on those nodes.
 
 To fix the issue, login to the Longhorn UI (check further [above](#longhorn) on how to do that), go to the *"Node"* tab, click on the hamburger menu of the affected node and then select *"Edit Node and Disks"*. In the popup menu you can then forcefully disable *"Node Scheduling"* and enable *"Eviction Requested"*. This will instruct Longhorn to migrate the remaining volume replicas to other available nodes, thus freeing up Kubernetes to fully drain and remove the old node.
-
-If you don't want to deal with the hassle of blocked node evictions at all, you could disable and remove the Longhorn deployment completely and instead use the [vCloud-CSI](https://github.com/vmware/cloud-director-named-disk-csi-driver) as an alternative storage provider. See the section about how to configure [`kubeone.yaml`](#kubeone) for caveats.
 
 ## Q&A
 

@@ -60,6 +60,8 @@ ssh_key_id_rsa.pub
 
 # kubeconfig
 /kubeone-kubeconfig
+/kubeone-demo-kubeconfig
+/kubeone-dev-kubeconfig
 /kubeconfig
 
 # helm temporary values files
