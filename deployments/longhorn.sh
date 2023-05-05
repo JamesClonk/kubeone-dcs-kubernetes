@@ -24,9 +24,12 @@ max() {
 initial_machinedeployment_replicas=$(($(cat terraform/output.json | jq -r .longhorn_replica_values.value.initial_machinedeployment_replicas)-1))
 cluster_autoscaler_min_replicas=$(($(cat terraform/output.json | jq -r .longhorn_replica_values.value.cluster_autoscaler_min_replicas)-1))
 longhorn_volume_replicas=$(max -g 1 $(min -g ${initial_machinedeployment_replicas} ${cluster_autoscaler_min_replicas} 3))
+# is VCD or Longhorn going to be the default storage class?
+longhorn_default_class=$(kubectl get storageclass -A -o jsonpath='{.items[?(@.metadata.annotations.storageclass\.kubernetes\.io/is-default-class=="true")].metadata.name}' | grep 'vcd' >/dev/null && echo "false" || echo "true")
+
 cat > "deployments/${chart}.values.yaml" <<EOF
 persistence:
-  defaultClass: true
+  defaultClass: ${longhorn_default_class}
   defaultFsType: ext4
   defaultClassReplicaCount: ${longhorn_volume_replicas}
   defaultReplicaAutoBalance: least-effort

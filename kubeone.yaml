@@ -25,10 +25,12 @@ addons: # https://docs.kubermatic.com/kubeone/v1.6/guides/addons/
   addons: # https://github.com/kubermatic/kubeone/tree/release/v1.6/addons
   - name: cluster-autoscaler
   - name: unattended-upgrades
+
   - name: csi-vmware-cloud-director
     params:
       clusterid: NO_RDE_kubeone
-  # Set vCloud-CSI as default storage-class. Uncomment to enable, but consult README.md first for caveats!
-  # - name: default-storage-class
-  #   params:
-  #     storageProfile: Ultra Fast Storage A # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
+
+  # Set vCloud-CSI as default storage-class. Consult README.md for caveats!
+  - name: default-storage-class
+    params:
+      storageProfile: Ultra Fast Storage A # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
