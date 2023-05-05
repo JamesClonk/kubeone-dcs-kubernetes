@@ -75,7 +75,7 @@ The final result is a fully functioning, highly available, autoscaling Kubernete
 | Component | Type | Description |
 | --- | --- | --- |
 | [Cilium](https://cilium.io/) | Networking | An open-source, cloud native and eBPF-based Kubernetes CNI that is providing, securing and observing network connectivity between container workloads |
-| [vCloud CSI driver](https://github.com/vmware/cloud-director-named-disk-csi-driver) | Storage (Default) | Container Storage Interface (CSI) driver for VMware Cloud Director |
+| [vCloud CSI](https://github.com/vmware/cloud-director-named-disk-csi-driver) | Storage (Default) | Container Storage Interface (CSI) driver for VMware vCloud Director |
 | [Longhorn](https://longhorn.io/) | Storage (Alternative) | Highly available persistent storage for Kubernetes, provides cloud-native block storage with backup functionality |
 | [Machine-Controller](https://github.com/kubermatic/machine-controller) | Compute | Dynamic creation of Kubernetes worker nodes on VMware Cloud Director |
 | [Ingress NGINX](https://kubernetes.github.io/ingress-nginx/) | Routing | Provides HTTP traffic routing, load balancing, SSL termination and name-based virtual hosting |
@@ -98,10 +98,10 @@ Configure your contract number (PRO-number) in `terraform.tfvars -> vcd_org` and
 
 #### DCS+ resources
 
-For deploying a Kubernetes cluster on DCS+ you will need to manually create the following resources first before you can proceed:
+For deploying a Kubernetes cluster with KubeOne on DCS+ you will need to manually create the following resources first before you can proceed:
 - a VDC / Dynamic Data Center (DDC)
 - an Edge Gateway with Internet in your VDC/DDC
-- an API User
+- an API User (with OVA/OVF Import ExtraConfig permissions)
 
 ##### Dynamic Data Center
 
@@ -126,6 +126,8 @@ Configure the name of this Edge Gateway in `terraform.tfvars -> vcd_edge_gateway
 Login to the DCS+ management portal and go to [Catalog](https://portal.swisscomcloud.com/catalog/). From there you can order a new **vCloudDirector API User**. Make sure to leave *"Read only user?"* unchecked, otherwise your new API user will not be able to do anything!
 
 See the official DCS+ documentation on [Cloud Director API Users](https://dcsguide.scapp.swisscom.com/ug3/dcs_portal.html#cloud-director-api-user) for more information.
+
+> **Note**: Once you have created the API user, you will need contact Swisscom Support and request the additional permission **"vApp > Preserve ExtraConfig Elements during OVA Import and Export"** to be configured for that user, it is required if you want to use the vCloud-CSI in your Kubernetes cluster!
 
 Configure the new API username and password in `terraform.tfvars -> vcd_user | vcd_password` and `credentials.yaml -> VCD_USER | VCD_PASSWORD`.
 Make sure to also set the API URL at `vcd_url` and `VCD_URL` respectively. Check out the official DCS+ documentation on how to determine the API URL value, see [Cloud Director API - API access methods](https://dcsguide.scapp.swisscom.com/ug3/vcloud_director.html#api-access-methods).
