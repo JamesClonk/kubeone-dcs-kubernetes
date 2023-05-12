@@ -8,7 +8,7 @@ fi
 
 repository="https://charts.longhorn.io"
 chart="longhorn"
-version="1.4.1"
+version="1.4.2"
 namespace="longhorn-system"
 
 min() {
@@ -39,7 +39,7 @@ defaultSettings:
   replicaAutoBalance: least-effort
   # replicaReplenishmentWaitInterval: 300
   disableSchedulingOnCordonedNode: true
-  allowNodeDrainWithLastHealthyReplica: false
+  nodeDrainPolicy: block-if-contains-last-replica
   fastReplicaRebuildEnabled: true
   snapshotDataIntegrity: fast-check
   snapshotDataIntegrityCronjob: 0 3 * * *
