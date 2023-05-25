@@ -6,9 +6,10 @@ if [[ "$(basename ${PWD})" == "deployments" ]]; then
 	cd ..
 fi
 
+# chart source: https://github.com/kubernetes/dashboard
 repository="https://kubernetes.github.io/dashboard/"
 chart="kubernetes-dashboard"
-version="6.0.5"
+version="6.0.8"
 namespace="${chart}"
 
 cluster_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)
