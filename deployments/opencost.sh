@@ -6,6 +6,7 @@ if [[ "$(basename ${PWD})" == "deployments" ]]; then
 	cd ..
 fi
 
+# https://github.com/opencost/opencost-helm-chart
 repository="https://opencost.github.io/opencost-helm-chart"
 chart="opencost"
 version="1.7.0"
