@@ -7,9 +7,10 @@ if [[ "$(basename ${PWD})" == "deployments" ]]; then
 fi
 source "tools/semver.sh"
 
+# chart source: https://github.com/prometheus-community/helm-charts
 repository="https://prometheus-community.github.io/helm-charts"
 chart="prometheus"
-version="19.7.2"
+version="22.6.2"
 namespace="${chart}"
 
 function upgradeActions() {
@@ -19,7 +20,7 @@ function upgradeActions() {
   fi
   set -u
 
-  current_version=$(helm list --kubeconfig "${KUBECONFIG}" --namespace "${namespace}" --filter "${chart}" -o json | jq -r '.[0].app_version | "0.0.0"')
+  current_version=$(helm list --kubeconfig "${KUBECONFIG}" --namespace "${namespace}" --filter "${chart}" -o json | jq -r '.[0].chart // "prometheus-0.0.0" | sub("prometheus-";"")')
   if [[ "${current_version}" == "0.0.0" ]]; then
     return # new installation, don't need to perform any upgrade actions
   fi
@@ -27,11 +28,20 @@ function upgradeActions() {
   if semverLT ${current_version} "15.0.0"; then
     echo "performing upgrade actions to [15.0] ..."
     kubectl delete --kubeconfig "${KUBECONFIG}" deployments.apps -l "app.kubernetes.io/instance=prometheus,app.kubernetes.io/name=kube-state-metrics" --cascade="orphan" --namespace="${namespace}" || true
+    sleep 5
   fi
 
   if semverLT ${current_version} "18.0.0"; then
     echo "performing upgrade actions to [18.0] ..."
     kubectl scale --kubeconfig "${KUBECONFIG}" deploy prometheus-server --replicas=0 --namespace="${namespace}" || true
+    sleep 5
+  fi
+
+  if semverLT ${current_version} "22.0.0"; then
+    echo "performing upgrade actions to [22.0] ..."
+    kubectl delete --kubeconfig "${KUBECONFIG}" deploy -l "app=prometheus" --namespace="${namespace}" || true
+    kubectl delete --kubeconfig "${KUBECONFIG}" deploy,sts -l "app.kubernetes.io/name=prometheus" --namespace="${namespace}" || true
+    sleep 5
   fi
 
   echo " "
