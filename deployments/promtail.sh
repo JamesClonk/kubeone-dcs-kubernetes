@@ -6,7 +6,7 @@ if [[ "$(basename ${PWD})" == "deployments" ]]; then
 	cd ..
 fi
 
-# chart source: https://github.com/prometheus-community/helm-charts
+# chart source: https://github.com/grafana/helm-charts
 repository="https://grafana.github.io/helm-charts"
 chart="promtail"
 version="6.11.2"
