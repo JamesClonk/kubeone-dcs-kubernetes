@@ -6,7 +6,7 @@ if [[ "$(basename ${PWD})" == "deployments" ]]; then
 	cd ..
 fi
 
-# https://github.com/longhorn/charts
+# chart source: https://github.com/longhorn/charts
 repository="https://charts.longhorn.io"
 chart="longhorn"
 version="1.4.2"

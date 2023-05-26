@@ -7,7 +7,7 @@ if [[ "$(basename ${PWD})" == "deployments" ]]; then
 fi
 source "tools/semver.sh"
 
-# https://github.com/prometheus-community/helm-charts
+# chart source: https://github.com/prometheus-community/helm-charts
 repository="https://prometheus-community.github.io/helm-charts"
 chart="prometheus"
 version="22.6.2"
