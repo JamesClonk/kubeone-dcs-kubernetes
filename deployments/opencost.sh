@@ -6,9 +6,10 @@ if [[ "$(basename ${PWD})" == "deployments" ]]; then
 	cd ..
 fi
 
+# chart source: https://github.com/opencost/opencost-helm-chart
 repository="https://opencost.github.io/opencost-helm-chart"
 chart="opencost"
-version="1.7.0"
+version="1.14.3"
 namespace="${chart}"
 
 cat > "deployments/${chart}.values.yaml" <<EOF
@@ -40,7 +41,7 @@ deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${versio
 echo " "
 
 # additional configuration, add a ConfigMap
-cat > "deployments/${chart}.crb.yaml" <<EOF
+cat > "deployments/${chart}.cm.yaml" <<EOF
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -60,7 +61,7 @@ data:
         "internetNetworkEgress": "0.0"
     }
 EOF
-kubectl -n ${namespace} apply -f "deployments/${chart}.crb.yaml"
+kubectl -n ${namespace} apply -f "deployments/${chart}.cm.yaml"
 
 echo " "
 echo "================================================================================================================="
