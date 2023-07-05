@@ -10,7 +10,7 @@ source "tools/semver.sh"
 # chart source: https://github.com/prometheus-community/helm-charts
 repository="https://prometheus-community.github.io/helm-charts"
 chart="prometheus"
-version="22.6.2"
+version="22.6.7"
 namespace="${chart}"
 
 function upgradeActions() {
