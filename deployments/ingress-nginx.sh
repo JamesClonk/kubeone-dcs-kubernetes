@@ -9,7 +9,7 @@ fi
 # chart source: https://github.com/kubernetes/ingress-nginx
 repository="https://kubernetes.github.io/ingress-nginx"
 chart="ingress-nginx"
-version="4.6.1"
+version="4.7.1"
 namespace="${chart}"
 
 external_ip=$(cat terraform/output.json | jq -r .external_ip.value)

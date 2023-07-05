@@ -9,7 +9,7 @@ fi
 # chart source: https://github.com/opencost/opencost-helm-chart
 repository="https://opencost.github.io/opencost-helm-chart"
 chart="opencost"
-version="1.14.3"
+version="1.14.5"
 namespace="${chart}"
 
 cat > "deployments/${chart}.values.yaml" <<EOF
