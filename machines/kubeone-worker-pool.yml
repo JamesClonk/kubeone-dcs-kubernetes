@@ -61,7 +61,7 @@ spec:
           - |
             ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC2QKTfntKlsoo4ELBZgBLvIshQht2hzaQ7AGmJU2cxnt6cen7mwkqHkYA+ZoBBSi5DxcAGv1M5PX7ICiW8vdkHjStQzLXvXeov7YYKR9+WXBPhw5MF6O/PqW30Vf40EnRWdr0mlTcm/8BYai4DyJDNLayOxkefsVfhUDw42/nWK2uHEA/RzCLrYQhp4A6fP2YWXoGWNHzHuOfY1rea+TZkDStPcJQj07Qlvqpb9wk7O9VxaaxcsJbHQDpFzW4nWFYzb2AJUBbnQZoRDlx0GAYSVyEPXRIL7mpTUHKyZeLD5b46xvWyhynMGOfMChtihGX2ITdidLzd5WXs162pt0rhf/Y0aAwbgDN0R1UfS8l7dLiNojj4sZcZ717eEjaCGZUKBeNftHvKnF+G8YZHB3eOR2ryoNT2S5ZlwabJiOrP3V51us2KMlkvdeI81VeVLU+C39MY/jGipAkIsQil+XKLtw7HVSEZ+gH/3MmFeGrOM5wbiIatum15J0IGxGTma+E= admin@kubernetes
       versions:
-        kubelet: 1.26.4
+        kubelet: 1.26.6
 status: {}
 
 ---
