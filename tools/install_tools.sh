@@ -99,7 +99,7 @@ if [ ${OS} == "Darwin" ]; then
 	fi
 else
 	echo "-> downloading binaries for Linux ..."
-	install_tool "kubectl" "https://storage.googleapis.com/kubernetes-release/release/v1.25.8/bin/linux/amd64/kubectl" "80e70448455f3d19c3cb49bd6ff6fc913677f4f240d368fa2b9f0d400c8cd16e"
+	install_tool "kubectl" "https://storage.googleapis.com/kubernetes-release/release/v1.26.6/bin/linux/amd64/kubectl" "ee23a539b5600bba9d6a404c6d4ea02af3abee92ad572f1b003d6f5a30c6f8ab"
 	install_tool "jq" "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" "af986793a515d500ab2d35f8d2aecd656e764504b789b66d7e1a0b727a124c44"
 	install_tool_from_zipfile "kubeone" "kubeone" "https://github.com/kubermatic/kubeone/releases/download/v1.6.2/kubeone_1.6.2_linux_amd64.zip" "3586b92e0c8e7a18384ffccfa160faf25290ecf86828419df71720947f82fdb6"
 	install_tool_from_zipfile "terraform" "terraform" "https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip" "70fa1a9c71347e7b220165b9c06df0a55f5af57dad8135f14808b343d1b5924a"

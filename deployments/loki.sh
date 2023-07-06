@@ -9,7 +9,7 @@ fi
 # chart source: https://github.com/grafana/loki/tree/main/production/helm/loki
 repository="https://grafana.github.io/helm-charts"
 chart="loki"
-version="5.5.5"
+version="5.6.4"
 namespace="${chart}"
 
 cat > "deployments/${chart}.values.yaml" <<EOF

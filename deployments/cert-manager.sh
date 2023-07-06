@@ -9,7 +9,7 @@ fi
 # chart source: https://github.com/cert-manager/cert-manager
 repository="https://charts.jetstack.io"
 chart="cert-manager"
-version="v1.11.2"
+version="v1.12.2"
 namespace="${chart}"
 
 cat > "deployments/${chart}.values.yaml" <<EOF

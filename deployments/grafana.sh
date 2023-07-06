@@ -9,7 +9,7 @@ fi
 # chart source: https://github.com/grafana/helm-charts
 repository="https://grafana.github.io/helm-charts"
 chart="grafana"
-version="6.56.5"
+version="6.57.4"
 namespace="${chart}"
 
 cluster_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)

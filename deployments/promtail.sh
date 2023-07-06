@@ -9,7 +9,7 @@ fi
 # chart source: https://github.com/grafana/helm-charts
 repository="https://grafana.github.io/helm-charts"
 chart="promtail"
-version="6.11.2"
+version="6.11.5"
 namespace="${chart}"
 
 cat > "deployments/${chart}.values.yaml" <<EOF
