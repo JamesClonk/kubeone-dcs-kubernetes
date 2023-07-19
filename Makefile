@@ -45,6 +45,11 @@ check-env:
 ## install-tools: download and install all required CLI tools into ~/bin
 install-tools:
 	@tools/install_tools.sh
+
+.PHONY: ssh
+## ssh: login to bastion host
+ssh: check-env
+	@tools/ssh.sh
 # ======================================================================================================================
 
 # ======================================================================================================================
