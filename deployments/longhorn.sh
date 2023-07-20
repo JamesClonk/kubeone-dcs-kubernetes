@@ -9,8 +9,16 @@ fi
 # chart source: https://github.com/longhorn/charts
 repository="https://charts.longhorn.io"
 chart="longhorn"
-version="1.4.2"
+version="1.5.1"
 namespace="longhorn-system"
+
+# deploy longhorn installer helpers first, to ensure all necessary packages are available
+kubectl create namespace ${namespace} || true
+kubectl -n ${namespace} apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${version}/deploy/prerequisite/longhorn-iscsi-installation.yaml
+kubectl -n ${namespace} apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${version}/deploy/prerequisite/longhorn-nfs-installation.yaml
+# longhorn v2 data engine is currently a preview feature and should not yet be utilized in a production environment
+# kubectl -n ${namespace} apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${version}/deploy/prerequisite/longhorn-spdk-setup.yaml
+# kubectl -n ${namespace} apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${version}/deploy/prerequisite/longhorn-nvme-cli-installation.yaml
 
 min() {
     printf "%s\n" "${@:2}" | sort "$1" | head -n1
@@ -18,7 +26,6 @@ min() {
 max() {
     min ${1}r ${@:2}
 }
-
 # calculate number of volume replicas
 # value must be nof min. worker nodes, minus 1 (because the worker node might want to be updated be machinecontroller)
 # value must be within 1<=x<=3
