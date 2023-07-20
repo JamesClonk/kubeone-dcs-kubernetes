@@ -321,7 +321,7 @@ variable "worker_disk_storage_profile" {
 }
 
 variable "initial_machinedeployment_operating_system_profile" {
-  default     = ""
+  default     = "osp-ubuntu"
   type        = string
   description = <<EOF
 Name of operating system profile for MachineDeployments, only applicable if operating-system-manager addon is enabled.

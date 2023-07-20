@@ -4,7 +4,7 @@ metadata:
   annotations:
     cluster.k8s.io/cluster-api-autoscaler-node-group-max-size: "5"
     cluster.k8s.io/cluster-api-autoscaler-node-group-min-size: "3"
-    k8c.io/operating-system-profile: ""
+    k8c.io/operating-system-profile: osp-ubuntu
   creationTimestamp: null
   name: kubeone-dev-worker-pool
   namespace: kube-system
