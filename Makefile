@@ -50,6 +50,11 @@ install-tools:
 ## ssh: login to bastion host
 ssh: check-env
 	@tools/ssh.sh
+
+.PHONY: ssh-control-plane
+## ssh-control-plane: login to all control plane nodes (requires TMUX)
+ssh-control-plane: check-env
+	@tools/ssh_control_plane.sh
 # ======================================================================================================================
 
 # ======================================================================================================================
