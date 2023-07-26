@@ -61,6 +61,11 @@ ssh: check-env
 ## ssh-control-plane: login to all control plane nodes (requires TMUX)
 ssh-control-plane: check-env
 	@tools/ssh_control_plane.sh
+
+.PHONY: oidc-setup
+## oidc-setup: setup OIDC for the Kubernetes cluster (install Dex first!)
+oidc-setup:
+	KUBECONFIG=${KUBECONFIG_FILE} tools/oidc_setup.sh
 # ======================================================================================================================
 
 # ======================================================================================================================

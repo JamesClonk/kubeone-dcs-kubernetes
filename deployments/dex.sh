@@ -77,19 +77,5 @@ deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${versio
 echo " "
 echo "================================================================================================================="
 echo "Dex has been installed."
-echo "To setup OIDC for your cluster, install the kubectl plugin [https://github.com/int128/kubelogin],"
-echo "then run 'make oidc-setup'"
-# cat << EOF
-# kubectl oidc-login setup \\
-#   --oidc-issuer-url=https://dex.${cluster_hostname}/dex \\
-#   --oidc-client-id=kubernetes \\
-#   --oidc-client-secret=${oidc_secret} \\
-#   --oidc-extra-scope=email,groups,profile
-# EOF
-# kubectl oidc-login get-token \
-#   --oidc-issuer-url=https://dex.${cluster_hostname}/dex \
-#   --oidc-client-id=kubernetes \
-#   --oidc-client-secret=${oidc_secret} \
-#   --oidc-extra-scope=email,groups,profile
-# kubectl create clusterrolebinding oidc-cluster-admin --clusterrole=cluster-admin --user='https://dex.kubeone-multi-network.kube-plus.cloud/dex#CiQwOGVmYTdmMS03NDU5LTQzNGYtOTgxNS1mZDViOGI5MmE1ZDASBWxvY2Fs'
+echo "To setup OIDC for your cluster run the command: 'make oidc-setup'"
 echo "================================================================================================================="
