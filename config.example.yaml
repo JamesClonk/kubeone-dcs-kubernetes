@@ -1,0 +1,34 @@
+---
+kubernetes:
+  hostname: my-kubernetes.my-domain.com # adjust to your hostname, make sure you have a valid DNS records pointing to the edge gateway beforehand
+  version: "1.26.6"
+  csi:
+    storage_profile: Ultra Fast Storage A # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
+
+# vCD settings
+vcd:
+  url: "https://vcd-pod-bravo.swisscomcloud.com/api"
+  user: "api_vcd_my_username" # adjust to your API username
+  password: "my_api_password" # adjust to your API password
+
+  org: "PRO-0123456789" # adjust to your org / contract no.
+  vdc: "my-data-center" # adjust to your vdc / ddc
+  edge_gateway_name: "PRO-0123456789-my-edge-gateway" # adjust to your edge gateway
+
+  catalog_name: "KubeOne"
+  cluster_name: "kubeone"
+
+control_plane:
+  memory: 4096
+  cpus: 2
+  disk_size_mb: 51200
+  storage_profile: Ultra Fast Storage A with Backup # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
+
+workers:
+  memory: 8192
+  cpus: 4
+  disk_size_gb: 250
+  storage_profile: Ultra Fast Storage A # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
+  initial_machinedeployment_replicas: 3
+  cluster_autoscaler_min_replicas: 3
+  cluster_autoscaler_max_replicas: 5

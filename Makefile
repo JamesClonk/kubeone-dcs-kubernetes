@@ -34,12 +34,18 @@ check-env:
 	@which kubeone 1>/dev/null || (echo '[kubeone] is missing! Get it from https://github.com/kubermatic/kubeone/ ...' && exit 1)
 	@which helm 1>/dev/null || (echo '[helm] is missing! Get it from https://helm.sh/ ...' && exit 1)
 	@which jq 1>/dev/null || (echo '[jq] is missing! Get it from https://stedolan.github.io/jq/ ...' && exit 1)
+	@which yq 1>/dev/null || (echo '[yq] is missing! Get it from https://github.com/mikefarah/yq/ ...' && exit 1)
 	@which curl 1>/dev/null || (echo '[curl] is missing! Get it from https://curl.se/ ...' && exit 1)
 	@test -f "${SSH_KEY}" || ssh-keygen -t rsa -b 4096 -f "${SSH_KEY}" -N ''
 	@chmod 640 "${SSH_PUB_KEY}" && chmod 600 "${SSH_KEY}"
 	@ssh-add "${SSH_KEY}" || true
 	@kubeone version > ${ROOT_DIR}/kubeone.version.json
 	@test -f "${TERRAFORM_DIR}/main.tf" || kubeone init --provider vmware-cloud-director --terraform --path ${TERRAFORM_DIR} --cluster-name ${CLUSTER_NAME} -c ${CREDENTIALS_FILE}
+
+.PHONY: config
+## config: (re)generate all configuration files
+config: check-env
+	@tools/config.sh
 
 .PHONY: install-tools
 ## install-tools: download and install all required CLI tools into ~/bin
@@ -113,7 +119,8 @@ kubeone-apply:
 ## kubeone-kubeconfig: write kubeconfig file
 kubeone-kubeconfig:
 	kubeone kubeconfig -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} > ${KUBECONFIG_FILE}
-	chmod 600 ${KUBECONFIG_FILE}
+	@chmod 600 kubeconfig 2>/dev/null || true
+	@chmod 600 ${KUBECONFIG_FILE}
 
 .PHONY: kubeone-generate-workers
 ## kubeone-generate-workers: generate a machinedeployments manifest for the cluster

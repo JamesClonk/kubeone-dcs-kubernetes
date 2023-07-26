@@ -174,7 +174,7 @@ variable "control_plane_cpu_cores" {
   type        = number
 }
 
-variable "control_plane_disk_size" {
+variable "control_plane_disk_size_mb" {
   description = "Disk size in MB"
   default     = 51200
   type        = number

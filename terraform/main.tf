@@ -259,7 +259,7 @@ resource "vcd_vapp_vm" "control_plane" {
 
   override_template_disk {
     bus_type        = "paravirtual"
-    size_in_mb      = var.control_plane_disk_size
+    size_in_mb      = var.control_plane_disk_size_mb
     bus_number      = 0
     unit_number     = 0
     storage_profile = var.control_plane_disk_storage_profile

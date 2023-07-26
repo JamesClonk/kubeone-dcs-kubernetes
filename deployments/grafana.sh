@@ -12,7 +12,7 @@ chart="grafana"
 version="6.57.4"
 namespace="${chart}"
 
-cluster_hostname=$(cat terraform/output.json | jq -r .kubeone_api.value.endpoint)
+cluster_hostname=$(yq -e eval '.kubernetes.hostname' config.yaml)
 cat > "deployments/${chart}.values.yaml" <<EOF
 deploymentStrategy:
   type: Recreate
