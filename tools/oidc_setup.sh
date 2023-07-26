@@ -30,9 +30,9 @@ decode_jwt(){
 	decode_base64_url $(echo -n $1 | cut -d "." -f 2) | jq .
 }
 OIDC_TOKEN=$(kubectl oidc-login get-token \
-        --oidc-issuer-url=https://dex.kubeone-dev.kube-plus.cloud/dex \
+        --oidc-issuer-url=https://dex.${cluster_hostname}/dex \
         --oidc-client-id=kubernetes \
-        --oidc-client-secret=W73p2pEwur0geNjGfx6uOsUA0BrefYuJ \
+        --oidc-client-secret=${oidc_secret} \
         --oidc-extra-scope=email \
         --oidc-extra-scope=groups \
         --oidc-extra-scope=profile)
