@@ -1,9 +1,12 @@
 ---
 kubernetes:
-  hostname: my-kubernetes.my-domain.com # adjust to your hostname, make sure you have a valid DNS records pointing to the edge gateway beforehand
+  hostname: "my-kubernetes.my-domain.com" # adjust to your hostname, make sure you have a valid DNS records pointing to the edge gateway beforehand
   version: "1.26.6"
   csi:
-    storage_profile: Ultra Fast Storage A # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
+    storage_profile: "Ultra Fast Storage A" # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
+  oidc:
+    secret: "hSPJw9AyyJMh3iQLF2V0RBGCkdRw7qSI" # generate a new secret with: $(cat /dev/urandom | tr -dc A-Za-z0-9 | head -c32)
+  admin_password: "$2y$10$qZjfVBeMRHlRZPwX2uDrIe4zjLyU8SPmz6ww6zoCxctoNrHIUfq7u" # generate a new password hash with: $(echo "<my-password>" | htpasswd -BinC 10 admin | cut -d: -f2)
 
 # vCD settings
 vcd:
@@ -22,7 +25,7 @@ control_plane:
   memory: 4096
   cpus: 2
   disk_size_mb: 51200
-  storage_profile: Ultra Fast Storage A with Backup # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies", or set to "*" if you are unsure
+  storage_profile: "Ultra Fast Storage A with Backup" # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies", or set to "*" if you are unsure
 
 workers:
   memory: 8192
