@@ -22,13 +22,13 @@ control_plane:
   memory: 4096
   cpus: 2
   disk_size_mb: 51200
-  storage_profile: Ultra Fast Storage A with Backup # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
+  storage_profile: Ultra Fast Storage A with Backup # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies", or set to "*" if you are unsure
 
 workers:
   memory: 8192
   cpus: 4
   disk_size_gb: 250
-  storage_profile: Ultra Fast Storage A # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
+  storage_profile: "Ultra Fast Storage A" # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies", or set to "*" if you are unsure
   initial_machinedeployment_replicas: 3
   cluster_autoscaler_min_replicas: 3
   cluster_autoscaler_max_replicas: 5

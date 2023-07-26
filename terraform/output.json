@@ -85,7 +85,7 @@
         "ssh_port": 22,
         "ssh_private_key_file": "ssh_key_id_rsa",
         "ssh_user": "ubuntu",
-        "storage_profile": "*",
+        "storage_profile": "Ultra Fast Storage A with Backup",
         "vapp_name": "kubeone-dev"
       }
     }
