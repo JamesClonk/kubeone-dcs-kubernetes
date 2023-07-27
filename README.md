@@ -36,6 +36,7 @@ Table of Contents
 * [Up and running](#up-and-running)
   + [kubectl](#kubectl)
   + [DCS+](#dcs)
+  + [OAuth2 / Dex](#oauth2--dex)
   + [Kubernetes-Dashboard](#kubernetes-dashboard)
   + [Prometheus](#prometheus)
   + [Grafana](#grafana)
@@ -477,12 +478,16 @@ reboot-coordinator     Active   4d22h
 
 By default (unless configured otherwise in your `terraform.tfvars` or `kubeone.yaml`) once the deployment is done you should see something similar to the picture above in your DCS+ UI. There will be 1 bastion host (a jumphost VM for SSH access to the other VMs), 3 control plane VMs for the Kubernetes server nodes, and several dynamically created worker VMs that are responsible for running your Kubernetes workload.
 
+### OAuth2 / Dex
+
+TODO: add explanation of all things oauth2 / dex, explain how the login and user/pw for all UIs below works...
+
 ### Kubernetes-Dashboard
 ![DCS+ Dashboard](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_k8s_dashboard.png)
 
-The Kubernetes dashboard will automatically be available to you after the installation under [https://dashboard.my-kubernetes.my-domain.com](https://grafana.my-kubernetes.my-domain.com) (with *my-kubernetes.my-domain.com* being the value you configured in `terraform.tfvars -> cluster_hostname`)
+The Kubernetes dashboard will automatically be available to you after the installation under [https://dashboard.my-kubernetes.my-domain.com](https://grafana.my-kubernetes.my-domain.com) (with *my-kubernetes.my-domain.com* being the value you configured in `config.yaml -> kubernetes.hostname`)
 
-In order to login you will first need to request a temporary access token from your Kubernetes cluster:
+In order to login you will need to request a temporary access token from your Kubernetes cluster:
 ```bash
 $ kubectl -n kubernetes-dashboard create token kubernetes-dashboard --duration "60m"
 ```
@@ -492,11 +497,7 @@ With this token you will be able to sign in into the dashboard.
 ### Prometheus
 ![DCS+ Prometheus](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_prometheus.png)
 
-To access the Prometheus UI you have to initialize a localhost port-forwarding towards the service on the cluster, since it is not exposed externally:
-```bash
-$ kubectl -n prometheus port-forward service/prometheus-server 9090:80
-```
-This will setup a port-forwarding for `localhost:9090` on your machine. Now you can open the Prometheus UI in your browser by going to [http://localhost:9090/](http://localhost:9090/).
+You can access the Prometheus UI in your browser by going to [https://prometheus.my-kubernetes.my-domain.com](https://prometheus.my-kubernetes.my-domain.com) and login with your IDP / OIDC account.
 
 ### Grafana
 ![DCS+ Grafana](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_grafana.png)
