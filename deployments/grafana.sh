@@ -19,6 +19,7 @@ deploymentStrategy:
 persistence:
   enabled: true
   size: 5Gi
+
 ingress:
   enabled: true
   ingressClassName: nginx
@@ -29,7 +30,37 @@ ingress:
     hosts:
     - grafana.${cluster_hostname}
   annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${cluster_hostname}/oauth2/start"
+    nginx.ingress.kubernetes.io/auth-url: "https://oauth2-proxy.${cluster_hostname}/oauth2/auth"
     cert-manager.io/cluster-issuer: "lets-encrypt"
+
+grafana.ini:
+  analytics:
+    check_for_updates: false
+  auth:
+    disable_login_form: true
+    disable_signout_menu: true
+  auth.anonymous:
+    enabled: true
+    org_name: Main Org.
+    org_role: Admin
+  auth.basic:
+    enabled: false
+  log:
+    mode: console
+  grafana_net:
+    url: https://grafana.net
+  paths:
+    data: /var/lib/grafana/
+    logs: /var/log/grafana
+    plugins: /var/lib/grafana/plugins
+    provisioning: /etc/grafana/provisioning
+  server:
+    domain: grafana.${cluster_hostname}
+    root_url: https://grafana.${cluster_hostname}
+
 datasources:
   datasources.yaml:
     apiVersion: 1
@@ -62,20 +93,10 @@ dashboards:
     ingress-controller:
       url: https://raw.githubusercontent.com/swisscom/terraform-dcs-kubernetes/master/deployments/dashboards/ingress-controller.json
       token: ''
-    cilium-agent:
-      url: https://raw.githubusercontent.com/swisscom/terraform-dcs-kubernetes/master/deployments/dashboards/cilium-agent.json
-      token: ''
-    cilium-operator:
-      url: https://raw.githubusercontent.com/swisscom/terraform-dcs-kubernetes/master/deployments/dashboards/cilium-operator.json
-      token: ''
-    hubble:
-      url: https://raw.githubusercontent.com/swisscom/terraform-dcs-kubernetes/master/deployments/dashboards/hubble.json
-      token: ''
 EOF
 deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${version}" "deployments/${chart}.values.yaml"
 
 echo " "
 echo "================================================================================================================="
 echo "Grafana has been installed, visit: https://grafana.${cluster_hostname}"
-echo "Get the admin password: kubectl -n grafana get secret grafana -o jsonpath='{.data.admin-password}' | base64 -d; echo"
 echo "================================================================================================================="

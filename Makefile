@@ -146,7 +146,7 @@ kubeone-addons:
 # ======================================================================================================================
 .PHONY: deployments
 ## deployments: install all deployments on Kubernetes
-deployments: check-env deploy-longhorn deploy-ingress-nginx deploy-cert-manager deploy-dex deploy-kubernetes-dashboard deploy-prometheus deploy-loki deploy-promtail deploy-grafana deploy-opencost
+deployments: check-env deploy-longhorn deploy-ingress-nginx deploy-cert-manager deploy-dex deploy-oauth2-proxy deploy-kubernetes-dashboard deploy-prometheus deploy-loki deploy-promtail deploy-grafana deploy-opencost
 
 .PHONY: deploy-longhorn
 ## deploy-longhorn: deploy/update Longhorn storage
@@ -164,9 +164,14 @@ deploy-cert-manager:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/cert-manager.sh
 
 .PHONY: deploy-dex
-## deploy-cdex: deploy/update Dex
+## deploy-dex: deploy/update Dex
 deploy-dex:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/dex.sh
+
+.PHONY: deploy-oauth2-proxy
+## deploy-oauth2-proxy: deploy/update oauth2-proxy
+deploy-oauth2-proxy:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/oauth2-proxy.sh
 
 .PHONY: deploy-kubernetes-dashboard
 ## deploy-kubernetes-dashboard: deploy/update Kubernetes dashboard

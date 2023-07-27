@@ -29,6 +29,8 @@ ingress:
     hosts:
     - dex.${cluster_hostname}
   annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     cert-manager.io/cluster-issuer: "lets-encrypt"
 
 config:
@@ -57,6 +59,11 @@ config:
     name: Kubernetes
     redirectURIs:
     - 'http://localhost:8000'
+    secret: "${oidc_secret}"
+  - id: oauth2-proxy
+    name: oauth2-proxy
+    redirectURIs:
+    - 'https://oauth2-proxy.${cluster_hostname}/oauth2/callback'
     secret: "${oidc_secret}"
 
   # connectors:

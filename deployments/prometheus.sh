@@ -48,6 +48,7 @@ function upgradeActions() {
 }
 upgradeActions
 
+cluster_hostname=$(yq -e eval '.kubernetes.hostname' config.yaml)
 cat > "deployments/${chart}.values.yaml" <<EOF
 alertmanager:
   enabled: true
@@ -55,11 +56,29 @@ alertmanager:
     type: Recreate
   persistence:
     size: 1Gi
+
 server:
   persistentVolume:
     size: 10Gi
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${cluster_hostname}/oauth2/start"
+      nginx.ingress.kubernetes.io/auth-url: "https://oauth2-proxy.${cluster_hostname}/oauth2/auth"
+      cert-manager.io/cluster-issuer: "lets-encrypt"
+    hosts:
+    - prometheus.${cluster_hostname}
+    tls:
+    - secretName: prometheus-tls
+      hosts:
+      - prometheus.${cluster_hostname}
+
 kube-state-metrics:
   enabled: true
+
 prometheus-node-exporter:
   enabled: true
   tolerations:
@@ -71,6 +90,7 @@ prometheus-node-exporter:
   - key: node-role.kubernetes.io/control-plane
     operator: Exists
     effect: NoSchedule
+
 prometheus-pushgateway:
   enabled: true
 EOF
@@ -78,6 +98,5 @@ deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${versio
 
 echo " "
 echo "================================================================================================================="
-echo "Prometheus has been installed ..."
-echo "To access, open a port-forwarding by running: kubectl -n prometheus port-forward svc/prometheus-server 9090:80"
+echo "Prometheus has been installed, visit: https://prometheus.${cluster_hostname}"
 echo "================================================================================================================="
