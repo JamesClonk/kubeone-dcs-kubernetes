@@ -13,6 +13,7 @@ version="6.57.4"
 namespace="${chart}"
 
 cluster_hostname=$(yq -e eval '.kubernetes.hostname' config.yaml)
+oidc_secret=$(yq -e eval '.kubernetes.oidc.secret' config.yaml)
 cat > "deployments/${chart}.values.yaml" <<EOF
 deploymentStrategy:
   type: Recreate
@@ -42,12 +43,33 @@ grafana.ini:
   auth:
     disable_login_form: true
     disable_signout_menu: true
+    skip_org_role_sync: true
   auth.anonymous:
-    enabled: true
-    org_name: Main Org.
-    org_role: Admin
+    enabled: false
   auth.basic:
     enabled: false
+  auth.proxy:
+    enabled: false
+  auth.generic_oauth:
+    enabled: true
+    name: Dex
+    auto_login: true
+    allow_sign_up: true
+    client_id: grafana
+    client_secret: "${oidc_secret}"
+    auth_url: https://dex.${cluster_hostname}/dex/auth
+    token_url: https://dex.${cluster_hostname}/dex/token
+    api_url: https://dex.${cluster_hostname}/dex/userinfo
+    skip_org_role_sync: true
+    scopes: openid groups email profile
+  users:
+    allow_sign_up: false
+    auto_assign_org: true
+    auto_assign_org_role: Admin
+    verify_email_enabled: false
+  security:
+    cookie_secure: true
+    cookie_samesite: lax
   log:
     mode: console
   grafana_net:
@@ -99,4 +121,6 @@ deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${versio
 echo " "
 echo "================================================================================================================="
 echo "Grafana has been installed, visit: https://grafana.${cluster_hostname}"
+echo "To get the local admin password if necessary (username 'admin'), run the following command:"
+echo "kubectl -n grafana get secret grafana -o jsonpath='{.data.admin-password}' | base64 -d; echo"
 echo "================================================================================================================="

@@ -65,6 +65,11 @@ config:
     redirectURIs:
     - 'https://oauth2-proxy.${cluster_hostname}/oauth2/callback'
     secret: "${oidc_secret}"
+  - id: grafana
+    name: grafana
+    redirectURIs:
+    - 'https://grafana.${cluster_hostname}/login/generic_oauth'
+    secret: "${oidc_secret}"
 
   # connectors:
   #   - type: github
