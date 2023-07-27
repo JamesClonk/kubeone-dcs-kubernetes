@@ -33,8 +33,6 @@ ingress:
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${cluster_hostname}/oauth2/start"
-    nginx.ingress.kubernetes.io/auth-url: "https://oauth2-proxy.${cluster_hostname}/oauth2/auth"
     cert-manager.io/cluster-issuer: "lets-encrypt"
 
 grafana.ini:
@@ -44,6 +42,7 @@ grafana.ini:
     disable_login_form: true
     disable_signout_menu: true
     skip_org_role_sync: true
+    oauth_allow_insecure_email_lookup: true
   auth.anonymous:
     enabled: false
   auth.basic:
