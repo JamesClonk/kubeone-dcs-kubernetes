@@ -97,7 +97,7 @@ The final result is a fully functioning, highly available, autoscaling Kubernete
 
 To use this repository you will need to have a valid account / contract number on [Swisscom DCS+](https://dcsguide.scapp.swisscom.com/).
 
-Configure your contract number (PRO-number) in `terraform.tfvars -> vcd_org` and `credentials.yaml -> VCD_ORG`.
+Configure your contract number (PRO-number) in `config.yaml -> vcd.org`.
 
 #### DCS+ resources
 
@@ -108,11 +108,11 @@ For deploying a Kubernetes cluster with KubeOne on DCS+ you will need to manuall
 
 ##### Dynamic Data Center
 
-Login to the DCS+ management portal and go to [Catalog](https://portal.swisscomcloud.com/catalog/). From there you can order a new **Dynamic Data Center**. The *"Service Level"* does not matter for Kubernetes, pick anything you want.
+Login to the DCS+ management portal and go to [Catalog](https://portal.swisscomcloud.com/catalog/). From there you can order a new **Dynamic Data Center** (a *Virtual Data Center* or *VDC* in vCloud terminology). The *"Service Level"* does not matter for Kubernetes, pick anything you want.
 
 See the official DCS+ documentation on [Dynamic Data Center](https://dcsguide.scapp.swisscom.com/ug3/dcs_portal.html#dynamic-data-center) for more information.
 
-Configure the name of your newly created DDC in `terraform.tfvars -> vcd_vdc` and `credentials.yaml -> VCD_VDC`.
+Configure the name of your newly created VDC in `config.yaml -> vcd.vdc`.
 
 ##### Edge Gateway
 
