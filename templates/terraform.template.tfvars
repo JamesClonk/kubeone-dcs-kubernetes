@@ -21,6 +21,7 @@ worker_memory              = 8192
 worker_cpus                = 4
 worker_disk_size_gb        = 250
 
+control_plane_vm_count             = 3
 initial_machinedeployment_replicas = 3
 cluster_autoscaler_min_replicas    = 3
 cluster_autoscaler_max_replicas    = 5

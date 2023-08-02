@@ -51,21 +51,6 @@ config: check-env
 ## install-tools: download and install all required CLI tools into ~/bin
 install-tools:
 	@tools/install_tools.sh
-
-.PHONY: ssh
-## ssh: login to bastion host
-ssh: check-env
-	@tools/ssh.sh
-
-.PHONY: ssh-control-plane
-## ssh-control-plane: login to all control plane nodes (requires TMUX)
-ssh-control-plane: check-env
-	@tools/ssh_control_plane.sh
-
-.PHONY: oidc-setup
-## oidc-setup: setup OIDC for the Kubernetes cluster (install Dex first!)
-oidc-setup:
-	KUBECONFIG=${KUBECONFIG_FILE} tools/oidc_setup.sh
 # ======================================================================================================================
 
 # ======================================================================================================================
@@ -212,4 +197,26 @@ grafana-password:
 ## deploy-opencost: deploy/update OpenCost
 deploy-opencost:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/opencost.sh
+# ======================================================================================================================
+
+# ======================================================================================================================
+.PHONY: oidc-setup
+## oidc-setup: setup OIDC for the Kubernetes cluster (install Dex first!)
+oidc-setup:
+	KUBECONFIG=${KUBECONFIG_FILE} tools/oidc_setup.sh
+
+.PHONY: ssh
+## ssh: login to bastion host
+ssh: check-env
+	@tools/ssh.sh
+
+.PHONY: ssh-control-plane
+## ssh-control-plane: login to all control plane nodes (requires TMUX)
+ssh-control-plane: check-env
+	@tools/ssh_control_plane.sh
+
+.PHONY: trivy-scan
+## trivy-scan: run a Kubernetes cluster scan with Trivy
+trivy-scan: check-env
+	@tools/trivy.sh
 # ======================================================================================================================

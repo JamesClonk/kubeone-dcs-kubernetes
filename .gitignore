@@ -56,6 +56,7 @@ go-vcloud-director.log
 
 # trivy scan results
 /trivy.json
+/trivy.out
 
 # Include override files you do wish to add to version control using negated pattern
 #

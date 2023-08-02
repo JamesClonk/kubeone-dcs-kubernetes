@@ -50,19 +50,20 @@ echo "generating [terraform/terraform.tfvars] ..."
 cp templates/terraform.template.tfvars terraform/terraform.tfvars.tmp
 
 export VCD_EDGEGATEWAY=$(yq -e eval '.vcd.edge_gateway_name' config.yaml)
-export VCD_CATALOG=$(yq -e eval '.vcd.catalog_name' config.yaml)
-export VCD_CLUSTER=$(yq -e eval '.vcd.cluster_name' config.yaml)
-export CP_MEMORY=$(yq -e eval '.control_plane.memory' config.yaml)
-export CP_CPU=$(yq -e eval '.control_plane.cpus' config.yaml)
-export CP_DISK=$(yq -e eval '.control_plane.disk_size_mb' config.yaml)
-export CP_STORAGE_PROFILE=$(yq -e eval '.control_plane.storage_profile' config.yaml)
-export WORKER_MEMORY=$(yq -e eval '.workers.memory' config.yaml)
-export WORKER_CPU=$(yq -e eval '.workers.cpus' config.yaml)
-export WORKER_DISK=$(yq -e eval '.workers.disk_size_gb' config.yaml)
-export WORKER_STORAGE_PROFILE=$(yq -e eval '.workers.storage_profile' config.yaml)
-export WORKER_INIT_REPLICA=$(yq -e eval '.workers.initial_machinedeployment_replicas' config.yaml)
-export WORKER_MIN_REPLICA=$(yq -e eval '.workers.cluster_autoscaler_min_replicas' config.yaml)
-export WORKER_MAX_REPLICA=$(yq -e eval '.workers.cluster_autoscaler_max_replicas' config.yaml)
+export VCD_CATALOG=$(yq -e eval '.vcd.catalog_name // "KubeOne"' config.yaml)
+export VCD_CLUSTER=$(yq -e eval '.vcd.cluster_name // "kubeone"' config.yaml)
+export CP_MEMORY=$(yq -e eval '.control_plane.memory // 4096' config.yaml)
+export CP_CPU=$(yq -e eval '.control_plane.cpus // 2' config.yaml)
+export CP_DISK=$(yq -e eval '.control_plane.disk_size_mb // 51200' config.yaml)
+export CP_STORAGE_PROFILE=$(yq -e eval '.control_plane.storage_profile // "*"' config.yaml)
+export CP_VM_COUNT=$(yq -e eval '.control_plane.vm_count // 3' config.yaml)
+export WORKER_MEMORY=$(yq -e eval '.workers.memory // 8192' config.yaml)
+export WORKER_CPU=$(yq -e eval '.workers.cpus // 4' config.yaml)
+export WORKER_DISK=$(yq -e eval '.workers.disk_size_gb // 250' config.yaml)
+export WORKER_STORAGE_PROFILE=$(yq -e eval '.workers.storage_profile // "*"' config.yaml)
+export WORKER_INIT_REPLICA=$(yq -e eval '.workers.initial_machinedeployment_replicas // 3' config.yaml)
+export WORKER_MIN_REPLICA=$(yq -e eval '.workers.cluster_autoscaler_min_replicas // 3' config.yaml)
+export WORKER_MAX_REPLICA=$(yq -e eval '.workers.cluster_autoscaler_max_replicas // 5' config.yaml)
 
 sed "s|\(vcd_url[ \t]*=[ \t]*\)\".*\"|\1\"${VCD_URL}\"|g" -i terraform/terraform.tfvars.tmp
 sed "s|\(vcd_user[ \t]*=[ \t]*\)\".*\"|\1\"${VCD_USER}\"|g" -i terraform/terraform.tfvars.tmp
@@ -85,6 +86,7 @@ sed "s|\(worker_memory[ \t]*=[ \t]*\)[0-9]*|\1${WORKER_MEMORY}|g" -i terraform/t
 sed "s|\(worker_cpus[ \t]*=[ \t]*\)[0-9]*|\1${WORKER_CPU}|g" -i terraform/terraform.tfvars.tmp
 sed "s|\(worker_disk_size_gb[ \t]*=[ \t]*\)[0-9]*|\1${WORKER_DISK}|g" -i terraform/terraform.tfvars.tmp
 
+sed "s|\(control_plane_vm_count[ \t]*=[ \t]*\)[0-9]*|\1${CP_VM_COUNT}|g" -i terraform/terraform.tfvars.tmp
 sed "s|\(initial_machinedeployment_replicas[ \t]*=[ \t]*\)[0-9]*|\1${WORKER_INIT_REPLICA}|g" -i terraform/terraform.tfvars.tmp
 sed "s|\(cluster_autoscaler_min_replicas[ \t]*=[ \t]*\)[0-9]*|\1${WORKER_MIN_REPLICA}|g" -i terraform/terraform.tfvars.tmp
 sed "s|\(cluster_autoscaler_max_replicas[ \t]*=[ \t]*\)[0-9]*|\1${WORKER_MAX_REPLICA}|g" -i terraform/terraform.tfvars.tmp

@@ -22,13 +22,14 @@ vcd:
   catalog_name: "KubeOne"
   cluster_name: "kubeone"
 
-control_plane:
+control_plane: # adjust VM sizing for control plane nodes
   memory: 4096
   cpus: 2
   disk_size_mb: 51200
   storage_profile: "Ultra Fast Storage A with Backup" # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies", or set to "*" if you are unsure
+  vm_count: 3 # use either 1 or 3 control plane VMs, other numbers are not recommended!
 
-workers:
+workers: # adjust VM sizing for worker nodes
   memory: 8192
   cpus: 4
   disk_size_gb: 250
