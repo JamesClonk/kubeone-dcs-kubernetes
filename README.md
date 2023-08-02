@@ -33,6 +33,7 @@ Table of Contents
     - [Infrastructure](#infrastructure)
     - [Kubernetes](#kubernetes)
     - [Deployments](#deployments)
+    - [OIDC setup](#oidc-setup)
 * [Up and running](#up-and-running)
   + [kubectl](#kubectl)
   + [DCS+](#dcs)
@@ -427,6 +428,24 @@ $ make deploy-grafana # deploys or updates Grafana
 $ make deploy-opencost # deploys or updates OpenCost
 ```
 
+#### OIDC setup
+
+There is one final step remaining after the deployments, and that is to configure your Kubernetes cluster for OIDC authentication and authorization.
+
+This can be done by simply running the following command:
+```bash
+$ make oidc-setup
+```
+
+For this command to work you will need to have the kubectl [kubelogin plugin](https://github.com/int128/kubelogin) installed.
+When you run `make oidc-setup` it will open up a browser window and ask you to login either via your configured IDP or with the static admin credentials.
+
+The static admin credentials will have `admin@<hostname>` as the username, and the password is set to the value you configured under `kubernetes.admin_password` in `config.yaml`. This set of admin credentials allows full cluster-admin access to the Kubernetes cluster itself, and also via OAuth2 to any of its components, such as Grafana, Prometheus, the Longhorn UI, etc..
+
+The entire OIDC setup is done via a combination of Dex and oauth2-proxy.
+
+Please refer to [Dex Connectors](https://dexidp.io/docs/connectors/) for further documentation on how to configure and integrate your IDP into Dex. The necessary modifications will need to be done in [/deployments/dex.sh](/deployments/dex.sh).
+
 ## Up and running
 
 Once the installation of all the components has finished you should have a fully functioning Kubernetes cluster up and running in your Swisscom DCS+ data center. Here are a few examples on how to access these components and the cluster itself:
@@ -480,7 +499,11 @@ By default (unless configured otherwise in your `config.yaml`) once the deployme
 
 ### OAuth2 / Dex
 
-TODO: add explanation of all things oauth2 / dex, explain how the login and user/pw for all UIs below works...
+The Kubernetes cluster will be set up to use OIDC RBAC for authentication and authorization.
+
+See the [KubeOne OIDC documentation](https://docs.kubermatic.com/kubeone/v1.6/tutorials/creating-clusters-oidc/) for further information on how OIDC is implemented in a KubeOne Kubernetes cluster.
+
+All web UI components will be automatically exposed externally via *Ingress* resources annotated to automatically require sign-in and secured by Dex / oauth2-proxy. To access any of these either use the OIDC static admin credentials (as mentioned in the [OIDC setup](#oidc-setup)) or your integrated IDP accounts.
 
 ### Kubernetes-Dashboard
 ![DCS+ Dashboard](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_k8s_dashboard.png)
@@ -504,7 +527,9 @@ You can access the Prometheus UI in your browser by going to [https://prometheus
 
 The Grafana dashboard will automatically be available to you after installation under [https://grafana.my-kubernetes.my-domain.com](https://grafana.my-kubernetes.my-domain.com) (with *my-kubernetes.my-domain.com* being the value you configured in `config.yaml -> kuberneters.hostname`)
 
-The username for accessing Grafana will be `admin` and the password can be retrieved from Kubernetes by running:
+If you use the OIDC static admin credentials you will automatically login in with the *Admin* role and be able to manage and configure all aspects of Grafana.
+
+If for whatever reason the OIDC login does not work, you can fallback to the Grafana internal admin account. The username will be `admin` and the password can be retrieved from Kubernetes by running:
 ```bash
 $ kubectl -n grafana get secret grafana -o jsonpath='{.data.admin-password}' | base64 -d; echo
 ```
@@ -512,20 +537,12 @@ $ kubectl -n grafana get secret grafana -o jsonpath='{.data.admin-password}' | b
 ### Longhorn
 ![DCS+ Longhorn](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_longhorn.png)
 
-To access the Longhorn dashboard you have to initialize a localhost port-forwarding towards the service on the cluster, since it is not exposed externally:
-```bash
-$ kubectl -n longhorn-system port-forward service/longhorn-frontend 9999:80
-```
-This will setup a port-forwarding for `localhost:9999` on your machine. Now you can open the Longhorn dashboard in your browser by going to [http://localhost:9999/#/dashboard](http://localhost:9999/).
+You can access the Longhorn dashboard your browser by going to [https://longhorn.my-kubernetes.my-domain.com](https://longhorn.my-kubernetes.my-domain.com) and login with your IDP / OIDC account.
 
 ### OpenCost
 ![DCS+ OpenCost](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_opencost.png)
 
-To access the OpenCost dashboard you have to initialize a localhost port-forwarding towards the service on the cluster, since it is not exposed externally:
-```bash
-$ kubectl -n opencost port-forward service/opencost 9090:9090
-```
-This will setup a port-forwarding for `localhost:9090` on your machine. Now you can open the OpenCost dashboard in your browser by going to [http://localhost:9090/](http://localhost:9090/).
+You can access the OpenCost dashboard your browser by going to [https://opencost.my-kubernetes.my-domain.com](https://opencost.my-kubernetes.my-domain.com) and login with your IDP / OIDC account.
 
 ### Cilium Hubble UI
 ![DCS+ Hubble](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_cilium_hubble.png)
