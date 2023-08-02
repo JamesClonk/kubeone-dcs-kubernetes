@@ -547,11 +547,7 @@ You can access the OpenCost dashboard your browser by going to [https://opencost
 ### Cilium Hubble UI
 ![DCS+ Hubble](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_cilium_hubble.png)
 
-The easiest way to access the Cilium Hubble UI is to download and install the [Cilium CLI](https://github.com/cilium/cilium-cli), and then simply run the following command:
-```bash
-$ cilium hubble ui
-```
-This will setup a port-forwarding in the background and open up a browser, pointing to the Hubble UI at [http://localhost:12000](http://localhost:12000).
+You can access the Hubble UI in your browser by going to [https://hubble.my-kubernetes.my-domain.com](https://hubble.my-kubernetes.my-domain.com) and login with your IDP / OIDC account.
 
 ## Troubleshooting
 

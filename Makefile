@@ -131,7 +131,7 @@ kubeone-addons:
 # ======================================================================================================================
 .PHONY: deployments
 ## deployments: install all deployments on Kubernetes
-deployments: check-env deploy-longhorn deploy-ingress-nginx deploy-cert-manager deploy-dex deploy-oauth2-proxy deploy-kubernetes-dashboard deploy-prometheus deploy-loki deploy-promtail deploy-grafana deploy-opencost
+deployments: check-env deploy-longhorn deploy-ingress-nginx deploy-cert-manager deploy-dex deploy-oauth2-proxy deploy-kubernetes-dashboard deploy-hubble deploy-prometheus deploy-loki deploy-promtail deploy-grafana deploy-opencost
 
 .PHONY: deploy-longhorn
 ## deploy-longhorn: deploy/update Longhorn storage
@@ -167,6 +167,11 @@ deploy-kubernetes-dashboard:
 ## dashboard-token: create a temporary login token for Kubernetes dashboard
 dashboard-token:
 	KUBECONFIG=${KUBECONFIG_FILE} kubectl -n kubernetes-dashboard create token kubernetes-dashboard --duration "60m"
+
+.PHONY: deploy-hubble
+## deploy-hubble: deploy/update Hubble UI access
+deploy-hubble:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/hubble.sh
 
 .PHONY: deploy-prometheus
 ## deploy-prometheus: deploy/update Prometheus
