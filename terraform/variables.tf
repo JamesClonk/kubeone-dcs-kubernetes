@@ -174,7 +174,7 @@ variable "control_plane_cpu_cores" {
   type        = number
 }
 
-variable "control_plane_disk_size" {
+variable "control_plane_disk_size_mb" {
   description = "Disk size in MB"
   default     = 51200
   type        = number
@@ -321,7 +321,7 @@ variable "worker_disk_storage_profile" {
 }
 
 variable "initial_machinedeployment_operating_system_profile" {
-  default     = ""
+  default     = "osp-ubuntu"
   type        = string
   description = <<EOF
 Name of operating system profile for MachineDeployments, only applicable if operating-system-manager addon is enabled.

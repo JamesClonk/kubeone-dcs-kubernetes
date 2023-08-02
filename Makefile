@@ -34,12 +34,18 @@ check-env:
 	@which kubeone 1>/dev/null || (echo '[kubeone] is missing! Get it from https://github.com/kubermatic/kubeone/ ...' && exit 1)
 	@which helm 1>/dev/null || (echo '[helm] is missing! Get it from https://helm.sh/ ...' && exit 1)
 	@which jq 1>/dev/null || (echo '[jq] is missing! Get it from https://stedolan.github.io/jq/ ...' && exit 1)
+	@which yq 1>/dev/null || (echo '[yq] is missing! Get it from https://github.com/mikefarah/yq/ ...' && exit 1)
 	@which curl 1>/dev/null || (echo '[curl] is missing! Get it from https://curl.se/ ...' && exit 1)
 	@test -f "${SSH_KEY}" || ssh-keygen -t rsa -b 4096 -f "${SSH_KEY}" -N ''
 	@chmod 640 "${SSH_PUB_KEY}" && chmod 600 "${SSH_KEY}"
 	@ssh-add "${SSH_KEY}" || true
 	@kubeone version > ${ROOT_DIR}/kubeone.version.json
 	@test -f "${TERRAFORM_DIR}/main.tf" || kubeone init --provider vmware-cloud-director --terraform --path ${TERRAFORM_DIR} --cluster-name ${CLUSTER_NAME} -c ${CREDENTIALS_FILE}
+
+.PHONY: config
+## config: (re)generate all configuration files
+config: check-env
+	@tools/config.sh
 
 .PHONY: install-tools
 ## install-tools: download and install all required CLI tools into ~/bin
@@ -97,13 +103,14 @@ kubeone: check-env kubeone-apply kubeone-kubeconfig kubeone-generate-workers kub
 .PHONY: kubeone-apply
 ## kubeone-apply: run KubeOne to deploy Kubernetes
 kubeone-apply:
-	kubeone apply -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} --create-machine-deployments=false --auto-approve # --verbose  # --upgrade-machine-deployments
+	kubeone apply -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} --create-machine-deployments=false --auto-approve # --force-upgrade --verbose # --upgrade-machine-deployments
 
 .PHONY: kubeone-kubeconfig
 ## kubeone-kubeconfig: write kubeconfig file
 kubeone-kubeconfig:
 	kubeone kubeconfig -c ${CREDENTIALS_FILE} -m ${CONFIG_FILE} -t ${TERRAFORM_OUTPUT} > ${KUBECONFIG_FILE}
-	chmod 600 ${KUBECONFIG_FILE}
+	@chmod 600 kubeconfig 2>/dev/null || true
+	@chmod 600 ${KUBECONFIG_FILE}
 
 .PHONY: kubeone-generate-workers
 ## kubeone-generate-workers: generate a machinedeployments manifest for the cluster
@@ -124,7 +131,7 @@ kubeone-addons:
 # ======================================================================================================================
 .PHONY: deployments
 ## deployments: install all deployments on Kubernetes
-deployments: check-env deploy-longhorn deploy-ingress-nginx deploy-cert-manager deploy-kubernetes-dashboard deploy-prometheus deploy-loki deploy-promtail deploy-grafana deploy-opencost
+deployments: check-env deploy-longhorn deploy-ingress-nginx deploy-cert-manager deploy-dex deploy-oauth2-proxy deploy-kubernetes-dashboard deploy-hubble deploy-prometheus deploy-loki deploy-promtail deploy-grafana deploy-opencost
 
 .PHONY: deploy-longhorn
 ## deploy-longhorn: deploy/update Longhorn storage
@@ -141,6 +148,16 @@ deploy-ingress-nginx:
 deploy-cert-manager:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/cert-manager.sh
 
+.PHONY: deploy-dex
+## deploy-dex: deploy/update Dex
+deploy-dex:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/dex.sh
+
+.PHONY: deploy-oauth2-proxy
+## deploy-oauth2-proxy: deploy/update oauth2-proxy
+deploy-oauth2-proxy:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/oauth2-proxy.sh
+
 .PHONY: deploy-kubernetes-dashboard
 ## deploy-kubernetes-dashboard: deploy/update Kubernetes dashboard
 deploy-kubernetes-dashboard:
@@ -150,6 +167,11 @@ deploy-kubernetes-dashboard:
 ## dashboard-token: create a temporary login token for Kubernetes dashboard
 dashboard-token:
 	KUBECONFIG=${KUBECONFIG_FILE} kubectl -n kubernetes-dashboard create token kubernetes-dashboard --duration "60m"
+
+.PHONY: deploy-hubble
+## deploy-hubble: deploy/update Hubble UI access
+deploy-hubble:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/hubble.sh
 
 .PHONY: deploy-prometheus
 ## deploy-prometheus: deploy/update Prometheus
@@ -180,4 +202,26 @@ grafana-password:
 ## deploy-opencost: deploy/update OpenCost
 deploy-opencost:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/opencost.sh
+# ======================================================================================================================
+
+# ======================================================================================================================
+.PHONY: oidc-setup
+## oidc-setup: setup OIDC for the Kubernetes cluster (install Dex first!)
+oidc-setup:
+	KUBECONFIG=${KUBECONFIG_FILE} tools/oidc_setup.sh
+
+.PHONY: ssh
+## ssh: login to bastion host
+ssh: check-env
+	@tools/ssh.sh
+
+.PHONY: ssh-control-plane
+## ssh-control-plane: login to all control plane nodes (requires TMUX)
+ssh-control-plane: check-env
+	@tools/ssh_control_plane.sh
+
+.PHONY: trivy-scan
+## trivy-scan: run a Kubernetes cluster scan with Trivy
+trivy-scan: check-env
+	@tools/trivy.sh
 # ======================================================================================================================

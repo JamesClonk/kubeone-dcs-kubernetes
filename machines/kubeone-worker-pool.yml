@@ -4,7 +4,7 @@ metadata:
   annotations:
     cluster.k8s.io/cluster-api-autoscaler-node-group-max-size: "5"
     cluster.k8s.io/cluster-api-autoscaler-node-group-min-size: "3"
-    k8c.io/operating-system-profile: ""
+    k8c.io/operating-system-profile: osp-ubuntu
   creationTimestamp: null
   name: kubeone-worker-pool
   namespace: kube-system
@@ -50,7 +50,7 @@ spec:
               KubeOneCluster: kubeone
             network: kubeone-routed-network
             organization: PRO-005019247
-            storageProfile: '*'
+            storageProfile: Ultra Fast Storage A
             template: Ubuntu 20.04 Server
             vapp: kubeone
             vdc: kubernetes-demo

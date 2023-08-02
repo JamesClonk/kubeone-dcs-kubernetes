@@ -1,0 +1,39 @@
+---
+kubernetes:
+  hostname: "my-kubernetes.my-domain.com" # adjust to your hostname, make sure you have a valid DNS records pointing to the edge gateway beforehand
+  version: "1.26.6"
+  csi:
+    storage_profile: "Ultra Fast Storage A" # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
+  oidc:
+    secret: "hSPJw9AyyJMh3iQLF2V0RBGCkdRw7qSI" # generate a new secret with: cat /dev/urandom | tr -dc A-Za-z0-9 | head -c32
+    cookie: "R2ltbFNBTlV4MWs1UGxzUTNKZkZNOGpnUnNUWjRuc2g=" # generate a new cookie secret with: openssl rand -base64 32 | head -c 32 | base64
+  admin_password: "$2y$10$qZjfVBeMRHlRZPwX2uDrIe4zjLyU8SPmz6ww6zoCxctoNrHIUfq7u" # generate a new password hash with: echo "<my-password>" | htpasswd -BinC 10 admin | cut -d: -f2
+
+# vCD settings
+vcd:
+  url: "https://vcd-pod-bravo.swisscomcloud.com/api"
+  user: "api_vcd_my_username" # adjust to your API username
+  password: "my_api_password" # adjust to your API password
+
+  org: "PRO-0123456789" # adjust to your org / contract no.
+  vdc: "my-data-center" # adjust to your vdc / ddc
+  edge_gateway_name: "PRO-0123456789-my-edge-gateway" # adjust to your edge gateway
+
+  catalog_name: "KubeOne"
+  cluster_name: "kubeone"
+
+control_plane: # adjust VM sizing for control plane nodes
+  memory: 4096
+  cpus: 2
+  disk_size_mb: 51200
+  storage_profile: "Ultra Fast Storage A with Backup" # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies", or set to "*" if you are unsure
+  vm_count: 3 # use either 1 or 3 control plane VMs, other numbers are not recommended!
+
+workers: # adjust VM sizing for worker nodes
+  memory: 8192
+  cpus: 4
+  disk_size_gb: 250
+  storage_profile: "Ultra Fast Storage A" # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies", or set to "*" if you are unsure
+  initial_machinedeployment_replicas: 3
+  cluster_autoscaler_min_replicas: 3
+  cluster_autoscaler_max_replicas: 5

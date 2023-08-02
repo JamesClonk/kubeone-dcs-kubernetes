@@ -85,7 +85,7 @@
         "ssh_port": 22,
         "ssh_private_key_file": "ssh_key_id_rsa",
         "ssh_user": "ubuntu",
-        "storage_profile": "*",
+        "storage_profile": "Ultra Fast Storage A with Backup",
         "vapp_name": "kubeone"
       }
     }
@@ -168,7 +168,7 @@
           "annotations": {
             "cluster.k8s.io/cluster-api-autoscaler-node-group-max-size": "5",
             "cluster.k8s.io/cluster-api-autoscaler-node-group-min-size": "3",
-            "k8c.io/operating-system-profile": ""
+            "k8c.io/operating-system-profile": "osp-ubuntu"
           },
           "cloudProviderSpec": {
             "allowInsecure": false,
@@ -183,7 +183,7 @@
             },
             "network": "kubeone-routed-network",
             "organization": "PRO-005019247",
-            "storageProfile": "*",
+            "storageProfile": "Ultra Fast Storage A",
             "template": "Ubuntu 20.04 Server",
             "vapp": "kubeone",
             "vdc": "kubernetes-demo"

@@ -1,13 +1,46 @@
-# Temporary directories/files
-/tmp
+# ======================================================================================================================
+# modify lines below as necessary, but make sure you are using a private git repository !!!
+# remove/add configuration files, secrets, credentials, keys, etc..
+# ======================================================================================================================
 
-# Local .terraform directories
-**/.terraform/*
+# all configuration files
+/config.yaml
+/credentials.yaml
+/kubeone.yaml
+/terraform/terraform.tfvars
+
+# generated kubeconfigs for cluster-admin
+/kubeone-kubeconfig
+/kubeone-*-kubeconfig
+/kubeconfig
+
+# SSH keys
+/ssh_key_id_rsa
+/ssh_key_id_rsa.pub
 
 # .tfstate files
 *.tfstate
 *.tfstate.*
 state_backend.tf
+
+# Ignore override files as they are usually used to override resources locally and so
+# are not checked in
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+
+# ======================================================================================================================
+# do not modify any lines below here anymore !!!
+# ======================================================================================================================
+
+# Temporary directories/files
+/tmp
+*.tmp
+
+# Local .terraform directories
+**/.terraform/*
 
 # .tfstate directories
 .tfstate/
@@ -21,19 +54,9 @@ go-vcloud-director.log
 # other log files
 *.log
 
-# Ignore any .tfvars files that are generated automatically for each Terraform run. Most
-# .tfvars files are managed as part of configuration and so should be included in
-# version control.
-#
-# example.tfvars
-terraform.tfvars
-
-# Ignore override files as they are usually used to override resources locally and so
-# are not checked in
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
+# trivy scan results
+/trivy.json
+/trivy.out
 
 # Include override files you do wish to add to version control using negated pattern
 #
@@ -45,24 +68,12 @@ override.tf.json
 # unused kubeone config file
 /terraform/kubeone.yaml
 
-# credentials
-credentials.yaml
+# helm temporary values files
+/deployments/*.yaml
 
 # OS images
 *.ova
-
-# SSH keys
-ssh_key_id_rsa
-ssh_key_id_rsa.pub
+*.ovf
 
 # kubeone tarballs
 *.tar.gz
-
-# kubeconfig
-/kubeone-kubeconfig
-/kubeone-demo-kubeconfig
-/kubeone-dev-kubeconfig
-/kubeconfig
-
-# helm temporary values files
-/deployments/*.yaml
