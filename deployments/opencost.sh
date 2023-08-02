@@ -12,11 +12,13 @@ chart="opencost"
 version="1.14.5"
 namespace="${chart}"
 
+cluster_hostname=$(yq -e eval '.kubernetes.hostname' config.yaml)
 cat > "deployments/${chart}.values.yaml" <<EOF
 service:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "9003"
+
 opencost:
   exporter:
     extraEnv:
@@ -32,10 +34,30 @@ opencost:
       namespaceName: prometheus
       serviceName: prometheus-server
       port: 80
+  ui:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${cluster_hostname}/oauth2/start"
+        nginx.ingress.kubernetes.io/auth-url: "https://oauth2-proxy.${cluster_hostname}/oauth2/auth"
+        cert-manager.io/cluster-issuer: "lets-encrypt"
+      hosts:
+      - host: opencost.${cluster_hostname}
+        paths:
+        - /
+      tls:
+      - secretName: opencost-tls
+        hosts:
+        - opencost.${cluster_hostname}
+
 extraVolumes:
 - name: opencost-config
   configMap:
     name: opencost-config
+
 EOF
 deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${version}" "deployments/${chart}.values.yaml"
 echo " "
@@ -65,6 +87,5 @@ kubectl -n ${namespace} apply -f "deployments/${chart}.cm.yaml"
 
 echo " "
 echo "================================================================================================================="
-echo "OpenCost has been installed ..."
-echo "To access, open a port-forwarding by running: kubectl -n opencost port-forward svc/opencost 9090:9090"
+echo "OpenCost has been installed, visit: https://opencost.${cluster_hostname}"
 echo "================================================================================================================="

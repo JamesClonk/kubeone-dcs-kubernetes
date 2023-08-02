@@ -45,3 +45,4 @@ jobs:
       run: |
         rm -f kubeconfig || true
         rm -f config.yml || true
+        rm -f config.yaml || true

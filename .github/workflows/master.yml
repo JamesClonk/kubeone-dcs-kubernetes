@@ -23,16 +23,14 @@ jobs:
       if: github.ref == 'refs/heads/master'
       env:
         TF_OVERRIDE: ${{ secrets.TF_OVERRIDE }}
-        TF_TFVARS: ${{ secrets.TF_TFVARS }}
         TF_CREDENTIALS: ${{ secrets.TF_CREDENTIALS }}
-        CREDENTIALS: ${{ secrets.CREDENTIALS }}
+        CONFIG: ${{ secrets.CONFIG }}
         SSHKEY: ${{ secrets.SSHKEY }}
       run: |
         mkdir -p ~/.terraform.d || true
         echo "${TF_CREDENTIALS}" > ~/.terraform.d/credentials.tfrc.json
         echo "${TF_OVERRIDE}" > terraform/override.tf
-        echo "${TF_TFVARS}" > terraform/terraform.tfvars
-        echo "${CREDENTIALS}" > credentials.yaml
+        echo "${CONFIG}" > config.yaml
         echo "${SSHKEY}" > ssh_key_id_rsa
         chmod 600 ssh_key_id_rsa
         ssh-keygen -f ssh_key_id_rsa -y > ssh_key_id_rsa.pub
@@ -49,6 +47,10 @@ jobs:
         make install-tools
         sudo mv -f ~/bin/* /usr/local/bin/
 
+    - name: Run Config generation
+      if: github.ref == 'refs/heads/master'
+      run: make config
+
     - name: Run Terraform
       if: github.ref == 'refs/heads/master'
       run: make terraform
@@ -64,6 +66,7 @@ jobs:
     - name: Cleanup
       if: ${{ always() }}
       run: |
+        rm -f config.yaml || true
         rm -f kubeone-kubeconfig || true
         rm -f credentials.yaml || true
         rm -f terraform/terraform.tfvars || true
@@ -144,3 +147,4 @@ jobs:
       run: |
         rm -f kubeone-kubeconfig || true
         rm -f config.yml || true
+        rm -f config.yaml || true

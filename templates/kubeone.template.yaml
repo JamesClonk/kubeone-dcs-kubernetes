@@ -19,6 +19,19 @@ clusterNetwork:
       kubeProxyReplacement: strict
       enableHubble: true
 
+features:
+  openidConnect:
+    enable: true # set to 'false' if you don't want to use OIDC for cluster authentication
+    config: # see https://docs.kubermatic.com/kubeone/v1.6/tutorials/creating-clusters-oidc/ for further details
+      issuerUrl: "https://dex.my-kubernetes.my-domain.com/dex" # adjust domain to your actual hostname (prefixed with "dex." subdomain), make sure you have a valid DNS records pointing to the edge gateway beforehand
+      clientId: "kubernetes"
+      # usernameClaim: "preferred_username"
+      # usernameClaim: "email"
+      # usernamePrefix: "-"
+      usernamePrefix: "oidc:"
+      groupsClaim: "groups"
+      groupsPrefix: "oidc:"
+
 addons: # https://docs.kubermatic.com/kubeone/v1.6/guides/addons/
   enable: true
   path: ./addons
@@ -29,6 +42,7 @@ addons: # https://docs.kubermatic.com/kubeone/v1.6/guides/addons/
   - name: csi-vmware-cloud-director
     params:
       clusterid: NO_RDE_kubeone
+      storageProfile: Ultra Fast Storage A # adjust to a storage profile of your choice, see "VCD UI -> Data Centers -> Storage -> Storage Policies"
 
   # Set vCloud-CSI as default storage-class. Consult README.md for caveats!
   - name: default-storage-class
