@@ -444,7 +444,30 @@ The static admin credentials will have `admin@<hostname>` as the username, and t
 
 The entire OIDC setup is done via a combination of Dex and oauth2-proxy.
 
-Please refer to [Dex Connectors](https://dexidp.io/docs/connectors/) for further documentation on how to configure and integrate your IDP into Dex. The necessary modifications will need to be done in [/deployments/dex.sh](/deployments/dex.sh).
+To integrate or add additional identity providers, you can configure [Dex connectors](https://dexidp.io/docs/connectors/) in the main `config.yaml` under `kubernetes.dex.connectors`.
+
+For example:
+```yaml
+kubernetes:
+  ...
+  dex:
+    connectors:
+    - type: github
+      id: github
+      name: GitHub
+      config:
+        clientID: a6324d7bda05daec7ec2
+        clientSecret: eecfce1c786d0fcc426edea89ebf56790c5e8169
+        redirectURI: https://dex.my-kubernetes.my-domain.com/dex/callback
+        orgs:
+        - name: my-company-org
+          teams:
+          - team-a
+          - team-b
+        - name: other-org
+```
+
+Please refer to the [Dex connectors documentation](https://dexidp.io/docs/connectors/) on how to configure additional connectors for the IDP of your choice into Dex.
 
 ## Up and running
 
