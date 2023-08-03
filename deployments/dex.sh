@@ -71,19 +71,9 @@ config:
     - 'https://grafana.${cluster_hostname}/login/generic_oauth'
     secret: "${oidc_secret}"
 
-  # connectors:
-  #   - type: github
-  #     id: github
-  #     name: GitHub
-  #     config:
-  #       clientID: <your github app client ID here>
-  #       clientSecret: <your github app client secret here>
-  #       redirectURI: https://dex.${cluster_hostname}/dex/callback
-  #       # you can configure the connector further, for example by restricting it to only a certain org or team.
-  #       # These restrictions depend on the provider, check the Dex documentation for more info.
-  #       #orgs:
-  #       #- name: exampleorg
+  connectors: []
 EOF
+yq -e eval '.config.connectors = (load("config.yaml") | .kubernetes.dex.connectors // [])' -i "deployments/${chart}.values.yaml"
 deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${version}" "deployments/${chart}.values.yaml"
 
 echo " "

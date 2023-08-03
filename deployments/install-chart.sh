@@ -28,9 +28,7 @@ if helm history --kubeconfig "${KUBECONFIG}" --max 1 --namespace "${namespace}" 
 	helm uninstall --kubeconfig "${KUBECONFIG}" --wait --namespace "${namespace}" "${chart}"
 fi
 
-echo "installing chart [${chart}] with values.yaml configuration:"
-cat "${values}" || true
-echo " "
+echo "installing chart [${chart}] ..."
 helm upgrade --kubeconfig "${KUBECONFIG}" \
 	--install --create-namespace --dependency-update \
 	--cleanup-on-fail --atomic --wait --timeout "10m" \
