@@ -8,6 +8,21 @@ kubernetes:
     secret: "hSPJw9AyyJMh3iQLF2V0RBGCkdRw7qSI" # generate a new secret with: cat /dev/urandom | tr -dc A-Za-z0-9 | head -c32
     cookie: "R2ltbFNBTlV4MWs1UGxzUTNKZkZNOGpnUnNUWjRuc2g=" # generate a new cookie secret with: openssl rand -base64 32 | head -c 32 | base64
   admin_password: "$2y$10$qZjfVBeMRHlRZPwX2uDrIe4zjLyU8SPmz6ww6zoCxctoNrHIUfq7u" # generate a new password hash with: echo "<my-password>" | htpasswd -BinC 10 admin | cut -d: -f2
+  dex:
+    connectors: [] # see https://dexidp.io/docs/connectors/ for documentation
+    # - type: github # see https://dexidp.io/docs/connectors/github/ for documentation
+    #   id: github
+    #   name: GitHub
+    #   config:
+    #     clientID: my_github_client
+    #     clientSecret: my_github_client_secret
+    #     redirectURI: https://dex.my-kubernetes.my-domain.com/dex/callback
+    #     orgs:
+    #     - name: my-organization
+    #     - name: my-organization-with-teams
+    #       teams:
+    #       - red-team
+    #       - blue-team
 
 # vCD settings
 vcd:
