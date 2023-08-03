@@ -44,6 +44,7 @@ Table of Contents
   + [Longhorn](#longhorn)
   + [OpenCost](#opencost)
   + [Cilium Hubble UI](#cilium-hubble-ui)
+  + [Falco Sidekick UI](#falco-sidekick-ui)
 * [Troubleshooting](#troubleshooting)
   + [Helm chart failures](#helm-chart-failures)
   + [Node eviction blocked](#node-eviction-blocked)
@@ -91,6 +92,7 @@ The final result is a fully functioning, highly available, autoscaling Kubernete
 | [Grafana](https://grafana.com/oss/grafana/) | Dashboard | Allows you to query, visualize, alert on and understand all of your Kubernetes metrics and logs |
 | [OpenCost](https://www.opencost.io/) | Dashboard | Measure and visualize your infrastructure and container costs in real time |
 | [Kured](https://kured.dev/) | System | A daemonset that performs safe automatic node reboots when needed by the package management system of the underlying OS |
+| [Falco](https://falco.org/) | Security | A cloud-native security tool to provide real-time alerts, designed for use in Kubernetes |
 
 ## How to deploy
 
@@ -349,6 +351,7 @@ Usage:
   deploy-grafana                deploy/update Grafana
   grafana-password              get the admin password for Grafana
   deploy-opencost               deploy/update OpenCost
+  deploy-falco                  deploy/update Falco Security
   oidc-setup                    setup OIDC for the Kubernetes cluster (install Dex first!)
   ssh                           login to bastion host
   ssh-control-plane             login to all control plane nodes (requires TMUX)
@@ -426,6 +429,7 @@ $ make deploy-loki # deploys or updates Loki
 $ make deploy-promtail # deploys or updates Promtail
 $ make deploy-grafana # deploys or updates Grafana
 $ make deploy-opencost # deploys or updates OpenCost
+$ make deploy-falco # deploys or updates Falco Security
 ```
 
 #### OIDC setup
@@ -500,6 +504,7 @@ cert-manager           Active   4d21h
 cloud-init-settings    Active   4d22h
 default                Active   4d22h
 dex                    Active   4d22h
+falco                  Active   4d19h
 grafana                Active   4d20h
 ingress-nginx          Active   4d21h
 kube-node-lease        Active   4d22h
@@ -571,6 +576,13 @@ You can access the OpenCost dashboard your browser by going to [https://opencost
 ![DCS+ Hubble](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_cilium_hubble.png)
 
 You can access the Hubble UI in your browser by going to [https://hubble.my-kubernetes.my-domain.com](https://hubble.my-kubernetes.my-domain.com) and login with your IDP / OIDC account.
+
+### Falco Sidekick UI
+![DCS+ Falco](https://raw.githubusercontent.com/JamesClonk/kubeone-dcs-kubernetes/data/dcs_falco.png)
+
+You can access the Falco Sidekick UI in your browser by going to [https://falco.my-kubernetes.my-domain.com](https://falco.my-kubernetes.my-domain.com) and login with your IDP / OIDC account. The login credentials for the UI itself will be "admin:admin".
+
+> **Note**: Falco is an optional component of this project and thus not installed by default! If you want to install it please run the additional command `make deploy-falco` after all other deployments are up and running.
 
 ## Troubleshooting
 
