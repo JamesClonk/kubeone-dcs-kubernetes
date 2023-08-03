@@ -202,6 +202,11 @@ grafana-password:
 ## deploy-opencost: deploy/update OpenCost
 deploy-opencost:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/opencost.sh
+
+.PHONY: deploy-falco
+## deploy-falco: deploy/update Falco Security
+deploy-falco:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/falco.sh
 # ======================================================================================================================
 
 # ======================================================================================================================
