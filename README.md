@@ -187,7 +187,7 @@ This repository has so far only been tested running under Linux and MacOSX. Your
 
 All configuration data for the entire project and all its components has been consolidated into a single configuration file: `config.yaml`.
 
-To get you started quickly there is also an example configuration file included, [`config.example.yaml`](/config.example.yaml]), which contains all the properties and variables required.
+To get you started quickly there is also an example configuration file included, [`config.example.yaml`](/config.example.yaml), which contains all the properties and variables required.
 
 You can just copy this file over to `config.yaml` and start editing it to fill in your values:
 ```bash
