@@ -38,6 +38,14 @@ config:
     cookie_httponly = "true"
     cookie_samesite = "lax"
 
+    # set_authorization_header = "true"
+    # set_xauthrequest = "true"
+    # pass_access_token = "true"
+    # pass_authorization_header = "true"
+    # pass_user_headers = "true"
+    # pass_host_header = "true"
+    # skip_jwt_bearer_tokens = "true"
+
 authenticatedEmailsFile:
   enabled: false
 

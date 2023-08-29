@@ -35,7 +35,15 @@ ingress:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${cluster_hostname}/oauth2/start"
     nginx.ingress.kubernetes.io/auth-url: "https://oauth2-proxy.${cluster_hostname}/oauth2/auth"
+    # nginx.ingress.kubernetes.io/auth-response-headers: >-
+    #   X-Auth-Request-Email,X-Auth-Request-Preferred-,X-Auth-Request-Access-Token,
+    #   X-Auth-Request-Roles,X-Auth-Request-User,X-Auth-Request-Groups,X-Forwarded-Groups,
+    #   Authorization
     cert-manager.io/cluster-issuer: "lets-encrypt"
+    # ingress.kubernetes.io/configuration-snippet: |
+    #   auth_request_set \$token \$upstream_http_authorization;
+    #   proxy_set_header Authorization \$token;
+    #   proxy_pass_header Authorization;
 EOF
 deployments/install-chart.sh "${repository}" "${chart}" "${namespace}" "${version}" "deployments/${chart}.values.yaml"
 echo " "

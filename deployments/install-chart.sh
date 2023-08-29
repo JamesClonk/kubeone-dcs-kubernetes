@@ -31,7 +31,7 @@ fi
 echo "installing chart [${chart}] ..."
 helm upgrade --kubeconfig "${KUBECONFIG}" \
 	--install --create-namespace --dependency-update \
-	--cleanup-on-fail --atomic --wait --timeout "10m" \
+	--cleanup-on-fail --atomic --wait --timeout "15m" \
 	--values "${values}" \
 	--namespace "${namespace}" \
 	--repo "${repository}" \
