@@ -182,6 +182,8 @@ export PATH=$PATH:~/bin
 ```
 
 This repository has so far only been tested running under Linux and MacOSX. Your experience with Windows tooling may vary.
+> **Note**: For macOSX users, some scripts may fail if you are not using the GNU version of sed. Please make sure to use the GNU sed instead of the macOS's version.
+The default macOS's sed can be replaced with GNU by installing gsed via Brew and adding the path to your .zshrc file.
 
 ### Configuration
 
