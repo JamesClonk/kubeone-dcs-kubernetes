@@ -29,6 +29,8 @@ Table of Contents
         + [Medium / Default values](#medium--default-values)
         + [Large](#large)
     - [KubeOne](#kubeone)
+    - [WireGuard](#wireguard)
+        + [Client configuration example](#client-configuration-example)
   + [Installation](#installation)
     - [Infrastructure](#infrastructure)
     - [Kubernetes](#kubernetes)
@@ -45,6 +47,7 @@ Table of Contents
   + [OpenCost](#opencost)
   + [Cilium Hubble UI](#cilium-hubble-ui)
   + [Falco Sidekick UI](#falco-sidekick-ui)
+  + [WireGuard VPN](#wireguard-vpn)
 * [Troubleshooting](#troubleshooting)
   + [Helm chart failures](#helm-chart-failures)
   + [Node eviction blocked](#node-eviction-blocked)
@@ -93,6 +96,7 @@ The final result is a fully functioning, highly available, autoscaling Kubernete
 | [OpenCost](https://www.opencost.io/) | Dashboard | Measure and visualize your infrastructure and container costs in real time |
 | [Kured](https://kured.dev/) | System | A daemonset that performs safe automatic node reboots when needed by the package management system of the underlying OS |
 | [Falco](https://falco.org/) | Security | A cloud-native security tool to provide real-time alerts, designed for use in Kubernetes |
+| [WireGuard](https://github.com/linuxserver/docker-wireguard) | Security | An extremely simple, fast and modern VPN utilizing state-of-the-art cryptography |
 
 ## How to deploy
 
@@ -301,6 +305,27 @@ Please adjust all the `storage_profile`'s in `config.yaml` to one of the storage
 
 If you do not want to go through the trouble of having to request these extra permission for your API users, then you simply don't need to deploy the vCloud-CSI. To disable it go into `kubeone.template.yaml` (or the generated `kubeone.yaml` directly) and comment out the `csi-vmware-cloud-director` and `default-storage-class` addons. This repository will then automatically configure Longhorn to be the default storage class on your cluster and use it provide volumes.
 
+#### WireGuard
+
+TODO: explain WireGuard configuration
+
+TODO: mention to install wg-tools/package of your distro. explain "wg genkey", explain wg0.conf and "wg-quick up wg0"
+
+##### Client configuration example
+
+```ini
+[Interface]
+Address = 10.242.42.10/32
+DNS = 169.254.20.10
+PrivateKey = wMq8AvPsaJSTaFEnwv+J535BGZZ4eWybs5x31r7bhGA=
+
+[Peer]
+PublicKey = uJ0bUIe8Kc+vp27sJVDLH8lAmo4E3dfGtzRvOAGQZ0U=
+Endpoint = my-kubernetes.my-domain.com:32518
+AllowedIPs = 0.0.0.0/0, ::/0
+PersistentKeepalive = 25
+```
+
 ### Installation
 
 :warning: If you are impatient and don't want to read any further then you can simply run these two commands after previously having [configured](#configuration) your `config.yaml`:
@@ -430,6 +455,7 @@ $ make deploy-promtail # deploys or updates Promtail
 $ make deploy-grafana # deploys or updates Grafana
 $ make deploy-opencost # deploys or updates OpenCost
 $ make deploy-falco # deploys or updates Falco Security
+$ make deploy-wireguard # deploys or updates WireGuard VPN
 ```
 
 #### OIDC setup
@@ -583,6 +609,12 @@ You can access the Hubble UI in your browser by going to [https://hubble.my-kube
 You can access the Falco Sidekick UI in your browser by going to [https://falco.my-kubernetes.my-domain.com](https://falco.my-kubernetes.my-domain.com) and login with your IDP / OIDC account. The login credentials for the UI itself will be "admin:admin".
 
 > **Note**: Falco is an optional component of this project and thus not installed by default! If you want to install it please run the additional command `make deploy-falco` after all other deployments are up and running.
+
+### WireGuard VPN
+
+TODO: explain usage here!
+
+> **Note**: WireGuard is an optional component of this project and thus not installed by default! If you want to install it please first consult the [WireGuard configuration](#wireguard) section and then run the additional command `make deploy-wireguard`.
 
 ## Troubleshooting
 
