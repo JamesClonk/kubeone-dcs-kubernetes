@@ -23,6 +23,13 @@ kubernetes:
     #       teams:
     #       - red-team
     #       - blue-team
+  wireguard:
+    serverAddress: 10.242.42.1/24 # choose wireguard server address, default if not set is '10.242.42.1/24'
+    privateKey: aFNRgUHsMqyrj7cwWwsSKQvkEgXqTbJxiuTOjU3KB1c= # privateKey for wireguard server, generate keypair with: wg genkey | tee server.private.key | wg pubkey > server.public.key
+    clients:
+    - name: my-computer # name of your client
+      publicKey: pTAAvK3WkMy1MHgTlWJCdvoNpMSEy/WnfNblV96XUQw= # publicKey of your client, generate keypair with: wg genkey | tee client.private.key | wg pubkey > client.public.key
+      allowedIPs: 10.242.42.10/32 # IP for your client, choose one that is part of the server address network
 
 # vCD settings
 vcd:

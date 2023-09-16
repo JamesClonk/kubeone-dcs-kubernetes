@@ -5,7 +5,7 @@ wireguard:
   clients: [] # add you clients/peers here, configure these in your values.yaml
   # example values
   # - name: workstation
-  #   publicKey: "abcdefg"
+  #   publicKey: ""
   #   allowedIPs: 10.242.42.5/32
 
 image:

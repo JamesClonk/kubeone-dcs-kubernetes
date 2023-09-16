@@ -18,6 +18,9 @@
 /ssh_key_id_rsa
 /ssh_key_id_rsa.pub
 
+# wireguard keys
+/*.key
+
 # .tfstate files
 *.tfstate
 *.tfstate.*
