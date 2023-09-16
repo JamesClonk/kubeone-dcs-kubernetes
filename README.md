@@ -377,6 +377,7 @@ Usage:
   grafana-password              get the admin password for Grafana
   deploy-opencost               deploy/update OpenCost
   deploy-falco                  deploy/update Falco Security
+  deploy-wireguard              deploy/update WireGuard VPN
   oidc-setup                    setup OIDC for the Kubernetes cluster (install Dex first!)
   ssh                           login to bastion host
   ssh-control-plane             login to all control plane nodes (requires TMUX)
