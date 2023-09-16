@@ -207,6 +207,11 @@ deploy-opencost:
 ## deploy-falco: deploy/update Falco Security
 deploy-falco:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/falco.sh
+
+.PHONY: deploy-wireguard
+## deploy-wireguard: deploy/update WireGuard VPN server
+deploy-wireguard:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/wireguard.sh
 # ======================================================================================================================
 
 # ======================================================================================================================

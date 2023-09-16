@@ -28,15 +28,24 @@ if helm history --kubeconfig "${KUBECONFIG}" --max 1 --namespace "${namespace}" 
 	helm uninstall --kubeconfig "${KUBECONFIG}" --wait --namespace "${namespace}" "${chart}"
 fi
 
+REPO_URL=""
+if [[ "${repository}" != "-" ]]; then
+	REPO_URL="--repo ${repository}"
+fi
+CHART_NAME="${chart}"
+if [[ "${repository}" == "-" ]]; then
+	CHART_NAME="./deployments/${chart}"
+fi
+
 echo "installing chart [${chart}] ..."
 helm upgrade --kubeconfig "${KUBECONFIG}" \
 	--install --create-namespace --dependency-update \
 	--cleanup-on-fail --atomic --wait --timeout "15m" \
 	--values "${values}" \
 	--namespace "${namespace}" \
-	--repo "${repository}" \
+	${REPO_URL} \
 	--version "${version}" \
-	"${chart}" "${chart}"
+	"${chart}" "${CHART_NAME}"
 
 echo " "
 helm list --all --namespace "${namespace}"

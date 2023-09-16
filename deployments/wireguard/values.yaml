@@ -1,0 +1,14 @@
+wireguard:
+  serverAddress: "" # provide serverAddress in your values.yaml
+  privateKey: "" # provide privateKey in your values.yaml
+
+  clients: [] # add you clients/peers here, configure these in your values.yaml
+  # example values
+  # - name: workstation
+  #   publicKey: "abcdefg"
+  #   allowedIPs: 10.242.42.5/32
+
+image:
+  repository: index.docker.io/linuxserver/wireguard
+  tag: 1.0.20210914
+  pullPolicy: IfNotPresent
