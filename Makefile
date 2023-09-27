@@ -40,7 +40,6 @@ check-env:
 	@chmod 640 "${SSH_PUB_KEY}" && chmod 600 "${SSH_KEY}"
 	@ssh-add "${SSH_KEY}" || true
 	@kubeone version > ${ROOT_DIR}/kubeone.version.json
-	@test -f "${TERRAFORM_DIR}/main.tf" || kubeone init --provider vmware-cloud-director --terraform --path ${TERRAFORM_DIR} --cluster-name ${CLUSTER_NAME} -c ${CREDENTIALS_FILE}
 
 .PHONY: config
 ## config: (re)generate all configuration files
