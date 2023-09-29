@@ -308,11 +308,23 @@ If you do not want to go through the trouble of having to request these extra pe
 #### WireGuard
 
 TODO: explain WireGuard configuration
+TODO: explain "wg genkey"
 
-TODO: mention to install wg-tools/package of your distro. explain "wg genkey", explain wg0.conf and "wg-quick up wg0"
+You will need to install the necessary WireGuard client software on your local machine in order to setup a VPN connection to the Kubernetes cluster once it is up and running, and also to have access to the tools for generating the server-side keypair mentioned earlier.
+
+For example if your laptop runs on Ubuntu then use these commands to install the WireGuard client:
+```bash
+sudo apt update
+sudo apt install wireguard
+```
+
+For other operating systems you can go to the [WireGuard Installation](https://www.wireguard.com/install/) website and check out the documentation there on how to install all necessary client software.
 
 ##### Client configuration example
 
+Once you have WireGuard installed on your local machine you will need to prepare and client configuration file for it, configured to connect to the WireGuard endpoint running on your new Kubernetes cluster. For this you will need again a keypair (`wg genkey`) for your local machine, and also provide the public key of the server-side endpoint.
+
+On Ubuntu the file would be `/etc/wireguard/wg0.conf`, here's an example:
 ```ini
 [Interface]
 Address = 10.242.42.10/32
@@ -325,6 +337,10 @@ Endpoint = my-kubernetes.my-domain.com:32518
 AllowedIPs = 0.0.0.0/0, ::/0
 PersistentKeepalive = 25
 ```
+
+The local address `10.242.42.10/32` should correspond to what was configured as a client in the server-side configuration.
+
+> **Note**: Be aware of the `DNS` property. This will instruct all traffic going through the WireGuard VPN tunnel to use `169.254.20.10` for DNS resolution, which is the [NodeLocal DNSCache](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/) inside the Kubernetes cluster, allowing you to resolve Kubernetes services.
 
 ### Installation
 
@@ -614,6 +630,7 @@ You can access the Falco Sidekick UI in your browser by going to [https://falco.
 ### WireGuard VPN
 
 TODO: explain usage here!
+TODO: explain "wg-quick up wg0"
 
 > **Note**: WireGuard is an optional component of this project and thus not installed by default! If you want to install it please first consult the [WireGuard configuration](#wireguard) section and then run the additional command `make deploy-wireguard`.
 
