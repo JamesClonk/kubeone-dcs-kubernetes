@@ -354,7 +354,7 @@ AllowedIPs = 0.0.0.0/0, ::/0
 PersistentKeepalive = 25
 ```
 
-The local address `10.242.42.10/32` should correspond to what was configured as a client in the server-side configuration.
+The local address `10.242.42.10/32` should correspond to what was configured as a client in the server-side configuration. The public key for `Peer` is the server-side public key generated earlier.
 
 > **Note**: Be aware of the `DNS` property. This will instruct all traffic going through the WireGuard VPN tunnel to use `169.254.20.10` for DNS resolution, which is the [NodeLocal DNSCache](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/) inside the Kubernetes cluster, allowing you to resolve Kubernetes services.
 
@@ -645,8 +645,34 @@ You can access the Falco Sidekick UI in your browser by going to [https://falco.
 
 ### WireGuard VPN
 
-TODO: explain usage here!
-TODO: explain "wg-quick up wg0"
+Once your Kubernetes cluster is up and running with WireGuard being installed both on the server-side and on your local machine (see [WireGuard configuration](#wireguard) section), you can then connect and establish a VPN tunnel with it.
+
+To do so simply use the `wg-quick` command (if you are on an Ubuntu machine), like this:
+```bash
+wg-quick up wg0
+```
+
+This will use the configuration file `/etc/wireguard/wg0.conf` that you prepared earlier and establish a VPN tunnel to your Kubernetes cluster.
+
+Once the connection has been established, you can check the status by using `wg show`:
+```bash
+wg show
+
+interface: wg0
+  public key: pTAAvK3WkMy1MHgTlWJCdvoNpMSEy/WnfNblV96XUQw=
+  private key: (hidden)
+  listening port: 40162
+  fwmark: 0xca6c
+
+peer: uJ0bUIe8Kc+vp27sJVDLH8lAmo4E3dfGtzRvOAGQZ0U=
+  endpoint: my-kubernetes.my-domain.com:32518
+  allowed ips: 0.0.0.0/0, ::/0
+  latest handshake: 14 seconds ago
+  transfer: 772.75 KiB received, 773.89 KiB sent
+  persistent keepalive: every 25 seconds
+```
+
+To stop the VPN connection again, simply run `wg-quick down wg0`.
 
 > **Note**: WireGuard is an optional component of this project and thus not installed by default! If you want to install it please first consult the [WireGuard configuration](#wireguard) section and then run the additional command `make deploy-wireguard`.
 
