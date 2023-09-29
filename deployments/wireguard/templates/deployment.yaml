@@ -1,0 +1,53 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: "{{ .Release.Name }}"
+    app.kubernetes.io/component: interface
+    app.kubernetes.io/name: wireguard
+  name: "{{ .Release.Name }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "{{ .Release.Name }}"
+      app.kubernetes.io/component: interface
+      app.kubernetes.io/name: wireguard
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: "{{ .Release.Name }}"
+        app.kubernetes.io/component: interface
+        app.kubernetes.io/name: wireguard
+    spec:
+      containers:
+      - name: wireguard
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        ports:
+        - containerPort: 51820
+          protocol: UDP
+        env:
+        - name: "TZ"
+          value: "Europe/Zurich"
+        - name: "PEERS"
+          value: "unused"
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/wireguard/wg0.conf
+          name: wireguard-config
+          readOnly: true
+          subPath: wg0.conf
+      restartPolicy: Always
+      serviceAccountName: "{{ .Release.Name }}"
+      volumes:
+      - name: wireguard-config
+        secret:
+          secretName: "{{ .Release.Name }}"

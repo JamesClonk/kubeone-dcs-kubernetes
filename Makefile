@@ -40,7 +40,6 @@ check-env:
 	@chmod 640 "${SSH_PUB_KEY}" && chmod 600 "${SSH_KEY}"
 	@ssh-add "${SSH_KEY}" || true
 	@kubeone version > ${ROOT_DIR}/kubeone.version.json
-	@test -f "${TERRAFORM_DIR}/main.tf" || kubeone init --provider vmware-cloud-director --terraform --path ${TERRAFORM_DIR} --cluster-name ${CLUSTER_NAME} -c ${CREDENTIALS_FILE}
 
 .PHONY: config
 ## config: (re)generate all configuration files
@@ -207,6 +206,11 @@ deploy-opencost:
 ## deploy-falco: deploy/update Falco Security
 deploy-falco:
 	KUBECONFIG=${KUBECONFIG_FILE} deployments/falco.sh
+
+.PHONY: deploy-wireguard
+## deploy-wireguard: deploy/update WireGuard VPN server
+deploy-wireguard:
+	KUBECONFIG=${KUBECONFIG_FILE} deployments/wireguard.sh
 # ======================================================================================================================
 
 # ======================================================================================================================

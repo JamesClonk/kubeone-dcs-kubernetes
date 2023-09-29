@@ -572,3 +572,46 @@ resource "vcd_lb_virtual_server" "ingress-https" {
   app_profile_id      = vcd_lb_app_profile.app_profile.id
   server_pool_id      = vcd_lb_server_pool.ingress-https.id
 }
+
+# ======================================================================================================================
+# WireGuard settings
+resource "vcd_lb_app_profile" "udp_profile" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name = "${var.cluster_name}-wireguard"
+  type = "udp"
+
+  depends_on = [vcd_edgegateway_settings.edge_gateway]
+}
+
+resource "vcd_lb_server_pool" "wireguard" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name                = "${var.cluster_name}-wireguard"
+  algorithm           = "ip-hash"
+  enable_transparency = "true"
+
+  dynamic "member" {
+    for_each = range(0, var.control_plane_vm_count)
+    content {
+      condition    = "enabled"
+      name         = "${var.cluster_name}-wireguard-${member.value + 1}"
+      ip_address   = cidrhost("${var.gateway_ip}/24", 10 + member.value)
+      port         = 32518
+      monitor_port = 32518
+      weight       = 1
+    }
+  }
+}
+
+resource "vcd_lb_virtual_server" "wireguard" {
+  edge_gateway = data.vcd_edgegateway.edge_gateway.name
+
+  name                = "${var.cluster_name}-wireguard"
+  ip_address          = local.external_network_ip
+  protocol            = "udp"
+  port                = 32518
+  enable_acceleration = true
+  app_profile_id      = vcd_lb_app_profile.udp_profile.id
+  server_pool_id      = vcd_lb_server_pool.wireguard.id
+}
