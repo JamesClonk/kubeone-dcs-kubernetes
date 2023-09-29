@@ -307,10 +307,26 @@ If you do not want to go through the trouble of having to request these extra pe
 
 #### WireGuard
 
-TODO: explain WireGuard configuration
-TODO: explain "wg genkey"
+If you want to install a WireGuard VPN server in your Kubernetes cluster, you will need to configure some more additional information in the `config.yaml`.
 
-You will need to install the necessary WireGuard client software on your local machine in order to setup a VPN connection to the Kubernetes cluster once it is up and running, and also to have access to the tools for generating the server-side keypair mentioned earlier.
+Have a look at the `wireguard` section in the provided `config.example.yaml`. You will need to at the very least generate a WireGuard keypair for the server, and configure all the clients you want to allow access to the VPN in advance.
+
+```yaml
+  wireguard:
+    serverAddress: 10.242.42.1/24 # choose wireguard server address, default if not set is '10.242.42.1/24'
+    privateKey: aFNRgUHsMqyrj7cwWwsSKQvkEgXqTbJxiuTOjU3KB1c= # privateKey for wireguard server, generate keypair with: wg genkey | tee server.private.key | wg pubkey > server.public.key
+    clients:
+    - name: my-computer # name of your client
+      publicKey: pTAAvK3WkMy1MHgTlWJCdvoNpMSEy/WnfNblV96XUQw= # publicKey of your client, generate keypair with: wg genkey | tee client.private.key | wg pubkey > client.public.key
+      allowedIPs: 10.242.42.10/32 # IP for your client, choose one that is part of the server address network
+```
+
+The server address you can leave as is. For the server-side private key you will need to generate a keypair with `wg genkey`. The easiest would be to run it like this:
+```bash
+wg genkey | tee server.private.key | wg pubkey > server.public.key
+```
+
+You will need to install the necessary WireGuard client software on your local machine in order to setup a VPN connection to the Kubernetes cluster once it is up and running, and also to have access to the tools for generating keypairs as mentioned.
 
 For example if your laptop runs on Ubuntu then use these commands to install the WireGuard client:
 ```bash
