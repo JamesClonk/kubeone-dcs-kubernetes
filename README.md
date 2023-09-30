@@ -29,6 +29,8 @@ Table of Contents
         + [Medium / Default values](#medium--default-values)
         + [Large](#large)
     - [KubeOne](#kubeone)
+    - [WireGuard](#wireguard)
+        + [Client configuration example](#client-configuration-example)
   + [Installation](#installation)
     - [Infrastructure](#infrastructure)
     - [Kubernetes](#kubernetes)
@@ -45,6 +47,7 @@ Table of Contents
   + [OpenCost](#opencost)
   + [Cilium Hubble UI](#cilium-hubble-ui)
   + [Falco Sidekick UI](#falco-sidekick-ui)
+  + [WireGuard VPN](#wireguard-vpn)
 * [Troubleshooting](#troubleshooting)
   + [Helm chart failures](#helm-chart-failures)
   + [Node eviction blocked](#node-eviction-blocked)
@@ -93,6 +96,7 @@ The final result is a fully functioning, highly available, autoscaling Kubernete
 | [OpenCost](https://www.opencost.io/) | Dashboard | Measure and visualize your infrastructure and container costs in real time |
 | [Kured](https://kured.dev/) | System | A daemonset that performs safe automatic node reboots when needed by the package management system of the underlying OS |
 | [Falco](https://falco.org/) | Security | A cloud-native security tool to provide real-time alerts, designed for use in Kubernetes |
+| [WireGuard](https://github.com/linuxserver/docker-wireguard) | Security | An extremely simple, fast and modern VPN utilizing state-of-the-art cryptography |
 
 ## How to deploy
 
@@ -182,6 +186,8 @@ export PATH=$PATH:~/bin
 ```
 
 This repository has so far only been tested running under Linux and MacOSX. Your experience with Windows tooling may vary.
+> **Note**: For macOSX users, some scripts may fail if you are not using the GNU version of sed. Please make sure to use the GNU sed instead of the macOS's version.
+The default macOS's sed can be replaced with GNU by installing gsed via Brew and adding the path to your .zshrc file.
 
 ### Configuration
 
@@ -301,6 +307,59 @@ Please adjust all the `storage_profile`'s in `config.yaml` to one of the storage
 
 If you do not want to go through the trouble of having to request these extra permission for your API users, then you simply don't need to deploy the vCloud-CSI. To disable it go into `kubeone.template.yaml` (or the generated `kubeone.yaml` directly) and comment out the `csi-vmware-cloud-director` and `default-storage-class` addons. This repository will then automatically configure Longhorn to be the default storage class on your cluster and use it provide volumes.
 
+#### WireGuard
+
+If you want to install a WireGuard VPN server in your Kubernetes cluster, you will need to configure some more additional information in the `config.yaml`.
+
+Have a look at the `wireguard` section in the provided `config.example.yaml`. You will need to at the very least generate a WireGuard keypair for the server, and configure all the clients you want to allow access to the VPN in advance.
+
+```yaml
+  wireguard:
+    serverAddress: 10.242.42.1/24 # choose wireguard server address, default if not set is '10.242.42.1/24'
+    privateKey: aFNRgUHsMqyrj7cwWwsSKQvkEgXqTbJxiuTOjU3KB1c= # privateKey for wireguard server, generate keypair with: wg genkey | tee server.private.key | wg pubkey > server.public.key
+    clients:
+    - name: my-computer # name of your client
+      publicKey: pTAAvK3WkMy1MHgTlWJCdvoNpMSEy/WnfNblV96XUQw= # publicKey of your client, generate keypair with: wg genkey | tee client.private.key | wg pubkey > client.public.key
+      allowedIPs: 10.242.42.10/32 # IP for your client, choose one that is part of the server address network
+```
+
+The server address you can leave as is. For the server-side private key you will need to generate a keypair with `wg genkey`. The easiest would be to run it like this:
+```bash
+wg genkey | tee server.private.key | wg pubkey > server.public.key
+```
+
+You will need to install the necessary WireGuard client software on your local machine in order to setup a VPN connection to the Kubernetes cluster once it is up and running, and also to have access to the tools for generating keypairs as mentioned.
+
+For example if your laptop runs on Ubuntu then use these commands to install the WireGuard client:
+```bash
+sudo apt update
+sudo apt install wireguard
+```
+
+For other operating systems you can go to the [WireGuard Installation](https://www.wireguard.com/install/) website and check out the documentation there on how to install all necessary client software.
+
+##### Client configuration example
+
+Once you have WireGuard installed on your local machine you will need to prepare and client configuration file for it, configured to connect to the WireGuard endpoint running on your new Kubernetes cluster. For this you will need again a keypair (`wg genkey`) for your local machine, and also provide the public key of the server-side endpoint.
+
+On Ubuntu the file would be `/etc/wireguard/wg0.conf`, here's an example:
+```ini
+[Interface]
+Address = 10.242.42.10/32
+DNS = 169.254.20.10
+PrivateKey = wMq8AvPsaJSTaFEnwv+J535BGZZ4eWybs5x31r7bhGA=
+
+[Peer]
+PublicKey = uJ0bUIe8Kc+vp27sJVDLH8lAmo4E3dfGtzRvOAGQZ0U=
+Endpoint = my-kubernetes.my-domain.com:32518
+AllowedIPs = 0.0.0.0/0, ::/0
+PersistentKeepalive = 25
+```
+
+The local address `10.242.42.10/32` should correspond to what was configured as a client in the server-side configuration. The public key for `Peer` is the server-side public key generated earlier.
+
+> **Note**: Be aware of the `DNS` property. This will instruct all traffic going through the WireGuard VPN tunnel to use `169.254.20.10` for DNS resolution, which is the [NodeLocal DNSCache](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/) inside the Kubernetes cluster, allowing you to resolve Kubernetes services.
+
 ### Installation
 
 :warning: If you are impatient and don't want to read any further then you can simply run these two commands after previously having [configured](#configuration) your `config.yaml`:
@@ -352,6 +411,7 @@ Usage:
   grafana-password              get the admin password for Grafana
   deploy-opencost               deploy/update OpenCost
   deploy-falco                  deploy/update Falco Security
+  deploy-wireguard              deploy/update WireGuard VPN
   oidc-setup                    setup OIDC for the Kubernetes cluster (install Dex first!)
   ssh                           login to bastion host
   ssh-control-plane             login to all control plane nodes (requires TMUX)
@@ -430,6 +490,7 @@ $ make deploy-promtail # deploys or updates Promtail
 $ make deploy-grafana # deploys or updates Grafana
 $ make deploy-opencost # deploys or updates OpenCost
 $ make deploy-falco # deploys or updates Falco Security
+$ make deploy-wireguard # deploys or updates WireGuard VPN
 ```
 
 #### OIDC setup
@@ -583,6 +644,39 @@ You can access the Hubble UI in your browser by going to [https://hubble.my-kube
 You can access the Falco Sidekick UI in your browser by going to [https://falco.my-kubernetes.my-domain.com](https://falco.my-kubernetes.my-domain.com) and login with your IDP / OIDC account. The login credentials for the UI itself will be "admin:admin".
 
 > **Note**: Falco is an optional component of this project and thus not installed by default! If you want to install it please run the additional command `make deploy-falco` after all other deployments are up and running.
+
+### WireGuard VPN
+
+Once your Kubernetes cluster is up and running with WireGuard being installed both on the server-side and on your local machine (see [WireGuard configuration](#wireguard) section), you can then connect and establish a VPN tunnel with it.
+
+To do so simply use the `wg-quick` command (if you are on an Ubuntu machine), like this:
+```bash
+wg-quick up wg0
+```
+
+This will use the configuration file `/etc/wireguard/wg0.conf` that you prepared earlier and establish a VPN tunnel to your Kubernetes cluster.
+
+Once the connection has been established, you can check the status by using `wg show`:
+```bash
+wg show
+
+interface: wg0
+  public key: pTAAvK3WkMy1MHgTlWJCdvoNpMSEy/WnfNblV96XUQw=
+  private key: (hidden)
+  listening port: 40162
+  fwmark: 0xca6c
+
+peer: uJ0bUIe8Kc+vp27sJVDLH8lAmo4E3dfGtzRvOAGQZ0U=
+  endpoint: my-kubernetes.my-domain.com:32518
+  allowed ips: 0.0.0.0/0, ::/0
+  latest handshake: 14 seconds ago
+  transfer: 772.75 KiB received, 773.89 KiB sent
+  persistent keepalive: every 25 seconds
+```
+
+To stop the VPN connection again, simply run `wg-quick down wg0`.
+
+> **Note**: WireGuard is an optional component of this project and thus not installed by default! If you want to install it please first consult the [WireGuard configuration](#wireguard) section and then run the additional command `make deploy-wireguard`.
 
 ## Troubleshooting
 

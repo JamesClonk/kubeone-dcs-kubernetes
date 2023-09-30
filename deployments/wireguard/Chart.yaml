@@ -1,0 +1,10 @@
+apiVersion: v2
+name: wireguard
+description: A Helm chart for deploying WireGuard in Kubernetes
+version: 0.0.1
+appVersion: 1.0.20210914
+maintainers:
+- name: Fabio Berchtold
+  email: fabio.berchtold@swisscom.com
+- name: JamesClonk
+  email: jamesclonk@jamesclonk.ch
